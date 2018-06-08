@@ -1,5 +1,7 @@
 genSting=function(mocksurvey='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4, select='all', snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500')){
 
+  timestart=proc.time()[3]
+
   data("BC03lr")
   data("Dale_Msol")
 
@@ -31,11 +33,11 @@ genSting=function(mocksurvey='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   Zbulge=matrix(0,Nunique,Ntime)
   Zdisk=matrix(0,Nunique,Ntime)
 
-  print('Extracting Light Cone SFH')
+  message(paste('Extracting Light Cone SFH -',round(proc.time()[3]-timestart,3),'sec'))
 
   Nstart=1
   for(i in 1:dim(mocksubsets)[1]){
-    if(i%%100==0){print(i)}
+    if(i%%100==0){message(i,' of ',dim(mocksubsets)[1])}
     Nend=Nstart+mocksubsets[i,Nid]-1
     SFH=h5file(paste0(path_shark,'/',mocksubsets[i,snapshot],'/',mocksubsets[i,subsnapshot],'/star_formation_histories.hdf5'), mode='r')
     Ndim=SFH[['Bulges/StarFormationRateHistories']]$dims[1]
@@ -47,6 +49,12 @@ genSting=function(mocksurvey='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     SFH$close()
     Nstart=Nend+1
   }
+
+  message(paste('Running ProSpect -',round(proc.time()[3]-timestart,3),'sec'))
+
+  SEDlookup=data.table(id=unlist(mocksubsets$idlist), subsnapID=rep(mocksubsets$subsnapID, mocksubsets$Nid))
+
+  registerDoParallel(cores=cores)
 
   outSED=foreach(i=1:dim(mockcone)[1], .combine='rbind')%dopar%{
     coluse=which(SEDlookup$id==mockcone[i,id_galaxy_sam] & SEDlookup$subsnapID==mockcone[i,subsnapID])
