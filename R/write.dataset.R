@@ -52,6 +52,23 @@ write.custom.dataset = function(filename='temp.hdf5', # hd5 filename
 write.SED=function(SED, filename='temp.hdf5', overwrite=FALSE, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500')){
 
   file.h5=h5file(filename=filename, mode='a')
+
+  if(file.h5$exists('filters')){
+      if(overwrite){
+        file.h5$link_delete('filters')
+      }else{
+        stop('data set is already present with name filters!')
+      }
+  }
+
+  if(file.h5$exists('id_galaxy_sky')){
+      if(overwrite){
+        file.h5$link_delete('id_galaxy_sky')
+      }else{
+        stop('data set is already present with name id_galaxy_sky!')
+      }
+  }
+
   file.h5[['filters']]=filters
   file.h5[['id_galaxy_sky']]=SED$id_galaxy_sky
   file.h5$close()
