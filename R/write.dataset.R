@@ -70,25 +70,28 @@ write.SED=function(SED, filename='temp.hdf5', overwrite=FALSE, filters=c('FUV', 
   }
 
   file.h5[['filters']]=filters
-  file.h5[['id_galaxy_sky']]=SED$id_galaxy_sky
+  file.h5[['id_galaxy_sky']]=SED[,1]
   file.h5$close()
 
   Ncol=length(filters)
   colrun=1:Ncol
 
-  write.custom.dataset(filename=filename, group="ab_nodust/bulge", object=SED[,1+colrun], overwrite=overwrite)
-  write.custom.dataset(filename=filename, group="ab_nodust/disk", object=SED[,1+colrun+Ncol], overwrite=overwrite)
-  write.custom.dataset(filename=filename, group="ab_nodust/total", object=SED[,1+colrun+Ncol*2], overwrite=overwrite)
+  SED=as.matrix(SED)
+  SED[!is.finite(SED)]=-999
 
-  write.custom.dataset(filename=filename, group="ap_nodust/bulge", object=SED[,1+colrun+Ncol*3], overwrite=overwrite)
-  write.custom.dataset(filename=filename, group="ap_nodust/disk", object=SED[,1+colrun+Ncol*4], overwrite=overwrite)
-  write.custom.dataset(filename=filename, group="ap_nodust/total", object=SED[,1+colrun+Ncol*5], overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/ab_nodust/bulge", object=SED[,1+colrun], overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/ab_nodust/disk", object=SED[,1+colrun+Ncol], overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/ab_nodust/total", object=SED[,1+colrun+Ncol*2], overwrite=overwrite)
 
-  write.custom.dataset(filename=filename, group="ab_dust/bulge", object=SED[,1+colrun+Ncol*6], overwrite=overwrite)
-  write.custom.dataset(filename=filename, group="ab_dust/disk", object=SED[,1+colrun+Ncol*7], overwrite=overwrite)
-  write.custom.dataset(filename=filename, group="ab_dust/total", object=SED[,1+colrun+Ncol*8], overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/ap_nodust/bulge", object=SED[,1+colrun+Ncol*3], overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/ap_nodust/disk", object=SED[,1+colrun+Ncol*4], overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/ap_nodust/total", object=SED[,1+colrun+Ncol*5], overwrite=overwrite)
 
-  write.custom.dataset(filename=filename, group="ap_dust/bulge", object=SED[,1+colrun+Ncol*9], overwrite=overwrite)
-  write.custom.dataset(filename=filename, group="ap_dust/disk", object=SED[,1+colrun+Ncol*10], overwrite=overwrite)
-  write.custom.dataset(filename=filename, group="ap_dust/total", object=SED[,1+colrun+Ncol*11], overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/ab_dust/bulge", object=SED[,1+colrun+Ncol*6], overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/ab_dust/disk", object=SED[,1+colrun+Ncol*7], overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/ab_dust/total", object=SED[,1+colrun+Ncol*8], overwrite=overwrite)
+
+  write.custom.dataset(filename=filename, group="SED/ap_dust/bulge", object=SED[,1+colrun+Ncol*9], overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/ap_dust/disk", object=SED[,1+colrun+Ncol*10], overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/ap_dust/total", object=SED[,1+colrun+Ncol*11], overwrite=overwrite)
 }
