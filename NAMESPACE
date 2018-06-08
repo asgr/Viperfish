@@ -1,1 +1,12 @@
 exportPattern("^[[:alpha:]]+")
+
+import("ProSpect")
+import("data.table")
+import("hdf5r")
+import("celestial")
+import("bit64")
+import("foreach")
+import("doParallel")
+
+importFrom("stats", "approxfun")
+importFrom("utils", "data")
