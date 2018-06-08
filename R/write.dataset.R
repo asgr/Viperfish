@@ -51,6 +51,11 @@ write.custom.dataset = function(filename='temp.hdf5', # hd5 filename
 
 write.SED=function(SED, filename='temp.hdf5', overwrite=FALSE, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500')){
 
+  file.h5=h5file(filename, mode='a')
+  file.h5[['filters']]=filters
+  file.h5[['id_galaxy_sky']]=SED$id_galaxy_sky
+  file.h5$close()
+
   Ncol=length(filters)
   colrun=1:Ncol
 
