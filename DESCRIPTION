@@ -1,0 +1,11 @@
+Package: SharkStingSED
+Type: Package
+Title: SEDs with Shark or Stingray
+Version: 0.1.0
+Author: Aaron Robotham
+Maintainer: Aaron Robotham <aaron.robotham@uwa.edu.au>
+Description: Make SEDs with outputs from Shark and/or Stingray using ProSpect
+License: License: LGPL-3
+Encoding: UTF-8
+LazyData: true
+Depends: ProSpect (>= 0.2.2), data.table, hdf5r, celestial, bit64, foreach, doParallel

@@ -1,0 +1,50 @@
+write.group.safe = function(filename='temp.hdf5', group='group'){
+  file.h5=h5file(filename, mode='a')
+
+  splitgroup=strsplit(group,'/')[[1]]
+
+  for(i in 1:length(splitgroup)){
+    current=paste(splitgroup[1:i],collapse='/')
+    if(!file.h5$exists(current)){
+      file.h5$create_group(current)
+    }
+  }
+
+  file.h5$close()
+}
+
+write.custom.dataset = function(filename='temp.hdf5', # hd5 filename
+                         group='group', # name of group
+                         object, # array of any dimension
+                         mode="a",
+                         dataset.name='matrix',
+                         dataset.type=h5types$H5T_IEEE_F32LE,
+                         compression.level = 0,
+                         overwrite=FALSE) {
+
+  write.group.safe(filename=filename, group=group)
+
+  if(!missing(object)){
+
+    file.h5=h5file(filename, mode=mode)
+
+    if(file.h5$exists(paste0(group,'/',dataset.name))){
+      if(overwrite){
+        file.h5$link_delete(paste0(group,'/',dataset.name))
+      }else{
+        stop('data set is already present with name ',dataset.name,'!')
+      }
+    }
+
+
+    dims = dim(object)
+    space = H5S$new(dims = dims)
+    ds = H5P_DATASET_CREATE$new()
+    ds$set_chunk(dims)$set_fill_value(dataset.type, 1)$set_nbit()
+    dataset.h5 = file.h5[[group]]$create_dataset(name = dataset.name, space = space,
+                                    dtype = dataset.type, dataset_create_pl = ds,
+                                    gzip_level = compression.level)
+    dataset.h5[,] = object
+    file.h5$close()
+  }
+}

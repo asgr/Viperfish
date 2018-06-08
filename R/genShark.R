@@ -1,0 +1,59 @@
+genShark=function(path='.', snapshot, subsnapshot, redshift=0.1, h=0.678, cores=4, select='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500')){
+
+  data("BC03lr")
+  data("Dale_Msol")
+
+  filtout=foreach(i = filters)%do%{getfilt(i)}
+  names(filtout)=filters
+
+  if(!missing(snapshot)){path=paste(path,snapshot,sep='/')}
+  if(!missing(subsnapshot)){path=paste(path,subsnapshot,sep='/')}
+
+  Shark_SFH=h5file(paste(path,'star_formation_histories.hdf5',sep='/'), mode='r')
+  time=Shark_SFH[['age_mean']][]*1e9
+
+  if(select[1]=='all'){
+    select=1:SFH[['Galaxies/id_galaxy']]$dims
+  }
+
+  SFRbulge=Shark_SFH[['Bulges/StarFormationRateHistories']][,select,drop=FALSE]
+  SFRdisk=Shark_SFH[['Disks/StarFormationRateHistories']][,select,drop=FALSE]
+  Zbulge=Shark_SFH[['Bulges/MetallicityHistories']][,select,drop=FALSE]
+  Zdisk=Shark_SFH[['Disks/MetallicityHistories']][,select,drop=FALSE]
+
+  if(length(redshift)==1){
+    redshift=rep(redshift, length(select))
+  }
+
+  if(length(select)!=length(redshift)){
+    stop("Length of select does not equal length of redshift!")
+  }
+
+  registerDoParallel(cores=cores)
+
+  outSED=foreach(i=1:length(select), .combine='rbind')%dopar%{
+  unlist(genSED(SFRbulge=SFRbulge[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time, speclib=BC03lr, Zbulge=Zbulge[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, sparse=5, tau_birth = 1.5, tau_screen = 0.5))
+}
+
+  outSED=as.data.table(rbind(outSED))
+  colnamesSED=c(
+    paste0('ab_mag_nodust_b_',filters),
+    paste0('ab_mag_nodust_d_',filters),
+    paste0('ab_mag_nodust_t_',filters),
+    paste0('ap_mag_nodust_b_',filters),
+    paste0('ap_mag_nodust_d_',filters),
+    paste0('ap_mag_nodust_t_',filters),
+    paste0('ab_mag_dust_b_',filters),
+    paste0('ab_mag_dust_d_',filters),
+    paste0('ab_mag_dust_t_',filters),
+    paste0('ap_mag_dust_b_',filters),
+    paste0('ap_mag_dust_d_',filters),
+    paste0('ap_mag_dust_t_',filters)
+    )
+  colnames(outSED)=colnamesSED
+  outSED=cbind(id_galaxy=Shark_SFH[['Galaxies/id_galaxy']][select], outSED)
+
+  Shark_SFH$close()
+
+return=outSED
+}
