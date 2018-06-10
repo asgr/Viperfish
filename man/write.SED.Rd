@@ -7,7 +7,9 @@ Write SED to HDF5 file
 Write SED output of \code{\link{genShark}} and/or \code{\link{genSting}}.
 }
 \usage{
-write.SED(SED, filename = "temp.hdf5", overwrite = FALSE, filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS", "i_SDSS", "Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA", "K_VISTA", "W1", "W2", "W3", "W4", "P100", "P160", "S250", "S350", "S500"))
+write.SED(SED, filename = "temp.hdf5", overwrite = FALSE, filters = c("FUV", "NUV",
+"u_SDSS", "g_SDSS", "r_SDSS", "i_SDSS", "Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA",
+"K_VISTA", "W1", "W2", "W3", "W4", "P100", "P160", "S250", "S350", "S500"))
 }
 \arguments{
   \item{SED}{
