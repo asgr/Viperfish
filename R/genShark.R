@@ -1,5 +1,7 @@
 genShark=function(path='.', snapshot, subsnapshot, redshift=0.1, h=0.678, cores=4, select='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500')){
 
+  BC03lr=Dale_Msol=SFH=i=NULL
+
   data("BC03lr")
   data("Dale_Msol")
 
