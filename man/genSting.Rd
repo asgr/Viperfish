@@ -45,7 +45,7 @@ This interface is pretty high level, so should work fine if the paths are correc
 \value{
 \code{getSFH} returns a list of the SFRs and the Z for the bulge and disk (which can be passed to \code{genSting} directly).
 
-\code{genSting} returns a data.frame of named absolute and apparent magnitudes for bulge, disk and total photometry.
+\code{genSting} returns a list called \option{outSED} containing a data.frame of named absolute and apparent magnitudes for bulge, disk and total photometry, and a list called \option{SFHlist} containing the output of \code{getSFH} (or the input \option{SFHlist} if provided.
 }
 \author{
 Aaron Robotham
