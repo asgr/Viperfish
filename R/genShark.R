@@ -12,7 +12,7 @@ genShark=function(path='.', snapshot, subsnapshot, redshift=0.1, h=0.678, cores=
   if(!missing(subsnapshot)){path=paste(path,subsnapshot,sep='/')}
 
   Shark_SFH=h5file(paste(path,'star_formation_histories.hdf5',sep='/'), mode='r')
-  time=Shark_SFH[['age_mean']][]*1e9
+  time=Shark_SFH[['LBT']][]*1e9
 
   if(select[1]=='all'){
     select=1:SFH[['Galaxies/id_galaxy']]$dims

@@ -1,5 +1,9 @@
 getSFH=function(mocksurvey='mocksurvey.hdf5', path_shark='.', cores=4, snapmax=199){
 
+  timestart=proc.time()[3]
+
+  message(paste('Running getSFH -',round(proc.time()[3]-timestart,3),'sec'))
+
   BC03lr=Dale_Msol=Nid=id_galaxy_sam=idlist=snapshot=subsnapID=subsnapshot=z=i=mocksubsets=mockcone=Ntime=time=NULL
 
   timestart=proc.time()[3]
@@ -47,5 +51,7 @@ getSFH=function(mocksurvey='mocksurvey.hdf5', path_shark='.', cores=4, snapmax=1
   }
 
   return=list(SFRbulge=SFRbulge, SFRdisk=SFRdisk, Zbulge=Zbulge, Zdisk=Zdisk)
+
+  message(paste('Finished getSFH -',round(proc.time()[3]-timestart,3),'sec'))
 
 }
