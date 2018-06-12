@@ -9,8 +9,7 @@ getSFH=function(mocksurvey='mocksurvey.hdf5', path_shark='.', cores=4, snapmax=1
   timestart=proc.time()[3]
 
   SFH=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')
-  time=SFH[['age_mean']][]*1e9
-  Ntime=SFH[['age_mean']]$dims
+  Ntime=SFH[['LBT']]$dims
   SFH$close()
 
   mocksurvey=h5file(mocksurvey, mode='r')[['Galaxies']]
