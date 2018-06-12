@@ -53,5 +53,5 @@ genSting=function(mocksurvey='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
 
   message(paste('Finished ProSpect -',round(proc.time()[3]-timestart,3),'sec'))
 
-  return=outSED
+  return=list(outSED=outSED, SFHlist=SFHlist)
 }

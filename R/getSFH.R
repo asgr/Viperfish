@@ -49,8 +49,8 @@ getSFH=function(mocksurvey='mocksurvey.hdf5', path_shark='.', cores=4, snapmax=1
     Nstart=Nend+1
   }
 
-  return=list(SFRbulge=SFRbulge, SFRdisk=SFRdisk, Zbulge=Zbulge, Zdisk=Zdisk)
-
   message(paste('Finished getSFH -',round(proc.time()[3]-timestart,3),'sec'))
+
+  return=list(SFRbulge=SFRbulge, SFRdisk=SFRdisk, Zbulge=Zbulge, Zdisk=Zdisk)
 
 }
