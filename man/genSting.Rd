@@ -9,16 +9,16 @@ Convert Stingray Outputs to SEDs
 Takes Stingray light cones and converts to apparent and absolute SEDs.
 }
 \usage{
-genSting(mocksurvey = "mocksurvey.hdf5", path_shark = ".", h = 0.678, cores = 4,
+genSting(file_sting = "mocksurvey.hdf5", path_shark = ".", h = 0.678, cores = 4,
 snapmax = 199, filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS", "i_SDSS",
 "Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA", "K_VISTA", "W1", "W2", "W3", "W4", "P100",
 "P160", "S250", "S350", "S500"), SFHlist = NULL)
-getSFH(mocksurvey = "mocksurvey.hdf5", path_shark = ".", cores = 4, snapmax = 199)
+getSFH(file_sting = "mocksurvey.hdf5", path_shark = ".", cores = 4, snapmax = 199)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{mocksurvey}{
-Character scalar; path to Stingray HDF5 file.
+  \item{file_sting}{
+Character scalar; full path to Stingray HDF5 file.
 }
   \item{path_shark}{
 Character scalar; path to top directory containing Shark outputs.

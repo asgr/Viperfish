@@ -1,4 +1,4 @@
-getSFH=function(mocksurvey='mocksurvey.hdf5', path_shark='.', cores=4, snapmax=199){
+getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', cores=4, snapmax=199){
 
   timestart=proc.time()[3]
 
@@ -12,7 +12,7 @@ getSFH=function(mocksurvey='mocksurvey.hdf5', path_shark='.', cores=4, snapmax=1
   Ntime=SFH[['LBT_mean']]$dims
   SFH$close()
 
-  mocksurvey=h5file(mocksurvey, mode='r')[['Galaxies']]
+  mocksurvey=h5file(file_sting, mode='r')[['Galaxies']]
 
   extract_col=list.datasets(mocksurvey, recursive = TRUE)
   mockcone=as.data.table(lapply(extract_col, function(x) mocksurvey[[x]][]))

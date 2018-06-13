@@ -7,13 +7,13 @@ Convert Shark Outputs to SEDs
 Takes Shark boxes and converts to apparent and absolute SEDs.
 }
 \usage{
-genShark(path = ".", snapshot, subsnapshot, redshift = 0.1, h = 0.678, cores = 4,
+genShark(path_shark = ".", snapshot, subsnapshot, redshift = 0.1, h = 0.678, cores = 4,
 select = "all", filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS", "i_SDSS",
 "Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA", "K_VISTA", "W1", "W2", "W3", "W4", "P100",
 "P160", "S250", "S350", "S500"))
 }
 \arguments{
-  \item{path}{
+  \item{path_shark}{
 Character scalar; path to top directory containing Shark outputs.
 }
   \item{snapshot}{

@@ -1,4 +1,4 @@
-genShark=function(path='.', snapshot, subsnapshot, redshift=0.1, h=0.678, cores=4, select='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500')){
+genShark=function(path_shark='.', snapshot, subsnapshot, redshift=0.1, h=0.678, cores=4, select='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500')){
 
   BC03lr=Dale_Msol=SFH=i=subsnapID=snapshot=id_galaxy_sam=Nid=idlist=subsnapID=NULL
 
@@ -8,10 +8,10 @@ genShark=function(path='.', snapshot, subsnapshot, redshift=0.1, h=0.678, cores=
   filtout=foreach(i = filters)%do%{getfilt(i)}
   names(filtout)=filters
 
-  if(!missing(snapshot)){path=paste(path,snapshot,sep='/')}
-  if(!missing(subsnapshot)){path=paste(path,subsnapshot,sep='/')}
+  if(!missing(snapshot)){path_shark=paste(path_shark,snapshot,sep='/')}
+  if(!missing(subsnapshot)){path_shark=paste(path_shark,subsnapshot,sep='/')}
 
-  Shark_SFH=h5file(paste(path,'star_formation_histories.hdf5',sep='/'), mode='r')
+  Shark_SFH=h5file(paste(path_shark,'star_formation_histories.hdf5',sep='/'), mode='r')
   time=Shark_SFH[['LBT_mean']][]*1e9
 
   if(select[1]=='all'){
