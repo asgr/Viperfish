@@ -18,6 +18,7 @@ genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0
   if(!missing(snapshot)){path_shark=paste(path_shark,snapshot,sep='/')}
   if(!missing(subsnapshot)){path_shark=paste(path_shark,subsnapshot,sep='/')}
 
+  assertAccess(paste(path_shark,'star_formation_histories.hdf5',sep='/'), access='r')
   Shark_SFH=h5file(paste(path_shark,'star_formation_histories.hdf5',sep='/'), mode='r')
   time=Shark_SFH[['LBT_mean']][]*1e9
 

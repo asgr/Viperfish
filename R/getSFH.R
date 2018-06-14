@@ -12,10 +12,12 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199){
 
   timestart=proc.time()[3]
 
+  assertAccess(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), access='r')
   SFH=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')
   Ntime=SFH[['LBT_mean']]$dims
   SFH$close()
 
+  assertAccess(file_sting, access='r')
   mocksurvey=h5file(file_sting, mode='r')[['Galaxies']]
 
   extract_col=list.datasets(mocksurvey, recursive = TRUE)
@@ -42,7 +44,8 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199){
   for(i in 1:dim(mocksubsets)[1]){
     if(i%%100==0){message(i,' of ',dim(mocksubsets)[1])}
     Nend=Nstart+mocksubsets[i,Nid]-1
-    SFH=h5file(paste0(path_shark,'/',mocksubsets[i,snapshot],'/',mocksubsets[i,subsnapshot],'/star_formation_histories.hdf5'), mode='r')
+    assertAccess(paste(path_shark,mocksubsets[i,snapshot],mocksubsets[i,subsnapshot],'star_formation_histories.hdf5', sep='/'), access='r')
+    SFH=h5file(paste(path_shark,mocksubsets[i,snapshot],mocksubsets[i,subsnapshot],'star_formation_histories.hdf5', sep='/'), mode='r')
     Ndim=SFH[['Bulges/StarFormationRateHistories']]$dims[1]
     select=which(SFH[['Galaxies/id_galaxy']][] %in% mocksubsets[i,unlist(idlist)])
     SFRbulge[Nstart:Nend,1:Ndim]=SFH[['Bulges/StarFormationRateHistories']][,select]
