@@ -1,5 +1,13 @@
 genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), SFHlist=NULL){
 
+  assertCharacter(file_sting, max.len=1)
+  assertCharacter(path_shark, max.len=1)
+  assertScalar(h)
+  assertInt(cores)
+  assertInt(snapmax)
+  assertCharacter(filters)
+  assertList(SFHlist, null.ok=TRUE)
+
   timestart=proc.time()[3]
 
   BC03lr=Dale_Msol=Nid=id_galaxy_sam=idlist=snapshot=subsnapID=subsnapshot=z=i=mocksubsets=mockcone=Ntime=time=NULL
@@ -11,9 +19,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   names(filtout)=filters
 
   if(is.null(SFHlist)){
-
-    SFHlist=getSFH(file_sting = file_sting, path_shark = path_shark, cores = cores, snapmax = snapmax)
-
+    SFHlist=getSFH(file_sting = file_sting, path_shark = path_shark, snapmax = snapmax)
   }
 
   SFRbulge=SFHlist$SFRbulge

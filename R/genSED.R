@@ -1,4 +1,5 @@
 genSED=function(SFRbulge, SFRdisk, redshift=0.1, time=NULL, tau_birth=c(1,1), tau_screen=c(0.3,0.3), Zbulge=5, Zdisk=5, alpha_SF=c(1,1), AGNfrac=c(0,0), ab_nodust=TRUE, ap_nodust=TRUE, ab_dust=TRUE, ap_dust=TRUE, emitdust=TRUE, unimax=13.8e9, speclib=NULL, Dale=NULL, filtout=NULL, H0=67.8, sparse=1){
+
   if(is.null(time)){stop('Need time input!')}
   if(is.null(speclib)){stop('Need speclib (e.g. BC03lr)')}
   if(is.null(filtout)){stop('Need filtout input!')}
@@ -15,6 +16,22 @@ genSED=function(SFRbulge, SFRdisk, redshift=0.1, time=NULL, tau_birth=c(1,1), ta
   if(length(tau_screen)==1){tau_screen=rep(tau_screen,2)}
   if(length(alpha_SF)==1){alpha_SF=rep(alpha_SF,2)}
   if(length(AGNfrac)==1){AGNfrac=rep(AGNfrac,2)}
+
+  assertNumeric(SFRbulge)
+  assertNumeric(SFRdisk)
+  assertScalar(redshift)
+  assertNumeric(time)
+  assertNumeric(tau_birth, len=2)
+  assertNumeric(tau_screen, len=2)
+  assertNumeric(Zbulge)
+  assertNumeric(Zdisk)
+  assertNumeric(alpha_SF, len=2)
+  assertNumeric(AGNfrac, len=2)
+  assertLogical(ab_nodust, len=1)
+  assertLogical(ap_nodust, len=1)
+  assertLogical(ab_dust, len=1)
+  assertLogical(ap_dust, len=1)
+  assertLogical(emitdust, len=1)
 
   SFRbulge[SFRbulge<0]=0
   SFRdisk[SFRdisk<0]=0

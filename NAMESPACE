@@ -7,6 +7,7 @@ import("celestial")
 import("bit64")
 import("foreach")
 import("doParallel")
+import("checkmate")
 
 importFrom("stats", "approxfun")
 importFrom("utils", "data")

@@ -1,4 +1,8 @@
-getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', cores=4, snapmax=199){
+getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199){
+
+  assertCharacter(file_sting, max.len=1)
+  assertCharacter(path_shark, max.len=1)
+  assertInt(snapmax)
 
   timestart=proc.time()[3]
 

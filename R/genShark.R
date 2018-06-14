@@ -1,4 +1,11 @@
-genShark=function(path_shark='.', snapshot, subsnapshot, redshift=0.1, h=0.678, cores=4, select='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500')){
+genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0.678, cores=4, select='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500')){
+
+  assertCharacter(path_shark, max.len=1)
+  assertInt(snapshot)
+  assertInt(subsnapshot)
+  assertScalar(h)
+  assertInt(cores)
+  assertCharacter(filters)
 
   BC03lr=Dale_Msol=SFH=i=subsnapID=snapshot=id_galaxy_sam=Nid=idlist=subsnapID=NULL
 
