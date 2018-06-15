@@ -32,8 +32,15 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, verbo
   Zdisk=matrix(0,Nunique,Ntime)
 
   Nstart=1
-  for(i in 1:dim(mocksubsets)[1]){
-    if(i%%100==0 & verbose){message(i,' of ',dim(mocksubsets)[1])}
+  iterations=dim(mocksubsets)[1]
+
+  if(verbose){
+    pb = txtProgressBar(max = iterations, style = 3)
+    progress = function(n) setTxtProgressBar(pb, n)
+  }
+
+  for(i in 1:iterations){
+    if(verbose){progress(i)}
     Nend=Nstart+mocksubsets[i,Nid]-1
     assertAccess(paste(path_shark,mocksubsets[i,snapshot],mocksubsets[i,subsnapshot],'star_formation_histories.hdf5', sep='/'), access='r')
     SFH=h5file(paste(path_shark,mocksubsets[i,snapshot],mocksubsets[i,subsnapshot],'star_formation_histories.hdf5', sep='/'), mode='r')
@@ -45,6 +52,10 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, verbo
     Zdisk[Nstart:Nend,1:Ndim]=SFH[['Disks/MetallicityHistories']][,select]
     SFH$close()
     Nstart=Nend+1
+  }
+
+  if(verbose){
+    close(pb)
   }
 
   if(verbose){
