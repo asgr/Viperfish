@@ -14,7 +14,7 @@ select = "all", filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS", "i_SDSS"
 }
 \arguments{
   \item{path_shark}{
-Character scalar; path to top directory containing Shark outputs.
+Character scalar; path to top directory containing Shark outputs. The package will check that the files and path exists and we have read access.
 }
   \item{snapshot}{
 Integer scalar; snapshot number to use.

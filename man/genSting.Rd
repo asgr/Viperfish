@@ -18,10 +18,10 @@ getSFH(file_sting = "mocksurvey.hdf5", path_shark = ".", snapmax = 199)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{file_sting}{
-Character scalar; full path to Stingray HDF5 file.
+Character scalar; full path to Stingray HDF5 file. The package will check that the file exists and we have read access.
 }
   \item{path_shark}{
-Character scalar; path to top directory containing Shark outputs.
+Character scalar; path to top directory containing Shark outputs. The package will check that the files and path exists and we have read access.
 }
   \item{h}{
 Numeric scalar; little-h assumed in Shark (needed to convert SFRs to actual SFR since they use Msun/yr/h).

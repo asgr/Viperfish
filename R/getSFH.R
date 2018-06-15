@@ -17,19 +17,7 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199){
   Ntime=SFH[['LBT_mean']]$dims
   SFH$close()
 
-  assertAccess(file_sting, access='r')
-  mocksurvey=h5file(file_sting, mode='r')[['Galaxies']]
-
-  extract_col=list.datasets(mocksurvey, recursive = TRUE)
-  mockcone=as.data.table(lapply(extract_col, function(x) mocksurvey[[x]][]))
-  colnames(mockcone)=extract_col
-  mocksurvey$close()
-
-  mockcone[,subsnapID:=snapshot*100+subsnapshot]
-  mocksubsets=mockcone[,list(idlist=list(unique(id_galaxy_sam))),by=subsnapID]
-  mocksubsets[,Nid:=length(unlist(idlist)),by=subsnapID]
-  mocksubsets[,snapshot:=floor(subsnapID/100)]
-  mocksubsets[,subsnapshot:=subsnapID%%100]
+  mocksubsets=.mocksubsets(file_sting=file_sting)
 
   Nunique=length(unlist(mocksubsets$idlist))
 

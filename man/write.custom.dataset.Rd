@@ -15,7 +15,7 @@ write.group.safe(filename = "temp.hdf5", group = "group")
 }
 \arguments{
   \item{filename}{
-Character scalar; the path name of the HDF5 file requested.
+Character scalar; the path name of the HDF5 file requested. The package will check that the files and path exists and we have write access.
 }
   \item{group}{
 Character scalar; the full path of the group. This will be created if not present.

@@ -1,4 +1,7 @@
 write.group.safe = function(filename='temp.hdf5', group='group'){
+  assertCharacter(filename, max.len=1)
+  assertCharacter(group, max.len=1)
+
   assertPathForOutput(filename, overwrite=TRUE)
   file.h5=h5file(filename=filename, mode='a')
 
@@ -22,6 +25,14 @@ write.custom.dataset = function(filename='temp.hdf5', # hd5 filename
                          dataset.type=h5types$H5T_IEEE_F32LE,
                          compression.level = 0,
                          overwrite=FALSE) {
+  assertCharacter(filename, max.len=1)
+  assertCharacter(group, max.len=1)
+  assertCharacter(mode, max.len=1)
+  assertCharacter(dataset.name, max.len=1)
+  if(!testEnvironment(dataset.type)){stop('dataset.type must be one of the allowed datatypes provided by h5types accessed with a $')}
+  assertInt(compression.level)
+  assertFlag(overwrite)
+
   write.group.safe(filename=filename, group=group)
 
   if(!missing(object)){

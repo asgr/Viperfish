@@ -27,6 +27,10 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   Zbulge=SFHlist$Zbulge
   Zdisk=SFHlist$Zdisk
 
+  #Make mock subsets:
+
+  mocksubsets=.mocksubsets(file_sting=file_sting)
+
   message(paste('Running ProSpect -',round(proc.time()[3]-timestart,3),'sec'))
 
   SEDlookup=data.table(id=unlist(mocksubsets$idlist), subsnapID=rep(mocksubsets$subsnapID, mocksubsets$Nid))
@@ -60,4 +64,21 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   message(paste('Finished ProSpect -',round(proc.time()[3]-timestart,3),'sec'))
 
   return=list(outSED=outSED, SFHlist=SFHlist)
+}
+
+.mocksubsets=function(file_sting){
+  assertCharacter(file_sting, max.len=1)
+  mocksurvey=h5file(file_sting, mode='r')[['Galaxies']]
+
+  extract_col=list.datasets(mocksurvey, recursive = TRUE)
+  mockcone=as.data.table(lapply(extract_col, function(x) mocksurvey[[x]][]))
+  colnames(mockcone)=extract_col
+  mocksurvey$close()
+
+  mockcone[,subsnapID:=snapshot*100+subsnapshot]
+  mocksubsets=mockcone[,list(idlist=list(unique(id_galaxy_sam))),by=subsnapID]
+  mocksubsets[,Nid:=length(unlist(idlist)),by=subsnapID]
+  mocksubsets[,snapshot:=floor(subsnapID/100)]
+  mocksubsets[,subsnapshot:=subsnapID%%100]
+  return=mocksubsets
 }
