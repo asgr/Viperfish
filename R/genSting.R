@@ -1,4 +1,4 @@
-genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), SFHlist=NULL){
+genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), SFHlist=NULL, verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -11,6 +11,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   assertInt(snapmax)
   assertCharacter(filters)
   assertList(SFHlist, null.ok=TRUE)
+  assertFlag(verbose)
 
   BC03lr=Dale_Msol=Nid=id_galaxy_sam=idlist=snapshot=subsnapID=subsnapshot=z=i=mocksubsets=mockcone=Ntime=time=NULL
 
@@ -21,7 +22,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   names(filtout)=filters
 
   if(is.null(SFHlist)){
-    SFHlist=getSFH(file_sting = file_sting, path_shark = path_shark, snapmax = snapmax)
+    SFHlist=getSFH(file_sting=file_sting, path_shark=path_shark, snapmax=snapmax, verbose=verbose)
   }
 
   SFRbulge=SFHlist$SFRbulge
@@ -42,14 +43,31 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
 
   SEDlookup=data.table(id=unlist(mocksubsets$idlist), subsnapID=rep(mocksubsets$subsnapID, mocksubsets$Nid))
 
-  registerDoParallel(cores=cores)
+  cl <- makeCluster(cores)
+  registerDoSNOW(cl)
 
-  message(paste('Running ProSpect on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
+  if(verbose){
+    message(paste('Running ProSpect on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
+  }
 
-  outSED=foreach(i=1:dim(mockcone)[1], .combine='rbind')%dopar%{
+  iterations=dim(mockcone)[1]
+
+  if(verbose){
+    pb = txtProgressBar(max = iterations, style = 3)
+    progress = function(n) setTxtProgressBar(pb, n)
+    opts = list(progress=progress)
+  }
+
+  outSED=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
     coluse=which(SEDlookup$id==mockcone[i,id_galaxy_sam] & SEDlookup$subsnapID==mockcone[i,subsnapID])
     offset=(snapmax-mockcone[i,snapshot])
     unlist(genSED(SFRbulge=SFRbulge[coluse,1:(Ntime-offset)]/h, SFRdisk=SFRdisk[coluse,1:(Ntime-offset)]/h, redshift=mockcone[i,zobs], time=time[1:(Ntime-offset)]-cosdistTravelTime(mockcone[i,zobs], ref='planck')*1e9, speclib=BC03lr, Zbulge=Zbulge[coluse,1:(Ntime-offset)], Zdisk=Zdisk[coluse,1:(Ntime-offset)], filtout=filtout, Dale=Dale_Msol, sparse=5, tau_birth=1.5, tau_screen=0.5))
+  }
+
+  stopCluster(cl)
+
+  if(verbose){
+    close(pb)
   }
 
   outSED=as.data.frame(outSED)
@@ -70,7 +88,9 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   colnames(outSED)=colnamesSED
   outSED=cbind(id_galaxy_sky=mockcone$id_galaxy_sky, outSED)
 
-  message(paste('Finished ProSpect on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
+  if(verbose){
+    message(paste('Finished ProSpect on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
+  }
 
   return=list(outSED=outSED, SFHlist=SFHlist)
 }

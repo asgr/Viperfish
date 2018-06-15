@@ -1,4 +1,4 @@
-getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199){
+getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -8,7 +8,9 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199){
   assertAccess(path_shark, access='r')
   assertInt(snapmax)
 
-  message(paste('Running getSFH on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
+  if(verbose){
+    message(paste('Running getSFH on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
+  }
 
   BC03lr=Dale_Msol=Nid=id_galaxy_sam=idlist=snapshot=subsnapID=subsnapshot=z=i=mocksubsets=mockcone=Ntime=time=NULL
 
@@ -31,7 +33,7 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199){
 
   Nstart=1
   for(i in 1:dim(mocksubsets)[1]){
-    if(i%%100==0){message(i,' of ',dim(mocksubsets)[1])}
+    if(i%%100==0 & verbose){message(i,' of ',dim(mocksubsets)[1])}
     Nend=Nstart+mocksubsets[i,Nid]-1
     assertAccess(paste(path_shark,mocksubsets[i,snapshot],mocksubsets[i,subsnapshot],'star_formation_histories.hdf5', sep='/'), access='r')
     SFH=h5file(paste(path_shark,mocksubsets[i,snapshot],mocksubsets[i,subsnapshot],'star_formation_histories.hdf5', sep='/'), mode='r')
@@ -45,7 +47,9 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199){
     Nstart=Nend+1
   }
 
-  message(paste('Finished getSFH on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
+  if(verbose){
+    message(paste('Finished getSFH on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
+  }
 
   return=list(SFRbulge=SFRbulge, SFRdisk=SFRdisk, Zbulge=Zbulge, Zdisk=Zdisk)
 
