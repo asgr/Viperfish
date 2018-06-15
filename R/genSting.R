@@ -1,7 +1,9 @@
 genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), SFHlist=NULL){
 
   assertCharacter(file_sting, max.len=1)
+  assertAccess(file_sting, access='r')
   assertCharacter(path_shark, max.len=1)
+  assertAccess(path_shark, access='r')
   assertScalar(h)
   assertInt(cores)
   assertInt(snapmax)
@@ -29,7 +31,8 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
 
   #Make mock subsets:
 
-  mocksubsets=.mocksubsets(file_sting=file_sting)
+  mockcone=.mockcone(file_sting=file_sting)
+  mocksubsets=.mocksubsets(mockcone=mockcone)
 
   message(paste('Running ProSpect -',round(proc.time()[3]-timestart,3),'sec'))
 
@@ -66,16 +69,20 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   return=list(outSED=outSED, SFHlist=SFHlist)
 }
 
-.mocksubsets=function(file_sting){
+.mockcone=function(file_sting){
   assertCharacter(file_sting, max.len=1)
+  assertAccess(file_sting, access='r')
   mocksurvey=h5file(file_sting, mode='r')[['Galaxies']]
-
   extract_col=list.datasets(mocksurvey, recursive = TRUE)
   mockcone=as.data.table(lapply(extract_col, function(x) mocksurvey[[x]][]))
   colnames(mockcone)=extract_col
   mocksurvey$close()
-
   mockcone[,subsnapID:=snapshot*100+subsnapshot]
+  return=mockcone
+}
+
+.mocksubsets=function(mockcone){
+
   mocksubsets=mockcone[,list(idlist=list(unique(id_galaxy_sam))),by=subsnapID]
   mocksubsets[,Nid:=length(unlist(idlist)),by=subsnapID]
   mocksubsets[,snapshot:=floor(subsnapID/100)]

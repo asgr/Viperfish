@@ -1,7 +1,9 @@
 getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199){
 
   assertCharacter(file_sting, max.len=1)
+  assertAccess(file_sting, access='r')
   assertCharacter(path_shark, max.len=1)
+  assertAccess(path_shark, access='r')
   assertInt(snapmax)
 
   timestart=proc.time()[3]
@@ -17,7 +19,8 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199){
   Ntime=SFH[['LBT_mean']]$dims
   SFH$close()
 
-  mocksubsets=.mocksubsets(file_sting=file_sting)
+  mockcone=.mockcone(file_sting=file_sting)
+  mocksubsets=.mocksubsets(mockcone=mockcone)
 
   Nunique=length(unlist(mocksubsets$idlist))
 
