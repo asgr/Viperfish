@@ -1,5 +1,7 @@
 genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), SFHlist=NULL){
 
+  timestart=proc.time()[3]
+
   assertCharacter(file_sting, max.len=1)
   assertAccess(file_sting, access='r')
   assertCharacter(path_shark, max.len=1)
@@ -9,8 +11,6 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   assertInt(snapmax)
   assertCharacter(filters)
   assertList(SFHlist, null.ok=TRUE)
-
-  timestart=proc.time()[3]
 
   BC03lr=Dale_Msol=Nid=id_galaxy_sam=idlist=snapshot=subsnapID=subsnapshot=z=i=mocksubsets=mockcone=Ntime=time=NULL
 
@@ -34,7 +34,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   mockcone=.mockcone(file_sting=file_sting)
   mocksubsets=.mocksubsets(mockcone=mockcone)
 
-  message(paste('Running ProSpect -',round(proc.time()[3]-timestart,3),'sec'))
+  message(paste('Running ProSpect on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
 
   SEDlookup=data.table(id=unlist(mocksubsets$idlist), subsnapID=rep(mocksubsets$subsnapID, mocksubsets$Nid))
 
@@ -64,7 +64,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   colnames(outSED)=colnamesSED
   outSED=cbind(id_galaxy_sky=mockcone$id_galaxy_sky, outSED)
 
-  message(paste('Finished ProSpect -',round(proc.time()[3]-timestart,3),'sec'))
+  message(paste('Finished ProSpect on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
 
   return=list(outSED=outSED, SFHlist=SFHlist)
 }

@@ -1,5 +1,7 @@
 genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0.678, cores=4, select='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500')){
 
+  timestart=proc.time()[3]
+
   assertCharacter(path_shark, max.len=1)
   assertAccess(path_shark, access='r')
   assertInt(snapshot)
@@ -42,6 +44,8 @@ genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0
 
   registerDoParallel(cores=cores)
 
+  message(paste('Running ProSpect on Shark -',round(proc.time()[3]-timestart,3),'sec'))
+
   outSED=foreach(i=1:length(select), .combine='rbind')%dopar%{
   unlist(genSED(SFRbulge=SFRbulge[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time, speclib=BC03lr, Zbulge=Zbulge[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, sparse=5, tau_birth = 1.5, tau_screen = 0.5))
 }
@@ -65,6 +69,8 @@ genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0
   outSED=cbind(id_galaxy=Shark_SFH[['Galaxies/id_galaxy']][select], outSED)
 
   Shark_SFH$close()
+
+  message(paste('Finished ProSpect on Shark -',round(proc.time()[3]-timestart,3),'sec'))
 
 return=outSED
 }

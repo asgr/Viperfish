@@ -1,14 +1,14 @@
 getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199){
 
+  timestart=proc.time()[3]
+
   assertCharacter(file_sting, max.len=1)
   assertAccess(file_sting, access='r')
   assertCharacter(path_shark, max.len=1)
   assertAccess(path_shark, access='r')
   assertInt(snapmax)
 
-  timestart=proc.time()[3]
-
-  message(paste('Running getSFH -',round(proc.time()[3]-timestart,3),'sec'))
+  message(paste('Running getSFH on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
 
   BC03lr=Dale_Msol=Nid=id_galaxy_sam=idlist=snapshot=subsnapID=subsnapshot=z=i=mocksubsets=mockcone=Ntime=time=NULL
 
@@ -29,8 +29,6 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199){
   Zbulge=matrix(0,Nunique,Ntime)
   Zdisk=matrix(0,Nunique,Ntime)
 
-  message(paste('Extracting Light Cone SFH -',round(proc.time()[3]-timestart,3),'sec'))
-
   Nstart=1
   for(i in 1:dim(mocksubsets)[1]){
     if(i%%100==0){message(i,' of ',dim(mocksubsets)[1])}
@@ -47,7 +45,7 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199){
     Nstart=Nend+1
   }
 
-  message(paste('Finished getSFH -',round(proc.time()[3]-timestart,3),'sec'))
+  message(paste('Finished getSFH on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
 
   return=list(SFRbulge=SFRbulge, SFRdisk=SFRdisk, Zbulge=Zbulge, Zdisk=Zdisk)
 
