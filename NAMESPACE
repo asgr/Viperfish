@@ -6,7 +6,7 @@ import("hdf5r")
 import("celestial")
 import("bit64")
 import("foreach")
-import("doParallel")
+import("doSNOW")
 import("checkmate")
 
 importFrom("stats", "approxfun")
