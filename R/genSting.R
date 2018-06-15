@@ -34,11 +34,17 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   mockcone=.mockcone(file_sting=file_sting)
   mocksubsets=.mocksubsets(mockcone=mockcone)
 
-  message(paste('Running ProSpect on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
+  assertAccess(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), access='r')
+  SFH=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')
+  time=SFH[['LBT_mean']][]
+  Ntime=length(time)
+  SFH$close()
 
   SEDlookup=data.table(id=unlist(mocksubsets$idlist), subsnapID=rep(mocksubsets$subsnapID, mocksubsets$Nid))
 
   registerDoParallel(cores=cores)
+
+  message(paste('Running ProSpect on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
 
   outSED=foreach(i=1:dim(mockcone)[1], .combine='rbind')%dopar%{
     coluse=which(SEDlookup$id==mockcone[i,id_galaxy_sam] & SEDlookup$subsnapID==mockcone[i,subsnapID])
