@@ -108,3 +108,13 @@ write.SED=function(SED, filename='temp.hdf5', overwrite=FALSE, filters=c('FUV', 
   write.custom.dataset(filename=filename, group="SED/ap_dust", object=SED[,1+colrun+Ncol*10], dataset.name='disk', overwrite=overwrite)
   write.custom.dataset(filename=filename, group="SED/ap_dust", object=SED[,1+colrun+Ncol*11], dataset.name='total', overwrite=overwrite)
 }
+
+write.SFH=function(SFHlist, filename='temp.hdf5', overwrite=FALSE){
+  assertPathForOutput(filename, overwrite=TRUE)
+
+  write.custom.dataset(filename=filename, group="SFR", object=SFHlist$SFRbulge, dataset.name='bulge', overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SFR", object=SFHlist$SFRdisk, dataset.name='disk', overwrite=overwrite)
+
+  write.custom.dataset(filename=filename, group="Z", object=SFHlist$Zbulge, dataset.name='bulge', overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="Z", object=SFHlist$Zdisk, dataset.name='disk', overwrite=overwrite)
+}
