@@ -6,6 +6,7 @@ import("hdf5r")
 import("celestial")
 import("bit64")
 import("foreach")
+import("snow")
 import("doSNOW")
 import("checkmate")
 

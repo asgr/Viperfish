@@ -72,5 +72,5 @@ genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0
 
   message(paste('Finished ProSpect on Shark -',round(proc.time()[3]-timestart,3),'sec'))
 
-return=outSED
+invisible(outSED)
 }

@@ -92,7 +92,9 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     message(paste('Finished ProSpect on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
   }
 
-  return=list(outSED=outSED, SFHlist=SFHlist)
+  output=list(outSED=outSED, SFHlist=SFHlist)
+  class(output)='SharkStingSED'
+  invisible(output)
 }
 
 .mockcone=function(file_sting){
@@ -104,7 +106,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   colnames(mockcone)=extract_col
   mocksurvey$close()
   mockcone[,subsnapID:=snapshot*100+subsnapshot]
-  return=mockcone
+  invisible(mockcone)
 }
 
 .mocksubsets=function(mockcone){
@@ -113,5 +115,5 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   mocksubsets[,Nid:=length(unlist(idlist)),by=subsnapID]
   mocksubsets[,snapshot:=floor(subsnapID/100)]
   mocksubsets[,subsnapshot:=subsnapID%%100]
-  return=mocksubsets
+  invisible(mocksubsets)
 }

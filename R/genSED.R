@@ -277,5 +277,5 @@ genSED=function(SFRbulge, SFRdisk, redshift=0.1, time=NULL, tau_birth=c(1,1), ta
     ap_mag_dust_d=ap_mag_dust_d,
     ap_mag_dust_t=ap_mag_dust_t)
   rownames(output)=names(filtout)
-  return(output)
+  invisible(output)
 }
