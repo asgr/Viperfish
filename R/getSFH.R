@@ -45,10 +45,11 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, verbo
     assertAccess(paste(path_shark,mocksubsets[i,snapshot],mocksubsets[i,subsnapshot],'star_formation_histories.hdf5', sep='/'), access='r')
     SFH=h5file(paste(path_shark,mocksubsets[i,snapshot],mocksubsets[i,subsnapshot],'star_formation_histories.hdf5', sep='/'), mode='r')
     Ndim=SFH[['Bulges/StarFormationRateHistories']]$dims[1]
-    select=which(SFH[['Galaxies/id_galaxy']][] %in% mocksubsets[i,unlist(idlist)])
-    SFRbulge[Nstart:Nend,1:Ndim]=SFH[['Bulges/StarFormationRateHistories']][,select]
-    SFRdisk[Nstart:Nend,1:Ndim]=SFH[['Disks/StarFormationRateHistories']][,select]
-    Zbulge[Nstart:Nend,1:Ndim]=SFH[['Bulges/MetallicityHistories']][,select]
+    #select=which(SFH[['Galaxies/id_galaxy']][] %in% mocksubsets[i,unlist(idlist)])
+    select=match(mocksubsets[i,unlist(idlist)], SFH[['Galaxies/id_galaxy']][])
+    SFRbulge[Nstart:Nend,1:Ndim]=t(SFH[['Bulges/StarFormationRateHistories']][,select])
+    SFRdisk[Nstart:Nend,1:Ndim]=t(SFH[['Disks/StarFormationRateHistories']][,select])
+    Zbulge[Nstart:Nend,1:Ndim]=t(SFH[['Bulges/MetallicityHistories']][,select])
     Zdisk[Nstart:Nend,1:Ndim]=SFH[['Disks/MetallicityHistories']][,select]
     SFH$close()
     Nstart=Nend+1
