@@ -14,7 +14,7 @@ write.group.safe = function(filename='temp.hdf5', group='group'){
     }
   }
 
-  file.h5$close()
+  file.h5$close_all(close_self = TRUE)
 }
 
 write.custom.dataset = function(filename='temp.hdf5', # hd5 filename
@@ -57,7 +57,7 @@ write.custom.dataset = function(filename='temp.hdf5', # hd5 filename
                                     dtype = dataset.type, dataset_create_pl = ds,
                                     gzip_level = compression.level)
     dataset.h5[,] = object
-    file.h5$close()
+    file.h5$close_all(close_self = TRUE)
   }
 }
 
@@ -84,7 +84,7 @@ write.SED=function(SED, filename='temp.hdf5', overwrite=FALSE, filters=c('FUV', 
 
   file.h5[['filters']]=filters
   file.h5[['id_galaxy_sky']]=SED[,1]
-  file.h5$close()
+  file.h5$close_all(close_self = TRUE)
 
   Ncol=length(filters)
   colrun=1:Ncol
