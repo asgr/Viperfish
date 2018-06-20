@@ -45,7 +45,7 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
     opts = list(progress=progress)
   }
 
-  extract=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
+  extract=foreach(i=1:4, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
     if(verbose){progress(i)}
     Nend=Nstart+mocksubsets[i,Nid]-1
     assertAccess(paste(path_shark,mocksubsets[i,snapshot],mocksubsets[i,subsnapshot],'star_formation_histories.hdf5', sep='/'), access='r')
@@ -64,6 +64,8 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
               t(SFH[['Disks/StarFormationRateHistories']][,select]),
               t(SFH[['Bulges/MetallicityHistories']][,select]),
               t(SFH[['Disks/MetallicityHistories']][,select]))
+    SFH$close()
+    out
   }
 
   stopCluster(cl)
