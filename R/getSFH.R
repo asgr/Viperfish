@@ -63,6 +63,7 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, verbo
     message(paste('Finished getSFH on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
   }
 
-  return=list(SFRbulge=SFRbulge, SFRdisk=SFRdisk, Zbulge=Zbulge, Zdisk=Zdisk)
-
+  output=list(SFRbulge=SFRbulge, SFRdisk=SFRdisk, Zbulge=Zbulge, Zdisk=Zdisk)
+  class(output)='Viperfish-StingSFH'
+  invisible(output)
 }

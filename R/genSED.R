@@ -36,18 +36,18 @@ genSED=function(SFRbulge, SFRdisk, redshift=0.1, time=NULL, tau_birth=c(1,1), ta
   SFRbulge[SFRbulge<0]=0
   SFRdisk[SFRdisk<0]=0
 
-  SFRbulgefunc=approxfun(time, SFRbulge, rule=2, yleft=0, yright=0)
-  SFRdiskfunc=approxfun(time, SFRdisk, rule=2, yleft=0, yright=0)
+  SFRbulgefunc=approxfun(time, SFRbulge, rule=2, yleft=SFRbulge[which.min(time)], yright=SFRbulge[which.max(time)])
+  SFRdiskfunc=approxfun(time, SFRdisk, rule=2, yleft=SFRdisk[which.min(time)], yright=SFRdisk[which.max(time)])
 
   if(length(Zbulge)>1){
     if(length(Zbulge)!=length(time)){stop('Zbulge does not have the same length as time!')}
     Zbulge[Zbulge<0]=0
-    Zbulge=approxfun(time, Zbulge, rule=2, yleft=0, yright=0)
+    Zbulge=approxfun(time, Zbulge, rule=2, yleft=Zbulge[which.min(time)], yright=Zbulge[which.max(time)])
   }
   if(length(Zdisk)>1){
     if(length(Zdisk)!=length(time)){stop('Zdisk does not have the same length as time!')}
     Zdisk[Zdisk<0]=0
-    Zdisk=approxfun(time, Zdisk, rule=2, yleft=0, yright=0)
+    Zdisk=approxfun(time, Zdisk, rule=2, yleft=Zdisk[which.min(time)], yright=Zdisk[which.max(time)])
   }
 
   Z=c(Zbulge, Zdisk)

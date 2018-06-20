@@ -10,7 +10,7 @@ Takes Shark boxes and converts to apparent and absolute SEDs.
 genShark(path_shark = ".", snapshot, subsnapshot, redshift = 0.1, h = 0.678, cores = 4,
 select = "all", filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS", "i_SDSS",
 "Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA", "K_VISTA", "W1", "W2", "W3", "W4", "P100",
-"P160", "S250", "S350", "S500"))
+"P160", "S250", "S350", "S500"), verbose = TRUE)
 }
 \arguments{
   \item{path_shark}{
@@ -36,6 +36,9 @@ Integer vector; IDs to extract for photometric processing. The default ('all') w
 }
   \item{filters}{
 Character vector; filters to use for the photometry.
+}
+  \item{verbose}{
+Logical; should helpful verbose outputs be printed regarding the processing?
 }
 }
 \details{

@@ -1,4 +1,4 @@
-genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0.678, cores=4, select='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500')){
+genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0.678, cores=4, select='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -42,13 +42,30 @@ genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0
     stop("Length of select does not equal length of redshift!")
   }
 
-  registerDoParallel(cores=cores)
+  cl=makeCluster(cores)
+  registerDoSNOW(cl)
 
-  message(paste('Running ProSpect on Shark -',round(proc.time()[3]-timestart,3),'sec'))
+  if(verbose){
+    message(paste('Running Viperfish on Shark -',round(proc.time()[3]-timestart,3),'sec'))
+  }
 
-  outSED=foreach(i=1:length(select), .combine='rbind')%dopar%{
+  iterations=length(select)
+
+  if(verbose){
+    pb = txtProgressBar(max = iterations, style = 3)
+    progress = function(n) setTxtProgressBar(pb, n)
+    opts = list(progress=progress)
+  }
+
+  outSED=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
   unlist(genSED(SFRbulge=SFRbulge[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time, speclib=BC03lr, Zbulge=Zbulge[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, sparse=5, tau_birth = 1.5, tau_screen = 0.5))
-}
+  }
+
+  stopCluster(cl)
+
+  if(verbose){
+    close(pb)
+  }
 
   outSED=as.data.table(rbind(outSED))
   colnamesSED=c(
@@ -70,7 +87,10 @@ genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0
 
   Shark_SFH$close()
 
-  message(paste('Finished ProSpect on Shark -',round(proc.time()[3]-timestart,3),'sec'))
+  if(verbose){
+    message(paste('Finished Viperfish on Shark -',round(proc.time()[3]-timestart,3),'sec'))
+  }
 
-invisible(outSED)
+  class(outSED)='Viperfish-Shark'
+  invisible(outSED)
 }
