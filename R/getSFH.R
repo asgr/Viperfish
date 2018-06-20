@@ -1,4 +1,4 @@
-getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, verbose=TRUE){
+getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores=4, verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -31,15 +31,21 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, verbo
   Zbulge=matrix(0,Nunique,Ntime)
   Zdisk=matrix(0,Nunique,Ntime)
 
+  Extract=matrix(0,Nunique,Ntime*4)
+
+  cl=makeCluster(cores)
+  registerDoSNOW(cl)
+
   Nstart=1
   iterations=dim(mocksubsets)[1]
 
   if(verbose){
     pb = txtProgressBar(max = iterations, style = 3)
     progress = function(n) setTxtProgressBar(pb, n)
+    opts = list(progress=progress)
   }
 
-  for(i in 1:iterations){
+  extract=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
     if(verbose){progress(i)}
     Nend=Nstart+mocksubsets[i,Nid]-1
     assertAccess(paste(path_shark,mocksubsets[i,snapshot],mocksubsets[i,subsnapshot],'star_formation_histories.hdf5', sep='/'), access='r')
@@ -47,13 +53,20 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, verbo
     Ndim=SFH[['Bulges/StarFormationRateHistories']]$dims[1]
     #select=which(SFH[['Galaxies/id_galaxy']][] %in% mocksubsets[i,unlist(idlist)])
     select=match(mocksubsets[i,unlist(idlist)], SFH[['Galaxies/id_galaxy']][])
-    SFRbulge[Nstart:Nend,1:Ndim]=t(SFH[['Bulges/StarFormationRateHistories']][,select])
-    SFRdisk[Nstart:Nend,1:Ndim]=t(SFH[['Disks/StarFormationRateHistories']][,select])
-    Zbulge[Nstart:Nend,1:Ndim]=t(SFH[['Bulges/MetallicityHistories']][,select])
-    Zdisk[Nstart:Nend,1:Ndim]=SFH[['Disks/MetallicityHistories']][,select]
+
+    #SFRbulge[Nstart:Nend,1:Ndim]=t(SFH[['Bulges/StarFormationRateHistories']][,select])
+    #SFRdisk[Nstart:Nend,1:Ndim]=t(SFH[['Disks/StarFormationRateHistories']][,select])
+    #Zbulge[Nstart:Nend,1:Ndim]=t(SFH[['Bulges/MetallicityHistories']][,select])
+    #Zdisk[Nstart:Nend,1:Ndim]=SFH[['Disks/MetallicityHistories']][,select]
     SFH$close()
     Nstart=Nend+1
+    out=cbind(t(SFH[['Bulges/StarFormationRateHistories']][,select]),
+              t(SFH[['Disks/StarFormationRateHistories']][,select]),
+              t(SFH[['Bulges/MetallicityHistories']][,select]),
+              t(SFH[['Disks/MetallicityHistories']][,select]))
   }
+
+  stopCluster(cl)
 
   if(verbose){
     close(pb)
@@ -63,7 +76,8 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, verbo
     message(paste('Finished getSFH on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
   }
 
-  output=list(SFRbulge=SFRbulge, SFRdisk=SFRdisk, Zbulge=Zbulge, Zdisk=Zdisk)
-  class(output)='Viperfish-StingSFH'
-  invisible(output)
+  #output=list(SFRbulge=SFRbulge, SFRdisk=SFRdisk, Zbulge=Zbulge, Zdisk=Zdisk)
+  #class(output)='Viperfish-StingSFH'
+  #invisible(output)
+  invisible(extract)
 }
