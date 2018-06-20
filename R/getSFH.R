@@ -31,8 +31,6 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
   Zbulge=matrix(0,Nunique,Ntime)
   Zdisk=matrix(0,Nunique,Ntime)
 
-  Extract=matrix(0,Nunique,Ntime*4)
-
   cl=makeCluster(cores)
   registerDoSNOW(cl)
 
@@ -47,7 +45,8 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
 
   extract=foreach(i=1:4, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
     if(verbose){progress(i)}
-    Nend=Nstart+mocksubsets[i,Nid]-1
+    Nid=mocksubsets[i,Nid]
+    Nend=Nstart+Nid-1
     assertAccess(paste(path_shark,mocksubsets[i,snapshot],mocksubsets[i,subsnapshot],'star_formation_histories.hdf5', sep='/'), access='r')
     SFH=h5file(paste(path_shark,mocksubsets[i,snapshot],mocksubsets[i,subsnapshot],'star_formation_histories.hdf5', sep='/'), mode='r')
     Ndim=SFH[['Bulges/StarFormationRateHistories']]$dims[1]
@@ -59,11 +58,18 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
     #Zbulge[Nstart:Nend,1:Ndim]=t(SFH[['Bulges/MetallicityHistories']][,select])
     #Zdisk[Nstart:Nend,1:Ndim]=SFH[['Disks/MetallicityHistories']][,select]
 
-    Nstart=Nend+1
-    out=cbind(t(SFH[['Bulges/StarFormationRateHistories']][,select]),
-              t(SFH[['Disks/StarFormationRateHistories']][,select]),
-              t(SFH[['Bulges/MetallicityHistories']][,select]),
-              t(SFH[['Disks/MetallicityHistories']][,select]))
+    out=matrix(0,Nid,Ntime*4)
+
+    out[1:Ndim,]=t(SFH[['Bulges/StarFormationRateHistories']][,select])
+    out[1:Ndim+Ntime]=t(SFH[['Disks/StarFormationRateHistories']][,select])
+    out[1:Ndim+Ntime*2]=t(SFH[['Bulges/MetallicityHistories']][,select])
+    out[1:Ndim+Ntime*3]=t(SFH[['Disks/MetallicityHistories']][,select])
+
+    #Nstart=Nend+1
+    #out=cbind(t(SFH[['Bulges/StarFormationRateHistories']][,select]),
+    #          t(SFH[['Disks/StarFormationRateHistories']][,select]),
+    #          t(SFH[['Bulges/MetallicityHistories']][,select]),
+    #          t(SFH[['Disks/MetallicityHistories']][,select]))
     SFH$close()
     out
   }
