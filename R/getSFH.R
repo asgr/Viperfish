@@ -60,10 +60,10 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
 
     out=matrix(0,Nid,Ntime*4)
 
-    out[1:Ndim,]=t(SFH[['Bulges/StarFormationRateHistories']][,select])
-    out[1:Ndim+Ntime]=t(SFH[['Disks/StarFormationRateHistories']][,select])
-    out[1:Ndim+Ntime*2]=t(SFH[['Bulges/MetallicityHistories']][,select])
-    out[1:Ndim+Ntime*3]=t(SFH[['Disks/MetallicityHistories']][,select])
+    out[,1:Ndim]=t(SFH[['Bulges/StarFormationRateHistories']][,select])
+    out[,1:Ndim+Ntime]=t(SFH[['Disks/StarFormationRateHistories']][,select])
+    out[,1:Ndim+Ntime*2]=t(SFH[['Bulges/MetallicityHistories']][,select])
+    out[,1:Ndim+Ntime*3]=t(SFH[['Disks/MetallicityHistories']][,select])
 
     #Nstart=Nend+1
     #out=cbind(t(SFH[['Bulges/StarFormationRateHistories']][,select]),
