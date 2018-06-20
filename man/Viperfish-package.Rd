@@ -15,7 +15,7 @@ The basic flow is usually that SURFS makes an N-body sweet, this is processed by
 \tabular{ll}{
 Package: \tab Viperfish\cr
 Type: \tab Package\cr
-Version: \tab 0.1.0\cr
+Version: \tab 0.2.0\cr
 Date: \tab 2018-06-20\cr
 License: \tab LGPL-3\cr
 Depends: \tab ProSpect (>= 0.2.2), data.table, hdf5r\cr

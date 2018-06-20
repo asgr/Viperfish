@@ -22,7 +22,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   names(filtout)=filters
 
   if(is.null(SFHlist)){
-    SFHlist=getSFH(file_sting=file_sting, path_shark=path_shark, snapmax=snapmax, verbose=verbose)
+    SFHlist=getSFH(file_sting=file_sting, path_shark=path_shark, snapmax=snapmax, cores=cores, verbose=verbose)
   }
 
   SFRbulge=SFHlist$SFRbulge

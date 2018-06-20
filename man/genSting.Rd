@@ -13,7 +13,8 @@ genSting(file_sting = "mocksurvey.hdf5", path_shark = ".", h = 0.678, cores = 4,
 snapmax = 199, filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS", "i_SDSS",
 "Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA", "K_VISTA", "W1", "W2", "W3", "W4", "P100",
 "P160", "S250", "S350", "S500"), SFHlist = NULL, time = NULL, verbose = TRUE)
-getSFH(file_sting = "mocksurvey.hdf5", path_shark = ".", snapmax = 199, verbose = TRUE)
+getSFH(file_sting = "mocksurvey.hdf5", path_shark = ".", snapmax = 199, cores = 4,
+verbose = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
