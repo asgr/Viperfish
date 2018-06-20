@@ -43,7 +43,7 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
     opts = list(progress=progress)
   }
 
-  extract=foreach(i=1:4, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
+  output=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
     if(verbose){progress(i)}
     Nid=mocksubsets[i,Nid]
     Nend=Nstart+Nid-1
@@ -58,12 +58,12 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
     #Zbulge[Nstart:Nend,1:Ndim]=t(SFH[['Bulges/MetallicityHistories']][,select])
     #Zdisk[Nstart:Nend,1:Ndim]=SFH[['Disks/MetallicityHistories']][,select]
 
-    out=matrix(0,Nid,Ntime*4)
+    extract=matrix(0,Nid,Ntime*4)
 
-    out[,1:Ndim]=t(SFH[['Bulges/StarFormationRateHistories']][,select])
-    out[,1:Ndim+Ntime]=t(SFH[['Disks/StarFormationRateHistories']][,select])
-    out[,1:Ndim+Ntime*2]=t(SFH[['Bulges/MetallicityHistories']][,select])
-    out[,1:Ndim+Ntime*3]=t(SFH[['Disks/MetallicityHistories']][,select])
+    extract[,1:Ndim]=t(SFH[['Bulges/StarFormationRateHistories']][,select])
+    extract[,1:Ndim+Ntime]=t(SFH[['Disks/StarFormationRateHistories']][,select])
+    extract[,1:Ndim+Ntime*2]=t(SFH[['Bulges/MetallicityHistories']][,select])
+    extract[,1:Ndim+Ntime*3]=t(SFH[['Disks/MetallicityHistories']][,select])
 
     #Nstart=Nend+1
     #out=cbind(t(SFH[['Bulges/StarFormationRateHistories']][,select]),
@@ -71,7 +71,7 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
     #          t(SFH[['Bulges/MetallicityHistories']][,select]),
     #          t(SFH[['Disks/MetallicityHistories']][,select]))
     SFH$close()
-    out
+    extract
   }
 
   stopCluster(cl)
@@ -84,8 +84,7 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
     message(paste('Finished getSFH on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
   }
 
-  #output=list(SFRbulge=SFRbulge, SFRdisk=SFRdisk, Zbulge=Zbulge, Zdisk=Zdisk)
-  #class(output)='Viperfish-StingSFH'
-  #invisible(output)
-  invisible(extract)
+  outSFH=list(SFRbulge=output[,1:Ntime], SFRdisk=output[,1:Ntime+Ntime], Zbulge=output[,1:Ntime+Ntime*2], Zdisk=output[,1:Ntime+Ntime*3])
+  class(outSFH)='Viperfish-StingSFH'
+  invisible(outSFH)
 }
