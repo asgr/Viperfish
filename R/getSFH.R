@@ -58,7 +58,7 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
     #SFRdisk[Nstart:Nend,1:Ndim]=t(SFH[['Disks/StarFormationRateHistories']][,select])
     #Zbulge[Nstart:Nend,1:Ndim]=t(SFH[['Bulges/MetallicityHistories']][,select])
     #Zdisk[Nstart:Nend,1:Ndim]=SFH[['Disks/MetallicityHistories']][,select]
-    SFH$close()
+
     Nstart=Nend+1
     out=cbind(t(SFH[['Bulges/StarFormationRateHistories']][,select]),
               t(SFH[['Disks/StarFormationRateHistories']][,select]),
