@@ -25,7 +25,7 @@ mocksubsets(mockcone)
   \item{file_sting}{
 Character scalar; full path to Stingray HDF5 file. The package will check that the file exists and we have read access.
 }
-  \item{mocksubsets}{
+  \item{mockcone}{
 data.table; the output of \code{mockcone}.
 }
   \item{path_shark}{

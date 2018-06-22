@@ -21,8 +21,8 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
   Ntime=SFH[['LBT_mean']]$dims
   SFH$close()
 
-  mockcone=.mockcone(file_sting=file_sting)
-  mocksubsets=.mocksubsets(mockcone=mockcone)
+  mockcone=mockcone(file_sting=file_sting)
+  mocksubsets=mocksubsets(mockcone=mockcone)
 
   Nunique=length(unlist(mocksubsets$idlist))
 
