@@ -2,15 +2,15 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
 
   timestart=proc.time()[3]
 
+  if(verbose){
+    message('Running getSFH on Stingray')
+  }
+
   assertCharacter(file_sting, max.len=1)
   assertAccess(file_sting, access='r')
   assertCharacter(path_shark, max.len=1)
   assertAccess(path_shark, access='r')
   assertInt(snapmax)
-
-  if(verbose){
-    message(paste('Running getSFH on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
-  }
 
   BC03lr=Dale_Msol=Nid=id_galaxy_sam=idlist=snapshot=subsnapID=subsnapshot=z=i=mocksubsets=mockcone=Ntime=time=NULL
 

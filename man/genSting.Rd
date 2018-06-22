@@ -1,6 +1,8 @@
 \name{genSting}
 \alias{genSting}
 \alias{getSFH}
+\alias{mockcone}
+\alias{mocksubsets}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Convert Stingray Outputs to SEDs
@@ -15,11 +17,16 @@ snapmax = 199, filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS", "i_SDSS",
 "P160", "S250", "S350", "S500"), SFHlist = NULL, time = NULL, verbose = TRUE)
 getSFH(file_sting = "mocksurvey.hdf5", path_shark = ".", snapmax = 199, cores = 4,
 verbose = TRUE)
+mockcone(file_sting = "mocksurvey.hdf5", galsname='galaxies')
+mocksubsets(mockcone)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{file_sting}{
 Character scalar; full path to Stingray HDF5 file. The package will check that the file exists and we have read access.
+}
+  \item{mocksubsets}{
+data.table; the output of \code{mockcone}.
 }
   \item{path_shark}{
 Character scalar; path to top directory containing Shark outputs. The package will check that the files and path exists and we have read access.
@@ -42,6 +49,9 @@ List; output from \code{getSFH}. If present then these SFH matrices will be used
   \item{time}{
 Numeric vector; if provided this should be the full vector of lookback time corresponding to the time outputs in \option{SFHlist}. It should have the same length as the matrices in \option{SFHlist} have columns.
 }
+  \item{galsname}{
+Character scalar; the name of the group containing galaxies in the Stingray HDF5 output (to cope with name changes through versions).
+}
   \item{verbose}{
 Logical; should helpful verbose outputs be printed regarding the processing?
 }
@@ -53,6 +63,10 @@ This interface is pretty high level, so should work fine if the paths are correc
 \code{getSFH} returns a list of the SFRs and the Z for the bulge and disk (which can be passed to \code{genSting} directly).
 
 \code{genSting} returns a list called \option{outSED} containing a data.frame of named absolute and apparent magnitudes for bulge, disk and total photometry, and a list called \option{SFHlist} containing the output of \code{getSFH} (or the input \option{SFHlist} if provided.
+
+\code{mockcone} outputs the contents of a target Stingray HDF5 into an R data.table. Mostly present for use inside \code{genSting}.
+
+\code{mocksubsets} outputs the minimally required sub-volumes and SAM galaxy ID list from a target mockcone. Mostly present for use inside \code{genSting}.
 }
 \author{
 Aaron Robotham

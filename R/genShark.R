@@ -2,6 +2,10 @@ genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0
 
   timestart=proc.time()[3]
 
+  if(verbose){
+    message('Running Viperfish on Shark')
+  }
+
   assertCharacter(path_shark, max.len=1)
   assertAccess(path_shark, access='r')
   assertInt(snapshot)
@@ -44,10 +48,6 @@ genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0
 
   cl=makeCluster(cores)
   registerDoSNOW(cl)
-
-  if(verbose){
-    message(paste('Running Viperfish on Shark -',round(proc.time()[3]-timestart,3),'sec'))
-  }
 
   iterations=length(select)
 

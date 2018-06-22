@@ -2,6 +2,10 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
 
   timestart=proc.time()[3]
 
+  if(verbose){
+    message('Running Viperfish on Stingray')
+  }
+
   assertCharacter(file_sting, max.len=1)
   assertAccess(file_sting, access='r')
   assertCharacter(path_shark, max.len=1)
@@ -47,10 +51,6 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
 
   cl=makeCluster(cores)
   registerDoSNOW(cl)
-
-  if(verbose){
-    message(paste('Running Viperfish on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
-  }
 
   iterations=dim(mockcone)[1]
 
@@ -99,11 +99,11 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   invisible(output)
 }
 
-.mockcone=function(file_sting){
+mockcone=function(file_sting="mocksurvey.hdf5", galsname='galaxies'){
   subsnapID=snapshot=subsnapshot=NULL
   assertCharacter(file_sting, max.len=1)
   assertAccess(file_sting, access='r')
-  mocksurvey=h5file(file_sting, mode='r')[['Galaxies']]
+  mocksurvey=h5file(file_sting, mode='r')[[galsname]]
   extract_col=list.datasets(mocksurvey, recursive = TRUE)
   mockcone=as.data.table(lapply(extract_col, function(x) mocksurvey[[x]][]))
   colnames(mockcone)=extract_col
@@ -112,7 +112,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   invisible(mockcone)
 }
 
-.mocksubsets=function(mockcone){
+mocksubsets=function(mockcone){
   id_galaxy_sam=subsnapID=Nid=idlist=snapshot=subsnapshot=NULL
   mocksubsets=mockcone[,list(idlist=list(unique(id_galaxy_sam))),by=subsnapID]
   mocksubsets[,Nid:=length(unlist(idlist)),by=subsnapID]
