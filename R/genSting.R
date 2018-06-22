@@ -36,8 +36,8 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
 
   #Make mock subsets:
 
-  mockcone=.mockcone(file_sting=file_sting)
-  mocksubsets=.mocksubsets(mockcone=mockcone)
+  mockcone=mockcone(file_sting=file_sting)
+  mocksubsets=mocksubsets(mockcone=mockcone)
 
   if(is.null(time)){
     assertAccess(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), access='r')
