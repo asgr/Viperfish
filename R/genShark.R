@@ -1,4 +1,4 @@
-genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0.678, cores=4, select='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), verbose=TRUE){
+genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0.678, cores=4, select='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), intSFR=TRUE, verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -58,7 +58,7 @@ genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0
   }
 
   outSED=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
-  unlist(genSED(SFRbulge=SFRbulge[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time, speclib=BC03lr, Zbulge=Zbulge[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, sparse=5, tau_birth = 1.5, tau_screen = 0.5))
+  unlist(genSED(SFRbulge=SFRbulge[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time, speclib=BC03lr, Zbulge=Zbulge[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, sparse=5, tau_birth = 1.5, tau_screen = 0.5, intSFR = intSFR))
   }
 
   stopCluster(cl)

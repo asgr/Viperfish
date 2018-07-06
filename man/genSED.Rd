@@ -10,7 +10,8 @@ Convert target bulge and disk SFHs to SEDs.
 genSED(SFRbulge, SFRdisk, redshift = 0.1, time = NULL, tau_birth = c(1, 1),
 tau_screen = c(0.3, 0.3), Zbulge = 5, Zdisk = 5, alpha_SF = c(1, 1), AGNfrac = c(0, 0),
 ab_nodust = TRUE, ap_nodust = TRUE, ab_dust = TRUE, ap_dust = TRUE, emitdust = TRUE,
-unimax = 1.38e+10, speclib = NULL, Dale = NULL, filtout = NULL, H0 = 67.8, sparse = 1)
+unimax = 1.38e+10, speclib = NULL, Dale = NULL, filtout = NULL, H0 = 67.8, sparse = 1,
+intSFR = TRUE)
 }
 \arguments{
   \item{SFRbulge}{
@@ -75,6 +76,9 @@ Numeric scalar; Hubble constant as defined at z=0 (default is H0=67.8 (km/s)/Mpc
 }
   \item{sparse}{
 Numeric scalar; amount of sparse sampling of the spectra to make. Higher values mean coarser spectra is processed, which means less accurate photometry, but faster processing. Generally done when computing higher resolution libraries for AB mags.
+}
+  \item{intSFR}{
+Boolean scalar; should the \option{massfunc} be intergrated between ages? This might be necessary if the SFH is quite bursty, but it is more expensive to compute and not required if the SFH is quite smooth.
 }
 }
 \details{

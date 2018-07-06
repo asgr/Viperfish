@@ -14,7 +14,8 @@ Takes Stingray light cones and converts to apparent and absolute SEDs.
 genSting(file_sting = "mocksurvey.hdf5", path_shark = ".", h = 0.678, cores = 4,
 snapmax = 199, filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS", "i_SDSS",
 "Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA", "K_VISTA", "W1", "W2", "W3", "W4", "P100",
-"P160", "S250", "S350", "S500"), SFHlist = NULL, time = NULL, verbose = TRUE)
+"P160", "S250", "S350", "S500"), SFHlist = NULL, time = NULL, intSFR = TRUE,
+verbose = TRUE)
 getSFH(file_sting = "mocksurvey.hdf5", path_shark = ".", snapmax = 199, cores = 4,
 verbose = TRUE)
 mockcone(file_sting = "mocksurvey.hdf5", galsname='galaxies')
@@ -51,6 +52,9 @@ Numeric vector; if provided this should be the full vector of lookback time corr
 }
   \item{galsname}{
 Character scalar; the name of the group containing galaxies in the Stingray HDF5 output (to cope with name changes through versions).
+}
+  \item{intSFR}{
+Boolean scalar; should the \option{massfunc} be intergrated between ages? This might be necessary if the SFH is quite bursty, but it is more expensive to compute and not required if the SFH is quite smooth.
 }
   \item{verbose}{
 Logical; should helpful verbose outputs be printed regarding the processing?
