@@ -83,3 +83,21 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
   class(outSFH)='Viperfish-StingSFH'
   invisible(outSFH)
 }
+
+getSFHsing=function(rowID=1, snapshot=199, subsnapshot=0, path_shark='.'){
+
+  assertCharacter(path_shark, max.len=1)
+  assertAccess(path_shark, access='r')
+
+  assertAccess(paste(path_shark,snapshot,subsnapshot,'star_formation_histories.hdf5', sep='/'), access='r')
+  SFH=h5file(paste(path_shark,snapshot,subsnapshot,'star_formation_histories.hdf5', sep='/'), mode='r')
+
+  select=match(mockcone[rowID,id_halo_sam], SFH[['Galaxies/id_galaxy']][])
+
+  SFHbulge=SFH[['Bulges/StarFormationRateHistories']][,select]
+  SFHdisk=SFH[['Disks/StarFormationRateHistories']][,select]
+  Zbulge=SFH[['Bulges/MetallicityHistories']][,select]
+  Zdisk=SFH[['Disks/MetallicityHistories']][,select]
+
+  return=list(SFHbulge=SFHbulge, SFHdisk=SFHdisk, Zbulge=Zbulge, Zdisk=Zdisk)
+}

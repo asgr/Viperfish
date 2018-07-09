@@ -1,4 +1,4 @@
-genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), SFHlist=NULL, time=NULL, intSFR=TRUE, verbose=TRUE){
+genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), sparse=5, tau_birth=1.5, tau_screen=0.5, SFHlist=NULL, time=NULL, intSFR=TRUE, doSFHsing=FALSE, verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -25,14 +25,16 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   filtout=foreach(i = filters)%do%{getfilt(i)}
   names(filtout)=filters
 
-  if(is.null(SFHlist)){
+  if(is.null(SFHlist) & doSFHsing==FALSE){
     SFHlist=getSFH(file_sting=file_sting, path_shark=path_shark, snapmax=snapmax, cores=cores, verbose=verbose)
   }
 
-  SFRbulge=SFHlist$SFRbulge
-  SFRdisk=SFHlist$SFRdisk
-  Zbulge=SFHlist$Zbulge
-  Zdisk=SFHlist$Zdisk
+  if(!is.null(SFHlist)){
+    SFRbulge=SFHlist$SFRbulge
+    SFRdisk=SFHlist$SFRdisk
+    Zbulge=SFHlist$Zbulge
+    Zdisk=SFHlist$Zdisk
+  }
 
   #Make mock subsets:
 
@@ -61,8 +63,22 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   }
 
   outSED=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
-    rowuse=which(SEDlookup$id==mockcone[i,id_galaxy_sam] & SEDlookup$subsnapID==mockcone[i,subsnapID])
-    unlist(genSED(SFRbulge=SFRbulge[rowuse,]/h, SFRdisk=SFRdisk[rowuse,]/h, redshift=mockcone[i,zobs], time=time-cosdistTravelTime(mockcone[i,zobs], ref='planck')*1e9, speclib=BC03lr, Zbulge=Zbulge[rowuse,], Zdisk=Zdisk[rowuse,], filtout=filtout, Dale=Dale_Msol, sparse=5, tau_birth=1.5, tau_screen=0.5, intSFR = intSFR))
+    if(doSFHsing){
+      snapshot=mockcone[i,snapshot]
+      subsnapshot=mockcone[i,subsnapshot]
+      SFHlistsing=getSFHsing(rowID=i, snapshot=snapshot, subsnapshot=subsnapshot, path_shark=path_shark)
+      SFRbulgesing=SFHlist$SFRbulge/h
+      SFRdisksing=SFHlist$SFRdisk/h
+      Zbulgesing=SFHlist$Zbulge/h
+      Zdisksing=SFHlist$Zdisk/h
+    }else{
+      rowuse=which(SEDlookup$id==mockcone[i,id_galaxy_sam] & SEDlookup$subsnapID==mockcone[i,subsnapID])
+      SFRbulgesing=SFRbulge[rowuse,]/h
+      SFRdisksing=SFRdisk[rowuse,]/h
+      Zbulgesing=Zbulge[rowuse,]
+      Zdisksing=Zdisk[rowuse,]
+    }
+    unlist(genSED(SFRbulge=SFRbulgesing, SFRdisk=SFRdisksing, redshift=mockcone[i,zobs], time=time-cosdistTravelTime(mockcone[i,zcos], ref='planck')*1e9, speclib=BC03lr, Zbulge=Zbulgesing, Zdisk=Zdisksing, filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))
   }
 
   stopCluster(cl)
