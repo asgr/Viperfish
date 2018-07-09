@@ -1,4 +1,4 @@
-genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), sparse=5, tau_birth=1.5, tau_screen=0.5, SFHlist=NULL, time=NULL, intSFR=TRUE, doSFHsing=FALSE, verbose=TRUE){
+genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), sparse=5, tau_birth=1.5, tau_screen=0.5, SFHlist=NULL, time=NULL, mockcone=NULL, intSFR=TRUE, doSFHsing=FALSE, verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -38,7 +38,9 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
 
   #Make mock subsets:
 
-  mockcone=mockcone(file_sting=file_sting)
+  if(is.null(mockcone)){
+    mockcone=mockcone(file_sting=file_sting)
+  }
   mocksubsets=mocksubsets(mockcone=mockcone)
 
   if(is.null(time)){
