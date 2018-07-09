@@ -83,7 +83,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
       Zbulgesing=Zbulge[rowuse,]
       Zdisksing=Zdisk[rowuse,]
     }
-    unlist(genSED(SFRbulge=SFRbulgesing, SFRdisk=SFRdisksing, redshift=mockcone[i,zobs], time=time-cosdistTravelTime(mockcone[i,zcos], ref='planck')*1e9, speclib=BC03lr, Zbulge=Zbulgesing, Zdisk=Zdisksing, filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))
+    unlist(genSED(SFRbulge=SFRbulgesing, SFRdisk=SFRdisksing, redshift=mockcone[i,zobs], time=time[1:length(SFRbulgesing)]-cosdistTravelTime(mockcone[i,zcos], ref='planck')*1e9, speclib=BC03lr, Zbulge=Zbulgesing, Zdisk=Zdisksing, filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))
   }
 
   stopCluster(cl)
