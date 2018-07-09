@@ -94,10 +94,10 @@ getSFHsing=function(id_halo_sam, snapshot=199, subsnapshot=0, path_shark='.'){
 
   select=match(id_halo_sam, SFH[['Galaxies/id_galaxy']][])
 
-  SFHbulge=SFH[['Bulges/StarFormationRateHistories']][,select]
-  SFHdisk=SFH[['Disks/StarFormationRateHistories']][,select]
+  SFRbulge=SFH[['Bulges/StarFormationRateHistories']][,select]
+  SFRdisk=SFH[['Disks/StarFormationRateHistories']][,select]
   Zbulge=SFH[['Bulges/MetallicityHistories']][,select]
   Zdisk=SFH[['Disks/MetallicityHistories']][,select]
 
-  return=list(SFHbulge=SFHbulge, SFHdisk=SFHdisk, Zbulge=Zbulge, Zdisk=Zdisk)
+  return=list(SFRbulge=SFRbulge, SFRdisk=SFRdisk, Zbulge=Zbulge, Zdisk=Zdisk)
 }
