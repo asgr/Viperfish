@@ -40,6 +40,8 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
 
   if(is.null(mockcone)){
     mockcone=mockcone(file_sting=file_sting)
+  }else{
+    assertDataTable(mockcone)
   }
   mocksubsets=mocksubsets(mockcone=mockcone)
 
@@ -70,10 +72,10 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
       subsnapshot=mockcone[i,subsnapshot]
       id_halo_sam=mockcone[i,id_halo_sam]
       SFHlistsing=getSFHsing(id_halo_sam=id_halo_sam, snapshot=snapshot, subsnapshot=subsnapshot, path_shark=path_shark)
-      SFRbulgesing=SFHlist$SFRbulge/h
-      SFRdisksing=SFHlist$SFRdisk/h
-      Zbulgesing=SFHlist$Zbulge/h
-      Zdisksing=SFHlist$Zdisk/h
+      SFRbulgesing=SFHlistsing$SFRbulge/h
+      SFRdisksing=SFHlistsing$SFRdisk/h
+      Zbulgesing=SFHlistsing$Zbulge/h
+      Zdisksing=SFHlistsing$Zdisk/h
     }else{
       rowuse=which(SEDlookup$id==mockcone[i,id_galaxy_sam] & SEDlookup$subsnapID==mockcone[i,subsnapID])
       SFRbulgesing=SFRbulge[rowuse,]/h
