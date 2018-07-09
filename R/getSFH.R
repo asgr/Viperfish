@@ -84,7 +84,7 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
   invisible(outSFH)
 }
 
-getSFHsing=function(id_halo_sam, snapshot=199, subsnapshot=0, path_shark='.'){
+getSFHsing=function(id_galaxy_sam, snapshot=199, subsnapshot=0, path_shark='.'){
 
   assertCharacter(path_shark, max.len=1)
   assertAccess(path_shark, access='r')
@@ -92,7 +92,7 @@ getSFHsing=function(id_halo_sam, snapshot=199, subsnapshot=0, path_shark='.'){
   assertAccess(paste(path_shark,snapshot,subsnapshot,'star_formation_histories.hdf5', sep='/'), access='r')
   SFH=h5file(paste(path_shark,snapshot,subsnapshot,'star_formation_histories.hdf5', sep='/'), mode='r')
 
-  select=match(id_halo_sam, SFH[['Galaxies/id_galaxy']][])
+  select=match(id_galaxy_sam, SFH[['Galaxies/id_galaxy']][])
 
   SFRbulge=SFH[['Bulges/StarFormationRateHistories']][,select]
   SFRdisk=SFH[['Disks/StarFormationRateHistories']][,select]

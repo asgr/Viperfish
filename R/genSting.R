@@ -70,8 +70,8 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     if(doSFHsing){
       snapshot=mockcone[i,snapshot]
       subsnapshot=mockcone[i,subsnapshot]
-      id_halo_sam=mockcone[i,id_halo_sam]
-      SFHlistsing=getSFHsing(id_halo_sam=id_halo_sam, snapshot=snapshot, subsnapshot=subsnapshot, path_shark=path_shark)
+      id_galaxy_sam=mockcone[i,id_galaxy_sam]
+      SFHlistsing=getSFHsing(id_galaxy_sam=id_galaxy_sam, snapshot=snapshot, subsnapshot=subsnapshot, path_shark=path_shark)
       SFRbulgesing=SFHlistsing$SFRbulge/h
       SFRdisksing=SFHlistsing$SFRdisk/h
       Zbulgesing=SFHlistsing$Zbulge/h
