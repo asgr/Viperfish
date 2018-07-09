@@ -17,7 +17,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   assertList(SFHlist, null.ok=TRUE)
   assertFlag(verbose)
 
-  BC03lr=Dale_Msol=Nid=id_galaxy_sam=idlist=snapshot=subsnapID=subsnapshot=z=i=mocksubsets=mockcone=Ntime=zobs=NULL
+  BC03lr=Dale_Msol=Nid=id_galaxy_sam=idlist=snapshot=subsnapID=subsnapshot=z=i=mocksubsets=Ntime=zobs=NULL
 
   data("BC03lr", envir = environment())
   data("Dale_Msol", envir = environment())
