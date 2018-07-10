@@ -84,8 +84,11 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
   invisible(outSFH)
 }
 
-getSFHsing=function(id_galaxy_sam, snapshot=199, subsnapshot=0, path_shark='.'){
+getSFHlist=function(id_galaxy_sam, snapshot=199, subsnapshot=0, path_shark='.'){
 
+  assertNumeric(id_galaxy_sam)
+  assertInt(snapshot)
+  assertInt(subsnapshot)
   assertCharacter(path_shark, max.len=1)
   assertAccess(path_shark, access='r')
 
@@ -94,10 +97,10 @@ getSFHsing=function(id_galaxy_sam, snapshot=199, subsnapshot=0, path_shark='.'){
 
   select=match(id_galaxy_sam, SFH[['Galaxies/id_galaxy']][])
 
-  SFRbulge=SFH[['Bulges/StarFormationRateHistories']][,select]
-  SFRdisk=SFH[['Disks/StarFormationRateHistories']][,select]
-  Zbulge=SFH[['Bulges/MetallicityHistories']][,select]
-  Zdisk=SFH[['Disks/MetallicityHistories']][,select]
+  SFRbulge=t(SFH[['Bulges/StarFormationRateHistories']][,select])
+  SFRdisk=t(SFH[['Disks/StarFormationRateHistories']][,select])
+  Zbulge=t(SFH[['Bulges/MetallicityHistories']][,select])
+  Zdisk=t(SFH[['Disks/MetallicityHistories']][,select])
 
   return=list(SFRbulge=SFRbulge, SFRdisk=SFRdisk, Zbulge=Zbulge, Zdisk=Zdisk)
 }
