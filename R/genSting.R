@@ -89,7 +89,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
 
   outSED=foreach(i=1:length(subsnapIDs), .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
     use=subsnapIDs[i]
-    select=which(subsnapID==use)
+    select=which(mockcone$subsnapID==use)
     snapshot=mockcone[select[1],snapshot]
     subsnapshot=mockcone[select[1],subsnapshot]
     id_galaxy_sam=mockcone[select,id_galaxy_sam]
