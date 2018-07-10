@@ -59,9 +59,10 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   registerDoSNOW(cl)
 
   #iterations=dim(mockcone)[1]
+  subsnapIDs=unique(mockcone$subsnapID)
 
   if(verbose){
-    pb = txtProgressBar(max = iterations, style = 3)
+    pb = txtProgressBar(max = length(subsnapIDs), style = 3)
     progress = function(n) setTxtProgressBar(pb, n)
     opts = list(progress=progress)
   }
@@ -86,10 +87,9 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   #   unlist(genSED(SFRbulge=SFRbulgesing, SFRdisk=SFRdisksing, redshift=mockcone[i,zobs], time=time[1:length(SFRbulgesing)]-cosdistTravelTime(mockcone[i,zcos], ref='planck')*1e9, speclib=BC03lr, Zbulge=Zbulgesing, Zdisk=Zdisksing, filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))
   # }
 
-  subsnapIDs=unique(mockcone$subsnapID)
-
-  outSED=foreach(i=subsnapIDs, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
-    select=which(subsnapID==i)
+  outSED=foreach(i=1:length(subsnapIDs), .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
+    use=subsnapIDs[i]
+    select=which(subsnapID==use)
     snapshot=mockcone[select,snapshot]
     subsnapshot=mockcone[select,subsnapshot]
     id_galaxy_sam=mockcone[select,id_galaxy_sam]
