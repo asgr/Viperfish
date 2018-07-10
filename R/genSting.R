@@ -96,10 +96,10 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     zcos=mockcone[select,zcos]
     zobs=mockcone[select,zobs]
     SFHlist_subsnap=getSFHlist(id_galaxy_sam=id_galaxy_sam, snapshot=snapshot, subsnapshot=subsnapshot, path_shark=path_shark)
-    SFRbulge_subsnap=SFHlistsing$SFRbulge/h
-    SFRdisk_subsnap=SFHlistsing$SFRdisk/h
-    Zbulge_subsnap=SFHlistsing$Zbulge/h
-    Zdisk_subsnap=SFHlistsing$Zdisk/h
+    SFRbulge_subsnap=SFHlist_subsnap$SFRbulge/h
+    SFRdisk_subsnap=SFHlist_subsnap$SFRdisk/h
+    Zbulge_subsnap=SFHlist_subsnap$Zbulge/h
+    Zdisk_subsnap=SFHlist_subsnap$Zdisk/h
 
     foreach(j=1:length(select), .combine='rbind')%do%{
       unlist(genSED(SFRbulge=SFRbulge_subsnap[j,], SFRdisk=SFRdisk_subsnap[j,], redshift=zobs[j], time=time[1:dim(SFRbulge_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge=Zbulge_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))
