@@ -58,7 +58,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   cl=makeCluster(cores)
   registerDoSNOW(cl)
 
-  iterations=dim(mockcone)[1]
+  #iterations=dim(mockcone)[1]
 
   if(verbose){
     pb = txtProgressBar(max = iterations, style = 3)
@@ -66,24 +66,44 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     opts = list(progress=progress)
   }
 
-  outSED=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
-    if(doSFHsing){
-      snapshot=mockcone[i,snapshot]
-      subsnapshot=mockcone[i,subsnapshot]
-      id_galaxy_sam=mockcone[i,id_galaxy_sam]
-      SFHlistsing=getSFHsing(id_galaxy_sam=id_galaxy_sam, snapshot=snapshot, subsnapshot=subsnapshot, path_shark=path_shark)
-      SFRbulgesing=SFHlistsing$SFRbulge/h
-      SFRdisksing=SFHlistsing$SFRdisk/h
-      Zbulgesing=SFHlistsing$Zbulge/h
-      Zdisksing=SFHlistsing$Zdisk/h
-    }else{
-      rowuse=which(SEDlookup$id==mockcone[i,id_galaxy_sam] & SEDlookup$subsnapID==mockcone[i,subsnapID])
-      SFRbulgesing=SFRbulge[rowuse,]/h
-      SFRdisksing=SFRdisk[rowuse,]/h
-      Zbulgesing=Zbulge[rowuse,]
-      Zdisksing=Zdisk[rowuse,]
+  # outSED=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
+  #   if(doSFHsing){
+  #     snapshot=mockcone[i,snapshot]
+  #     subsnapshot=mockcone[i,subsnapshot]
+  #     id_galaxy_sam=mockcone[i,id_galaxy_sam]
+  #     SFHlistsing=getSFHsing(id_galaxy_sam=id_galaxy_sam, snapshot=snapshot, subsnapshot=subsnapshot, path_shark=path_shark)
+  #     SFRbulgesing=SFHlistsing$SFRbulge/h
+  #     SFRdisksing=SFHlistsing$SFRdisk/h
+  #     Zbulgesing=SFHlistsing$Zbulge/h
+  #     Zdisksing=SFHlistsing$Zdisk/h
+  #   }else{
+  #     rowuse=which(SEDlookup$id==mockcone[i,id_galaxy_sam] & SEDlookup$subsnapID==mockcone[i,subsnapID])
+  #     SFRbulgesing=SFRbulge[rowuse,]/h
+  #     SFRdisksing=SFRdisk[rowuse,]/h
+  #     Zbulgesing=Zbulge[rowuse,]
+  #     Zdisksing=Zdisk[rowuse,]
+  #   }
+  #   unlist(genSED(SFRbulge=SFRbulgesing, SFRdisk=SFRdisksing, redshift=mockcone[i,zobs], time=time[1:length(SFRbulgesing)]-cosdistTravelTime(mockcone[i,zcos], ref='planck')*1e9, speclib=BC03lr, Zbulge=Zbulgesing, Zdisk=Zdisksing, filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))
+  # }
+
+  subsnapIDs=unique(mockcone$subsnapID)
+
+  outSED=foreach(i=subsnapIDs, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
+    select=which(subsnapID==i)
+    snapshot=mockcone[select,snapshot]
+    subsnapshot=mockcone[select,subsnapshot]
+    id_galaxy_sam=mockcone[select,id_galaxy_sam]
+    zcos=mockcone[select,zcos]
+    zobs=mockcone[select,zobs]
+    SFHlist_subsnap=getSFHlist(id_galaxy_sam=id_galaxy_sam, snapshot=snapshot, subsnapshot=subsnapshot, path_shark=path_shark)
+    SFRbulge_subsnap=SFHlistsing$SFRbulge/h
+    SFRdisk_subsnap=SFHlistsing$SFRdisk/h
+    Zbulge_subsnap=SFHlistsing$Zbulge/h
+    Zdisk_subsnap=SFHlistsing$Zdisk/h
+
+    foreach(j=1:length(select), .combine='rbind')%do%{
+      unlist(genSED(SFRbulge=SFRbulge_subsnap[j,], SFRdisk=SFRdisk_subsnap[j,], redshift=zobs[j], time=time[1:dim(SFRbulge_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge=Zbulge_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))
     }
-    unlist(genSED(SFRbulge=SFRbulgesing, SFRdisk=SFRdisksing, redshift=mockcone[i,zobs], time=time[1:length(SFRbulgesing)]-cosdistTravelTime(mockcone[i,zcos], ref='planck')*1e9, speclib=BC03lr, Zbulge=Zbulgesing, Zdisk=Zdisksing, filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))
   }
 
   stopCluster(cl)
