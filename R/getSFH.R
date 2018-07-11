@@ -80,7 +80,7 @@ getSFH=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores
   }
 
   outSFH=list(SFRbulge=output[,1:Ntime], SFRdisk=output[,1:Ntime+Ntime], Zbulge=output[,1:Ntime+Ntime*2], Zdisk=output[,1:Ntime+Ntime*3])
-  class(outSFH)='Viperfish-StingSFH'
+  class(outSFH)='Viperfish-SFH'
   invisible(outSFH)
 }
 
@@ -102,5 +102,7 @@ getSFHlist=function(id_galaxy_sam, snapshot=199, subsnapshot=0, path_shark='.'){
   Zbulge=t(SFH[['Bulges/MetallicityHistories']][,select])
   Zdisk=t(SFH[['Disks/MetallicityHistories']][,select])
 
-  return=list(SFRbulge=SFRbulge, SFRdisk=SFRdisk, Zbulge=Zbulge, Zdisk=Zdisk)
+  outSFH=list(SFRbulge=SFRbulge, SFRdisk=SFRdisk, Zbulge=Zbulge, Zdisk=Zdisk)
+  class(outSFH)='Viperfish-SFH'
+  invisible(outSFH)
 }

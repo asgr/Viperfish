@@ -1,4 +1,4 @@
-genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), sparse=5, tau_birth=1.5, tau_screen=0.5, SFHlist=NULL, time=NULL, mockcone=NULL, intSFR=TRUE, doSFHsing=FALSE, verbose=TRUE){
+genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, SFHlist=NULL, time=NULL, mockcone=NULL, intSFR=TRUE, doSFHbatch=FALSE, verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -17,7 +17,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   assertList(SFHlist, null.ok=TRUE)
   assertFlag(verbose)
 
-  BC03lr=Dale_Msol=Nid=id_galaxy_sam=idlist=snapshot=subsnapID=subsnapshot=z=i=mocksubsets=Ntime=zobs=NULL
+  BC03lr=Dale_Msol=Nid=id_galaxy_sam=idlist=snapshot=subsnapID=subsnapshot=z=i=j=mocksubsets=Ntime=zobs=NULL
 
   data("BC03lr", envir = environment())
   data("Dale_Msol", envir = environment())
@@ -25,7 +25,11 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   filtout=foreach(i = filters)%do%{getfilt(i)}
   names(filtout)=filters
 
-  if(is.null(SFHlist) & doSFHsing==FALSE){
+  if(!is.null(SFHlist) & doSFHbatch==TRUE){
+    stop('You should not provide an input to SFHlist and have doSFHbatch=TRUE set, since the requested behaviour is ambiguous!')
+  }
+
+  if(is.null(SFHlist) & doSFHbatch==FALSE){
     SFHlist=getSFH(file_sting=file_sting, path_shark=path_shark, snapmax=snapmax, cores=cores, verbose=verbose)
   }
 
