@@ -153,6 +153,7 @@ mockcone=function(file_sting="mocksurvey.hdf5", galsname='galaxies'){
   colnames(mockcone)=extract_col
   mocksurvey$close()
   mockcone[,subsnapID:=snapshot*100+subsnapshot]
+  mockcone=mockcone[order(subsnapID,id_galaxy_sam),]
   invisible(mockcone)
 }
 
