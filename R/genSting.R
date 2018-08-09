@@ -57,7 +57,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   if(is.null(time)){
     assertAccess(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), access='r')
     Shark_SFH=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')
-    time=Shark_SFH[['LBT_mean']][]*1e9
+    time=Shark_SFH[['lbt_mean']][]*1e9
     Shark_SFH$close()
   }
   Ntime=length(time)
