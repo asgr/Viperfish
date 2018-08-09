@@ -7,15 +7,18 @@ Generate SED
 Convert target bulge and disk SFHs to SEDs.
 }
 \usage{
-genSED(SFRbulge, SFRdisk, redshift = 0.1, time = NULL, tau_birth = c(1, 1),
-tau_screen = c(0.3, 0.3), Zbulge = 5, Zdisk = 5, alpha_SF = c(1, 1), AGNfrac = c(0, 0),
+genSED(SFRbulge_d, SFRbulge_m, SFRdisk, redshift = 0.1, time = NULL, tau_birth = 1,
+tau_screen = 0.3, Zbulge_d = 5, Zbulge_m = 5, Zdisk = 5, alpha_SF = 1, AGNfrac = 0,
 ab_nodust = TRUE, ap_nodust = TRUE, ab_dust = TRUE, ap_dust = TRUE, emitdust = TRUE,
 unimax = 1.38e+10, speclib = NULL, Dale = NULL, filtout = NULL, H0 = 67.8, sparse = 1,
 intSFR = TRUE)
 }
 \arguments{
-  \item{SFRbulge}{
-Numeric vector; star formation rate of the bulge in units Msun/yr/h.
+  \item{SFRbulge_d}{
+Numeric vector; star formation rate of the bulge (formed via disk instabilities) in units Msun/yr/h.
+}
+  \item{SFRbulge_m}{
+Numeric vector; star formation rate of the bulge (formed via mergers) in units Msun/yr/h.
 }
   \item{SFRdisk}{
 Numeric vector; star formation rate of the disk in units Msun/yr/h.
@@ -32,8 +35,11 @@ Numeric scalar; dust tau for birth clouds. Associated with sub 10 Myr star forma
   \item{tau_screen}{
 Numeric scalar; dust tau for screen. See \code{\link{SFH}}.
 }
-  \item{Zbulge}{
-Numeric vector; metallicity of star formation in the bulge. Can be a single value or a vector that matches the history, in which case it must be same length as \option{SFRbulge}.
+  \item{Zbulge_d}{
+Numeric vector; metallicity of star formation in the bulge (formed via disk instabilities). Can be a single value or a vector that matches the history, in which case it must be same length as \option{SFRbulge}.
+}
+  \item{Zbulge_m}{
+Numeric vector; metallicity of star formation in the bulge (formed via mergers). Can be a single value or a vector that matches the history, in which case it must be same length as \option{SFRbulge}.
 }
   \item{Zdisk}{
 Numeric vector; metallicity of star formation in the disk. Can be a single value or a vector that matches the history, in which case it must be same length as \option{SFRdisk}.
@@ -78,7 +84,7 @@ Numeric scalar; Hubble constant as defined at z=0 (default is H0=67.8 (km/s)/Mpc
 Numeric scalar; amount of sparse sampling of the spectra to make. Higher values mean coarser spectra is processed, which means less accurate photometry, but faster processing. Generally done when computing higher resolution libraries for AB mags.
 }
   \item{intSFR}{
-Boolean scalar; should the \option{massfunc} be intergrated between ages? This might be necessary if the SFH is quite bursty, but it is more expensive to compute and not required if the SFH is quite smooth.
+Logical; should the \option{massfunc} be intergrated between ages? This might be necessary if the SFH is quite bursty, but it is more expensive to compute and not required if the SFH is quite smooth.
 }
 }
 \details{

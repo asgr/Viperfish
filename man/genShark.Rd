@@ -7,10 +7,11 @@ Convert Shark Outputs to SEDs
 Takes Shark boxes and converts to apparent and absolute SEDs.
 }
 \usage{
-genShark(path_shark = ".", snapshot, subsnapshot, redshift = 0.1, h = 0.678, cores = 4,
-select = "all", filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS", "i_SDSS",
-"Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA", "K_VISTA", "W1", "W2", "W3", "W4", "P100",
-"P160", "S250", "S350", "S500"), intSFR = TRUE, verbose = TRUE)
+genShark(path_shark = ".", snapshot = NULL, subvolume = NULL, redshift = 0.1, h = 0.678,
+cores = 4, select = "all", filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS",
+"i_SDSS", "Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA", "K_VISTA", "W1", "W2", "W3", "W4",
+"P100", "P160", "S250", "S350", "S500"), tau_birth = 1.5, tau_screen = 0.5, sparse = 5,
+intSFR=TRUE, verbose=TRUE)
 }
 \arguments{
   \item{path_shark}{
@@ -19,7 +20,7 @@ Character scalar; path to top directory containing Shark outputs. The package wi
   \item{snapshot}{
 Integer scalar; snapshot number to use.
 }
-  \item{subsnapshot}{
+  \item{subvolume}{
 Integer scalar; sub-volume snapshot number to use.
 }
   \item{redshift}{
@@ -32,13 +33,22 @@ Numeric scalar; little-h assumed in Shark (needed to convert SFRs to actual SFR 
 Integer scalar; number of cores to process on.
 }
   \item{select}{
-Integer vector; IDs to extract for photometric processing. The default ('all') will process all galaxies in the sub-volume and snapshot requested.
+Integer vector; row IDs to extract for photometric processing. The default ('all') will process all galaxies in the sub-volume and snapshot requested.
 }
   \item{filters}{
 Character vector; filters to use for the photometry.
 }
+  \item{tau_birth}{
+Numeric scalar; dust tau for birth clouds. Associated with sub 10 Myr star formation. See \code{\link{SFH}}.
+}
+  \item{tau_screen}{
+Numeric scalar; dust tau for screen. See \code{\link{SFH}}.
+}
+  \item{sparse}{
+Numeric scalar; amount of sparse sampling of the spectra to make. Higher values mean coarser spectra is processed, which means less accurate photometry, but faster processing. Generally done when computing higher resolution libraries for AB mags.
+}
   \item{intSFR}{
-Boolean scalar; should the \option{massfunc} be intergrated between ages? This might be necessary if the SFH is quite bursty, but it is more expensive to compute and not required if the SFH is quite smooth.
+Logical; should the \option{massfunc} be intergrated between ages? This might be necessary if the SFH is quite bursty, but it is more expensive to compute and not required if the SFH is quite smooth.
 }
   \item{verbose}{
 Logical; should helpful verbose outputs be printed regarding the processing?

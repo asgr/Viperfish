@@ -1,4 +1,4 @@
-genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0.678, cores=4, select='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), intSFR=TRUE, verbose=TRUE){
+genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h=0.678, cores=4, select='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, intSFR=TRUE, verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -8,13 +8,19 @@ genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0
 
   assertCharacter(path_shark, max.len=1)
   assertAccess(path_shark, access='r')
-  assertInt(snapshot)
-  assertInt(subsnapshot)
+  assertInt(snapshot, null.ok=TRUE)
+  assertInt(subvolume, null.ok=TRUE)
   assertScalar(h)
   assertInt(cores)
   assertCharacter(filters)
+  assertScalar(tau_birth)
+  assertScalar(tau_screen)
+  assertInt(sparse)
+  assertFlag(intSFR)
+  assertFlag(verbose)
 
-  BC03lr=Dale_Msol=SFH=i=subsnapID=snapshot=id_galaxy_sam=Nid=idlist=subsnapID=NULL
+
+  BC03lr=Dale_Msol=SFH=i=subsnapID=id_galaxy_sam=Nid=idlist=subsnapID=NULL
 
   data("BC03lr", envir = environment())
   data("Dale_Msol", envir = environment())
@@ -22,21 +28,24 @@ genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0
   filtout=foreach(i = filters)%do%{getfilt(i)}
   names(filtout)=filters
 
-  if(!missing(snapshot)){path_shark=paste(path_shark,snapshot,sep='/')}
-  if(!missing(subsnapshot)){path_shark=paste(path_shark,subsnapshot,sep='/')}
+  path_shark=paste(path_shark,snapshot,sep='/')
+  path_shark=paste(path_shark,subvolume,sep='/')
 
   assertAccess(paste(path_shark,'star_formation_histories.hdf5',sep='/'), access='r')
   Shark_SFH=h5file(paste(path_shark,'star_formation_histories.hdf5',sep='/'), mode='r')
-  time=Shark_SFH[['LBT_mean']][]*1e9
+
+  time=Shark_SFH[['lbt_mean']][]*1e9
 
   if(select[1]=='all'){
-    select=1:SFH[['Galaxies/id_galaxy']]$dims
+    select=1:Shark_SFH[['galaxies/id_galaxy']]$dims
   }
 
-  SFRbulge=Shark_SFH[['Bulges/StarFormationRateHistories']][,select,drop=FALSE]
-  SFRdisk=Shark_SFH[['Disks/StarFormationRateHistories']][,select,drop=FALSE]
-  Zbulge=Shark_SFH[['Bulges/MetallicityHistories']][,select,drop=FALSE]
-  Zdisk=Shark_SFH[['Disks/MetallicityHistories']][,select,drop=FALSE]
+  SFRbulge_d=Shark_SFH[['bulges_diskins/star_formation_rate_histories']][,select,drop=FALSE]
+  SFRbulge_m=Shark_SFH[['bulges_mergers/star_formation_rate_histories']][,select,drop=FALSE]
+  SFRdisk=Shark_SFH[['disks/star_formation_rate_histories']][,select,drop=FALSE]
+  Zbulge_d=Shark_SFH[['bulges_diskins/metallicity_histories']][,select,drop=FALSE]
+  Zbulge_m=Shark_SFH[['bulges_mergers/metallicity_histories']][,select,drop=FALSE]
+  Zdisk=Shark_SFH[['disks/metallicity_histories']][,select,drop=FALSE]
 
   if(length(redshift)==1){
     redshift=rep(redshift, length(select))
@@ -58,7 +67,7 @@ genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0
   }
 
   outSED=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
-  unlist(genSED(SFRbulge=SFRbulge[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time, speclib=BC03lr, Zbulge=Zbulge[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, sparse=5, tau_birth = 1.5, tau_screen = 0.5, intSFR = intSFR))
+  unlist(genSED(SFRbulge_d=SFRbulge_d[,i]/h, SFRbulge_m=SFRbulge_m[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time, speclib=BC03lr, Zbulge_d=Zbulge_d[,i], Zbulge_m=Zbulge_m[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, tau_birth=tau_birth, tau_screen=tau_screen, sparse=sparse, intSFR=intSFR))
   }
 
   stopCluster(cl)
@@ -69,21 +78,29 @@ genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0
 
   outSED=as.data.table(rbind(outSED))
   colnamesSED=c(
+    paste0('ab_mag_nodust_b_d_',filters),
+    paste0('ab_mag_nodust_b_m_',filters),
     paste0('ab_mag_nodust_b_',filters),
     paste0('ab_mag_nodust_d_',filters),
     paste0('ab_mag_nodust_t_',filters),
+    paste0('ap_mag_nodust_b_d_',filters),
+    paste0('ap_mag_nodust_b_m_',filters),
     paste0('ap_mag_nodust_b_',filters),
     paste0('ap_mag_nodust_d_',filters),
     paste0('ap_mag_nodust_t_',filters),
+    paste0('ab_mag_dust_b_d_',filters),
+    paste0('ab_mag_dust_b_m_',filters),
     paste0('ab_mag_dust_b_',filters),
     paste0('ab_mag_dust_d_',filters),
     paste0('ab_mag_dust_t_',filters),
+    paste0('ap_mag_dust_b_d_',filters),
+    paste0('ap_mag_dust_b_m_',filters),
     paste0('ap_mag_dust_b_',filters),
     paste0('ap_mag_dust_d_',filters),
     paste0('ap_mag_dust_t_',filters)
     )
   colnames(outSED)=colnamesSED
-  outSED=cbind(id_galaxy=Shark_SFH[['Galaxies/id_galaxy']][select], outSED)
+  outSED=cbind(id_galaxy=Shark_SFH[['galaxies/id_galaxy']][select], outSED)
 
   Shark_SFH$close()
 
@@ -91,6 +108,6 @@ genShark=function(path_shark='.', snapshot=199, subsnapshot=0, redshift=0.1, h=0
     message(paste('Finished Viperfish on Shark -',round(proc.time()[3]-timestart,3),'sec'))
   }
 
-  class(outSED)='Viperfish-Shark'
+  class(outSED)=c(class(outSED),'Viperfish-Shark')
   invisible(outSED)
 }
