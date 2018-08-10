@@ -128,7 +128,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     paste0('ap_mag_dust_t_',filters)
     )
   colnames(outSED)=colnamesSED
-  outSED=cbind(id_galaxy_sky=mockcone$id_galaxy_sky, outSED)
+  outSED=cbind(id_galaxy=mockcone$id_galaxy, outSED)
 
   if(verbose){
     message(paste('Finished Viperfish on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
