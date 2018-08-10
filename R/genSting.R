@@ -107,8 +107,13 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     as.data.table(cbind(id_galaxy,rbind(tempout)))
   }
 
-  close(file_output)
   stopCluster(cl)
+
+  close(file_output)
+  if(file.exists(file_output)){
+    assertAccess(file_output, access='w')
+    file.remove(file_output)
+  }
 
   if(verbose){
     close(pb)
