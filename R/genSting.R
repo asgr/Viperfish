@@ -77,6 +77,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   }
 
   file(file_output)
+  assertAccess(file_output, access='w')
 
   outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts})%dopar%{
     use=subsnapIDs[i]
@@ -170,14 +171,14 @@ mocksubsets=function(mockcone){
   invisible(mocksubsets)
 }
 
-.dumpout = function(fobj='temp.csv', ...) {
+.dumpout = function(file_output='temp.csv', ...) {
   for(r in list(...))
-    fwrite(x=r, file=fobj, append=TRUE)
-  fobj
+    fwrite(x=r, file=file_output, append=TRUE)
+  file_output
 }
 
-.dumpin = function(fobj='temp.csv') {
-  fread('fobj')
+.dumpin = function(file_output='temp.csv') {
+  fread(file_output)
 }
 
 
