@@ -1,4 +1,4 @@
-genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, verbose=TRUE){
+genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, filedump='temp.csv', verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -76,7 +76,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     opts = list(progress=progress)
   }
 
-  outSED=foreach(i=1:length(subsnapIDs), .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
+  outSED=foreach(i=1:length(subsnapIDs), .combine='filedump', .init=filedump, .inorder=FALSE, .options.snow = if(verbose){opts})%dopar%{
     use=subsnapIDs[i]
     select=which(mockcone$subsnapID==use)
     snapshot=mockcone[select[1],snapshot]
@@ -163,4 +163,8 @@ mocksubsets=function(mockcone){
   mocksubsets[,snapshot:=floor(subsnapID/100)]
   mocksubsets[,subvolume:=subsnapID%%100]
   invisible(mocksubsets)
+}
+
+filedump=function(filedump='temp.csv', data){
+  fwrite(data, file=file, append=TRUE)
 }
