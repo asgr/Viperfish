@@ -80,7 +80,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     assertAccess(file_output, access='w')
     file.remove(file_output)
   }
-  file(file_output, open='w')
+  file.create(file_output)
   assertAccess(file_output, access='w')
 
   outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts})%dopar%{
