@@ -76,7 +76,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     opts = list(progress=progress)
   }
 
-  outSED=foreach(i=1:length(subsnapIDs), .combine='.dumpout', .init=file_output, .final='.dumpin', .inorder=FALSE, .options.snow = if(verbose){opts})%dopar%{
+  outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts})%dopar%{
     use=subsnapIDs[i]
     select=which(mockcone$subsnapID==use)
     snapshot=mockcone[select[1],snapshot]
@@ -168,13 +168,13 @@ mocksubsets=function(mockcone){
   invisible(mocksubsets)
 }
 
-.dumpout <- function(fobj='temp.csv', ...) {
+.dumpout = function(fobj='temp.csv', ...) {
   for(r in list(...))
     fwrite(x=r, file=fobj, append=TRUE)
   fobj
 }
 
-.dumpin <- function(fobj='temp.csv') {
+.dumpin = function(fobj='temp.csv') {
   fread('fobj')
 }
 
