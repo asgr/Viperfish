@@ -109,7 +109,6 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
 
   stopCluster(cl)
 
-  close(file_output)
   if(file.exists(file_output)){
     assertAccess(file_output, access='w')
     file.remove(file_output)
