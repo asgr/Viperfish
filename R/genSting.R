@@ -76,11 +76,12 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     opts = list(progress=progress)
   }
 
-  outSED=foreach(i=1:length(subsnapIDs), .combine='.filedump', .init=file_output, .inorder=FALSE, .options.snow = if(verbose){opts})%dopar%{
+  outSED=foreach(i=1:length(subsnapIDs), .combine='.dumpout', .init=file_output, .final='.dumpin', .inorder=FALSE, .options.snow = if(verbose){opts})%dopar%{
     use=subsnapIDs[i]
     select=which(mockcone$subsnapID==use)
     snapshot=mockcone[select[1],snapshot]
     subvolume=mockcone[select[1],subvolume]
+    id_galaxy=mockcone[select,id_galaxy]
     id_galaxy_sam=mockcone[select,id_galaxy_sam]
     zcos=mockcone[select,zcos]
     zobs=mockcone[select,zobs]
@@ -96,7 +97,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     tempout=foreach(j=1:length(select), .combine='rbind')%do%{
       unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,], SFRbulge_m=SFRbulge_m_subsnap[j,], SFRdisk=SFRdisk_subsnap[j,], redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))
     }
-    as.data.table(tempout)
+    as.data.table(cbind(id_galaxy,tempout))
   }
 
   stopCluster(cl)
@@ -107,6 +108,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
 
   outSED=as.data.frame(outSED)
   colnamesSED=c(
+    'id_galaxy',
     paste0('ab_mag_nodust_b_d_',filters),
     paste0('ab_mag_nodust_b_m_',filters),
     paste0('ab_mag_nodust_b_',filters),
@@ -129,7 +131,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     paste0('ap_mag_dust_t_',filters)
     )
   colnames(outSED)=colnamesSED
-  outSED=cbind(id_galaxy=mockcone$id_galaxy, outSED)
+  #outSED=cbind(id_galaxy=mockcone$id_galaxy, outSED)
 
   if(verbose){
     message(paste('Finished Viperfish on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
@@ -166,6 +168,17 @@ mocksubsets=function(mockcone){
   invisible(mocksubsets)
 }
 
-.filedump=function(file_output='temp.csv', data){
-  fwrite(data, file=file_output, append=TRUE)
+.dumpout <- function(fobj='temp.csv', ...) {
+  for(r in list(...))
+    fwrite(x=r, file=fobj, append=TRUE)
+  fobj
 }
+
+.dumpin <- function(fobj='temp.csv') {
+  fread('fobj')
+}
+
+
+# .filedump=function(file_output='temp.csv', data){
+#   fwrite(x=data, file='temp.csv', append=TRUE)
+# }
