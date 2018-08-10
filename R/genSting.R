@@ -76,7 +76,11 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     opts = list(progress=progress)
   }
 
-  file(file_output)
+  if(file.exists(file_output)){
+    assertAccess(file_output, access='w')
+    file.remove(file_output)
+  }
+  file(file_output, open='w')
   assertAccess(file_output, access='w')
 
   outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts})%dopar%{
@@ -100,7 +104,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     tempout=foreach(j=1:length(select), .combine='rbind')%do%{
       unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,], SFRbulge_m=SFRbulge_m_subsnap[j,], SFRdisk=SFRdisk_subsnap[j,], redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))
     }
-    as.data.table(cbind(id_galaxy,tempout))
+    as.data.table(cbind(id_galaxy,rbind(tempout)))
   }
 
   stopCluster(cl)
