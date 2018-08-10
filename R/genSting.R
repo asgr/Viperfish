@@ -76,7 +76,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     opts = list(progress=progress)
   }
 
-  outSED=foreach(i=1:length(subsnapIDs), .combine='filedump', .init=file_output, .inorder=FALSE, .options.snow = if(verbose){opts})%dopar%{
+  outSED=foreach(i=1:length(subsnapIDs), .combine='.filedump', .init=file_output, .inorder=FALSE, .options.snow = if(verbose){opts})%dopar%{
     use=subsnapIDs[i]
     select=which(mockcone$subsnapID==use)
     snapshot=mockcone[select[1],snapshot]
@@ -166,6 +166,6 @@ mocksubsets=function(mockcone){
   invisible(mocksubsets)
 }
 
-filedump=function(file_output='temp.csv', data){
+.filedump=function(file_output='temp.csv', data){
   fwrite(data, file=file_output, append=TRUE)
 }
