@@ -107,6 +107,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     as.data.table(cbind(id_galaxy,rbind(tempout)))
   }
 
+  close(file_output)
   stopCluster(cl)
 
   if(verbose){
@@ -145,6 +146,8 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   }
 
   #output=list(outSED=outSED, SFHfull=SFHfull)
+
+  outSED=outSED[match(mockcone$id_galaxy, outSED$id_galaxy),]
 
   class(outSED)=c(class(outSED),'Viperfish-Shark')
   invisible(outSED)
