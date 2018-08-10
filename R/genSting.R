@@ -76,6 +76,8 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     opts = list(progress=progress)
   }
 
+  file(file_output)
+
   outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts})%dopar%{
     use=subsnapIDs[i]
     select=which(mockcone$subsnapID==use)
