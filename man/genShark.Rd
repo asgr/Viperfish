@@ -32,8 +32,8 @@ Numeric scalar; little-h assumed in Shark (needed to convert SFRs to actual SFR 
   \item{cores}{
 Integer scalar; number of cores to process on.
 }
-  \item{id_select}{
-Integer vector; Shark id_galaxy IDs to extract for photometric processing. The default ('all') will process all galaxies in the sub-volume and snapshot requested.
+  \item{id_galaxy_sam}{
+Integer vector; Shark IDs to extract for photometric processing. The default ('all') will process all galaxies in the sub-volume and snapshot requested.
 }
   \item{filters}{
 Character vector; filters to use for the photometry.

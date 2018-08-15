@@ -1,4 +1,4 @@
-genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h=0.678, cores=4, id_select='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, intSFR=TRUE, verbose=TRUE){
+genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h=0.678, cores=4, id_galaxy_sam='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, intSFR=TRUE, verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -36,10 +36,10 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h
 
   time=Shark_SFH[['lbt_mean']][]*1e9
 
-  if(id_select[1]=='all'){
+  if(id_galaxy_sam[1]=='all'){
     select=1:Shark_SFH[['galaxies/id_galaxy']]$dims
   }else{
-    select=match(id_select, Shark_SFH[['galaxies/id_galaxy']][])
+    select=match(id_galaxy_sam, Shark_SFH[['galaxies/id_galaxy']][])
   }
 
   SFRbulge_d=Shark_SFH[['bulges_diskins/star_formation_rate_histories']][,select,drop=FALSE]
