@@ -8,7 +8,7 @@ Takes Shark boxes and converts to apparent and absolute SEDs.
 }
 \usage{
 genShark(path_shark = ".", snapshot = NULL, subvolume = NULL, redshift = 0.1, h = 0.678,
-cores = 4, select = "all", filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS",
+cores = 4, id_select = "all", filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS",
 "i_SDSS", "Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA", "K_VISTA", "W1", "W2", "W3", "W4",
 "P100", "P160", "S250", "S350", "S500"), tau_birth = 1.5, tau_screen = 0.5, sparse = 5,
 intSFR=TRUE, verbose=TRUE)
@@ -32,8 +32,8 @@ Numeric scalar; little-h assumed in Shark (needed to convert SFRs to actual SFR 
   \item{cores}{
 Integer scalar; number of cores to process on.
 }
-  \item{select}{
-Integer vector; row IDs to extract for photometric processing. The default ('all') will process all galaxies in the sub-volume and snapshot requested.
+  \item{id_select}{
+Integer vector; Shark id_galaxy IDs to extract for photometric processing. The default ('all') will process all galaxies in the sub-volume and snapshot requested.
 }
   \item{filters}{
 Character vector; filters to use for the photometry.
