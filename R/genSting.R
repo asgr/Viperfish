@@ -84,7 +84,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   file.create(file_output)
   assertAccess(file_output, access='w')
 
-  outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=file_output, .final=.dumpin, .inorder=FALSE, .errorhandling='remove', .options.snow = if(verbose){opts})%do%{
+  outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts})%do%{
     use=subsnapIDs[i]
     select=which(mockcone$subsnapID==use)
     snapshot=mockcone[select[1],snapshot]
