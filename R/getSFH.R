@@ -100,7 +100,8 @@ getSFHsing=function(id_galaxy_sam, snapshot=NULL, subvolume=NULL, path_shark='.'
   Shark_SFH=h5file(paste(path_shark,'star_formation_histories.hdf5',sep='/'), mode='r')
 
   select=match(id_galaxy_sam, Shark_SFH[['galaxies/id_galaxy']][])
-  id_galaxy_sam=id_galaxy_sam[!is.na(select)]
+  keep=which(!is.na(select))
+  id_galaxy_sam=id_galaxy_sam[keep]
   select=select[!is.na(select)]
 
   SFRbulge_d=t(Shark_SFH[['bulges_diskins/star_formation_rate_histories']][,select,drop=FALSE])
@@ -115,7 +116,7 @@ getSFHsing=function(id_galaxy_sam, snapshot=NULL, subvolume=NULL, path_shark='.'
   #Zbulge=t(Shark_SFH[['Bulges/MetallicityHistories']][,select])
   #Zdisk=t(Shark_SFH[['Disks/MetallicityHistories']][,select])
 
-  outSFH=list(id_galaxy_sam=id_galaxy_sam, SFRbulge_d=SFRbulge_d, SFRbulge_m=SFRbulge_m, SFRdisk=SFRdisk, Zbulge_d=Zbulge_d, Zbulge_m=Zbulge_m, Zdisk=Zdisk)
+  outSFH=list(id_galaxy_sam=id_galaxy_sam, keep=keep, SFRbulge_d=SFRbulge_d, SFRbulge_m=SFRbulge_m, SFRdisk=SFRdisk, Zbulge_d=Zbulge_d, Zbulge_m=Zbulge_m, Zdisk=Zdisk)
   class(outSFH)='Viperfish-SFH'
   invisible(outSFH)
 }

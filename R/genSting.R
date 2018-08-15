@@ -105,7 +105,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
 
     tempout=foreach(j=1:length(select), .combine='rbind')%do%{
     #for(j in 1:length(SFHsing_subsnap$id_galaxy_sam)){
-      tempSED=tryCatch(c(SFHsing_subsnap$id_galaxy_sam[j], unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,], SFRbulge_m=SFRbulge_m_subsnap[j,], SFRdisk=SFRdisk_subsnap[j,], redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))), error = function(e) NULL)
+      tempSED=tryCatch(c(id_galaxy[SFHsing_subsnap$keep[j]], unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,], SFRbulge_m=SFRbulge_m_subsnap[j,], SFRdisk=SFRdisk_subsnap[j,], redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))), error = function(e) NULL)
       tempSED
     }
     as.data.table(rbind(tempout))

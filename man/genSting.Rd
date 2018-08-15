@@ -92,7 +92,7 @@ This interface is pretty high level, so should work fine if the paths are correc
 
 \code{getSFHfull} returns a full list of the SFRs and the Z for the bulge and disk (which can be passed to \code{genSting} directly) for a given Stingray mock cone.
 
-\code{getSFHsing} returns a list of the SFRs and the Z for the bulge and disk for a subset of galaxies for a given snapshot and subsnapshot.
+\code{getSFHsing} returns a list of the SFRs and the Z for the bulge (disk instability and merger driven) and disk for a subset of galaxies for a given snapshot and subsnapshot. Also returns the id_galaxy_sam actually present, and the location of the present galaxies relative to the input \option{id_galaxy_sam} (keep).
 
 \code{mockcone} outputs the contents of a target Stingray HDF5 into an R data.table. Mostly present for use inside \code{genSting}.
 
