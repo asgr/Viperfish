@@ -33,8 +33,8 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
       stop(paste('Date stamps do not match! Shark',Shark_date,'compared to Sting',Sting_date))
     }
 
-    Shark_date$close()
-    Sting_date$close()
+    rm(Shark_date)
+    rm(Sting_date)
   }
 
   BC03lr=Dale_Msol=Nid=id_galaxy_sam=idlist=snapshot=subsnapID=subvolume=z=i=j=mocksubsets=Ntime=zobs=NULL
