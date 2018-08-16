@@ -1,4 +1,4 @@
-genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, file_output='temp.csv', verbose=TRUE){
+genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, file_output='temp.csv', verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -6,7 +6,7 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
     message('Running Viperfish on Stingray')
   }
 
-  assertCharacter(file_sting, max.len=1)
+  assertCharacter(file_sting, max.len=1, null.ok=TRUE)
   assertAccess(file_sting, access='r')
   assertCharacter(path_shark, max.len=1)
   assertAccess(path_shark, access='r')
@@ -21,6 +21,22 @@ genSting=function(file_sting='mocksurvey.hdf5', path_shark='.', h=0.678, cores=4
   assertDataTable(mockcone, null.ok=TRUE)
   assertFlag(intSFR)
   assertFlag(verbose)
+
+  if(! is.null(file_sting)){
+    assertAccess(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), access='r')
+    Shark_date=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')[['run_info/timestamp']][]
+    assertAccess(file_sting, access='r')
+    Sting_date=h5file(file_sting, mode='r')[['run_info/shark_timestamp']][]
+
+    check= (Shark_date==Sting_date)
+
+    if(check==FALSE){
+      stop(paste('Date stamps do not match! Shark',Shark_date,'compared to Sting',Sting_date))
+    }
+
+    Shark_date$close()
+    Sting_date$close()
+  }
 
   BC03lr=Dale_Msol=Nid=id_galaxy_sam=idlist=snapshot=subsnapID=subvolume=z=i=j=mocksubsets=Ntime=zobs=NULL
 

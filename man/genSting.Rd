@@ -16,7 +16,7 @@ genSting(file_sting = "mocksurvey.hdf5", path_shark = ".", h = 0.678, cores = 4,
 snapmax = 199, filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS", "i_SDSS",
 "Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA", "K_VISTA", "W1", "W2", "W3", "W4", "P100",
 "P160", "S250", "S350", "S500"), tau_birth = 1.5, tau_screen = 0.5, sparse = 5,
-time = NULL, mockcone = NULL, intSFR = TRUE, verbose = TRUE)
+time = NULL, mockcone = NULL, intSFR = TRUE, file_output = "temp.csv", verbose = TRUE)
 
 getSFHfull(file_sting = "mocksurvey.hdf5", path_shark = ".", snapmax = 199, cores = 4,
 verbose = TRUE)
@@ -79,6 +79,9 @@ Integer scalar; sub-volume snapshot number to use.
 }
   \item{reorder}{
 Logical; Should the output mock cone be re-ordered so to enforce that it is first ascending in subsnapID, followed by id_galaxy_sam within groups of subsnapID? It is safest to enforece this since the cones made by Stingray might not always be so ordered.
+}
+  \item{file_output}{
+Character scalar; name for the temporary file to write to. This should not be an existing file.
 }
   \item{verbose}{
 Logical; should helpful verbose outputs be printed regarding the processing?
