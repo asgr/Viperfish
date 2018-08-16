@@ -99,7 +99,7 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
   file.create(file_output)
   assertAccess(file_output, access='w')
 
-  outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts})%do%{
+  outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts})%dopar%{
   #for(i in 1:length(subsnapIDs)){
     use=subsnapIDs[i]
     select=which(mockcone$subsnapID==use)
