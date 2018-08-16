@@ -6,8 +6,6 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
     message('Running Viperfish on Stingray')
   }
 
-  assertCharacter(file_sting, max.len=1, null.ok=TRUE)
-  assertAccess(file_sting, access='r')
   assertCharacter(path_shark, max.len=1)
   assertAccess(path_shark, access='r')
   assertScalar(h)
@@ -23,6 +21,7 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
   assertFlag(verbose)
 
   if(! is.null(file_sting)){
+    assertCharacter(file_sting, max.len=1, null.ok=TRUE)
     assertAccess(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), access='r')
     Shark_date=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')[['run_info/timestamp']][]
     assertAccess(file_sting, access='r')
