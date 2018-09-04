@@ -20,7 +20,7 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h
   assertFlag(verbose)
 
 
-  BC03lr=Dale_Msol=SFH=i=subsnapID=id_galaxy_sam=Nid=idlist=subsnapID=NULL
+  BC03lr=Dale_Msol=SFH=i=subsnapID=Nid=idlist=subsnapID=NULL
 
   data("BC03lr", envir = environment())
   data("Dale_Msol", envir = environment())
