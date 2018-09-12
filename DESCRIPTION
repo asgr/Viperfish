@@ -10,4 +10,4 @@ License: LGPL-3
 Encoding: UTF-8
 LazyData: true
 Depends: ProSpect (>= 0.2.2), data.table, hdf5r
-Imports: celestial, bit64, foreach, doSNOW, checkmate, snow
+Imports: celestial, bit64, foreach, doSNOW, checkmate, snow, configr
