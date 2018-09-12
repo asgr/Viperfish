@@ -19,8 +19,9 @@ getSFHfull=function(file_sting='mocksurvey.hdf5', path_shark=NULL, config_file=N
   timestart=proc.time()[3]
 
   path_shark = get_shark_path(path_shark, config_file)
-  assertAccess(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), access='r')
-  Shark_SFH=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')
+  sfh_fname = paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/')
+  assertAccess(sfh_fname, access='r')
+  Shark_SFH=h5file(sfh_fname, mode='r')
   Ntime=Shark_SFH[['lbt_mean']]$dims
   Shark_SFH$close()
 
@@ -52,8 +53,9 @@ getSFHfull=function(file_sting='mocksurvey.hdf5', path_shark=NULL, config_file=N
     if(verbose){progress(i)}
     Nid=mocksubsets[i,Nid]
     Nend=Nstart+Nid-1
-    assertAccess(paste(path_shark,mocksubsets[i,snapshot],mocksubsets[i,subvolume],'star_formation_histories.hdf5', sep='/'), access='r')
-    Shark_SFH=h5file(paste(path_shark,mocksubsets[i,snapshot],mocksubsets[i,subvolume],'star_formation_histories.hdf5', sep='/'), mode='r')
+    sfh_fname = paste(path_shark,mocksubsets[i,snapshot],mocksubsets[i,subvolume],'star_formation_histories.hdf5', sep='/')
+    assertAccess(sfh_fname, access='r')
+    Shark_SFH=h5file(sfh_fname, mode='r')
     Ndim=Shark_SFH[['disks/star_formation_rate_histories']]$dims[1]
     select=match(mocksubsets[i,unlist(idlist)], Shark_SFH[['Galaxies/id_galaxy']][])
 
@@ -95,11 +97,9 @@ getSFHsing=function(id_galaxy_sam, snapshot=NULL, subvolume=NULL, path_shark=NUL
   assertCharacter(config_file, max.len=1, null.ok=TRUE)
 
   path_shark = get_shark_path(path_shark, config_file)
-  path_shark=paste(path_shark,snapshot,sep='/')
-  path_shark=paste(path_shark,subvolume,sep='/')
-
-  assertAccess(paste(path_shark,'star_formation_histories.hdf5',sep='/'), access='r')
-  Shark_SFH=h5file(paste(path_shark,'star_formation_histories.hdf5',sep='/'), mode='r')
+  sfh_fname = paste(path_shark, snapshot, subvolume, 'star_formation_histories.hdf5',sep='/')
+  assertAccess(sfh_fname, access='r')
+  Shark_SFH=h5file(sfh_fname, mode='r')
 
   select=match(id_galaxy_sam, Shark_SFH[['galaxies/id_galaxy']][])
   keep=which(!is.na(select))
