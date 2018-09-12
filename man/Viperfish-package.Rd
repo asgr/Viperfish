@@ -19,7 +19,7 @@ Version: \tab 0.3.1\cr
 Date: \tab 2018-08-16\cr
 License: \tab LGPL-3\cr
 Depends: \tab ProSpect (>= 0.2.2), data.table, hdf5r\cr
-Imports: \tab celestial, bit64, foreach, doSNOW, checkmate, snow\cr
+Imports: \tab celestial, bit64, foreach, doSNOW, checkmate, snow, configr\cr
 }
 }
 \author{
