@@ -11,7 +11,7 @@ genShark(path_shark = ".", snapshot = NULL, subvolume = NULL, redshift = 0.1, h 
 cores = 4, id_galaxy_sam = "all", filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS",
 "i_SDSS", "Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA", "K_VISTA", "W1", "W2", "W3", "W4",
 "P100", "P160", "S250", "S350", "S500"), tau_birth = 1.5, tau_screen = 0.5, sparse = 5,
-intSFR=TRUE, verbose=TRUE)
+intSFR=TRUE, verbose=TRUE, write.csv=FALSE)
 }
 \arguments{
   \item{path_shark}{
@@ -52,6 +52,9 @@ Logical; should the \option{massfunc} be intergrated between ages? This might be
 }
   \item{verbose}{
 Logical; should helpful verbose outputs be printed regarding the processing?
+}
+  \item{write.csv}{
+Logical; whether to write the output of this function into a .csv file within the \option{path_shark} directory.
 }
 }
 \details{
