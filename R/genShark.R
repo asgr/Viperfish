@@ -29,11 +29,9 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h
   filtout=foreach(i = filters)%do%{getfilt(i)}
   names(filtout)=filters
 
-  path_shark=paste(path_shark,snapshot,sep='/')
-  path_shark=paste(path_shark,subvolume,sep='/')
-
-  assertAccess(paste(path_shark,'star_formation_histories.hdf5',sep='/'), access='r')
-  Shark_SFH=h5file(paste(path_shark,'star_formation_histories.hdf5',sep='/'), mode='r')
+  sfh_fname = paste(path_shark, snapshot, subvolume, 'star_formation_histories.hdf5',sep='/')
+  assertAccess(sfh_fname, access='r')
+  Shark_SFH=h5file(sfh_fname, mode='r')
 
   time=Shark_SFH[['lbt_mean']][]*1e9
 
