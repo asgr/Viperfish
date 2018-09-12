@@ -24,7 +24,7 @@ Numeric vector; star formation rate of the bulge (formed via mergers) in units M
 Numeric vector; star formation rate of the disk in units Msun/yr/h.
 }
   \item{redshift}{
-Numeric scalar; redshift of the galaxy for computing apparent magnitudes.
+Numeric scalar; redshift of the galaxy for computing apparent magnitudes. Must be above 0!
 }
   \item{time}{
 Numeric vector; lookback time in years. Must be same length as \option{SFRbulge} and \option{SFRdisk}.

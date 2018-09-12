@@ -10,6 +10,7 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h
   assertAccess(path_shark, access='r')
   assertInt(snapshot, null.ok=TRUE)
   assertInt(subvolume, null.ok=TRUE)
+  assertNumber(redshift,lower=1e-100)
   assertScalar(h)
   assertInt(cores)
   assertCharacter(filters)
