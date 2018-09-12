@@ -1,4 +1,4 @@
-genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h=0.678, cores=4, id_galaxy_sam='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, intSFR=TRUE, verbose=TRUE){
+genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h=0.678, cores=4, id_galaxy_sam='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, intSFR=TRUE, verbose=TRUE, write.csv=FALSE){
 
   timestart=proc.time()[3]
 
@@ -29,11 +29,9 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h
   filtout=foreach(i = filters)%do%{getfilt(i)}
   names(filtout)=filters
 
-  path_shark=paste(path_shark,snapshot,sep='/')
-  path_shark=paste(path_shark,subvolume,sep='/')
-
-  assertAccess(paste(path_shark,'star_formation_histories.hdf5',sep='/'), access='r')
-  Shark_SFH=h5file(paste(path_shark,'star_formation_histories.hdf5',sep='/'), mode='r')
+  sfh_fname = paste(path_shark, snapshot, subvolume, 'star_formation_histories.hdf5',sep='/')
+  assertAccess(sfh_fname, access='r')
+  Shark_SFH=h5file(sfh_fname, mode='r')
 
   time=Shark_SFH[['lbt_mean']][]*1e9
 
@@ -109,6 +107,18 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h
 
   if(verbose){
     message(paste('Finished Viperfish on Shark -',round(proc.time()[3]-timestart,3),'sec'))
+  }
+
+  if (write.csv) {
+    outdir = paste(path_shark, 'Photometry', snapshot, subvolume, sep='/')
+    if (!dir.exists(outdir)) {
+      dir.create(outdir, recursive=TRUE)
+    }
+    outfile = paste(outdir, 'Shark-SED.csv', sep='/')
+    if (verbose) {
+      message(paste('Writing CSV file on ', outfile))
+    }
+    fwrite(outSED, file=outfile)
   }
 
   class(outSED)=c(class(outSED),'Viperfish-Shark')
