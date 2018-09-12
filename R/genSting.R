@@ -1,4 +1,4 @@
-genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, file_output='temp.csv', verbose=TRUE){
+genSting=function(file_sting=NULL, path_shark=NULL, config_file=NULL, h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, file_output='temp.csv', verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -6,8 +6,8 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
     message('Running Viperfish on Stingray')
   }
 
-  assertCharacter(path_shark, max.len=1)
-  assertAccess(path_shark, access='r')
+  assertCharacter(path_shark, max.len=1, null.ok=TRUE)
+  assertCharacter(config_file, max.len=1, null.ok=TRUE)
   assertScalar(h)
   assertInt(cores)
   assertInt(snapmax)
@@ -19,6 +19,8 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
   assertDataTable(mockcone, null.ok=TRUE)
   assertFlag(intSFR)
   assertFlag(verbose)
+
+  path_shark = get_shark_path(path_shark, config_file)
 
   if(! is.null(file_sting)){
     assertCharacter(file_sting, max.len=1, null.ok=TRUE)

@@ -1,4 +1,4 @@
-genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h=0.678, cores=4, id_galaxy_sam='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, intSFR=TRUE, verbose=TRUE){
+genShark=function(path_shark=NULL, config_file=NULL, snapshot=NULL, subvolume=NULL, redshift=0.1, h=0.678, cores=4, id_galaxy_sam='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, intSFR=TRUE, verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -6,8 +6,8 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h
     message('Running Viperfish on Shark')
   }
 
-  assertCharacter(path_shark, max.len=1)
-  assertAccess(path_shark, access='r')
+  assertCharacter(path_shark, max.len=1, null.ok=TRUE)
+  assertCharacter(config_file, max.len=1, null.ok=TRUE)
   assertInt(snapshot, null.ok=TRUE)
   assertInt(subvolume, null.ok=TRUE)
   assertNumber(redshift,lower=1e-100)
@@ -29,6 +29,7 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h
   filtout=foreach(i = filters)%do%{getfilt(i)}
   names(filtout)=filters
 
+  path_shark = get_shark_path(path_shark, config_file)
   path_shark=paste(path_shark,snapshot,sep='/')
   path_shark=paste(path_shark,subvolume,sep='/')
 

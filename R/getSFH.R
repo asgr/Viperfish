@@ -1,4 +1,4 @@
-getSFHfull=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores=4, verbose=TRUE){
+getSFHfull=function(file_sting='mocksurvey.hdf5', path_shark=NULL, config_file=NULL, snapmax=199, cores=4, verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -8,8 +8,8 @@ getSFHfull=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, c
 
   assertCharacter(file_sting, max.len=1)
   assertAccess(file_sting, access='r')
-  assertCharacter(path_shark, max.len=1)
-  assertAccess(path_shark, access='r')
+  assertCharacter(path_shark, max.len=1, null.ok=TRUE)
+  assertCharacter(config_file, max.len=1, null.ok=TRUE)
   assertInt(snapmax)
   assertInt(cores)
   assertFlag(verbose)
@@ -18,6 +18,7 @@ getSFHfull=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, c
 
   timestart=proc.time()[3]
 
+  path_shark = get_shark_path(path_shark, config_file)
   assertAccess(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), access='r')
   Shark_SFH=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')
   Ntime=Shark_SFH[['lbt_mean']]$dims
@@ -85,14 +86,15 @@ getSFHfull=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, c
   invisible(outSFH)
 }
 
-getSFHsing=function(id_galaxy_sam, snapshot=NULL, subvolume=NULL, path_shark='.'){
+getSFHsing=function(id_galaxy_sam, snapshot=NULL, subvolume=NULL, path_shark=NULL, config_file=NULL){
 
   assertNumeric(id_galaxy_sam)
   assertInt(snapshot, null.ok=TRUE)
   assertInt(subvolume, null.ok=TRUE)
-  assertCharacter(path_shark, max.len=1)
-  assertAccess(path_shark, access='r')
+  assertCharacter(path_shark, max.len=1, null.ok=TRUE)
+  assertCharacter(config_file, max.len=1, null.ok=TRUE)
 
+  path_shark = get_shark_path(path_shark, config_file)
   path_shark=paste(path_shark,snapshot,sep='/')
   path_shark=paste(path_shark,subvolume,sep='/')
 
