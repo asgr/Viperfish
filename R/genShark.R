@@ -1,4 +1,4 @@
-genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h=0.678, cores=4, id_galaxy_sam='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, intSFR=TRUE, verbose=TRUE){
+genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get", h=0.678, cores=4, id_galaxy_sam='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, intSFR=TRUE, verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -10,7 +10,6 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h
   assertAccess(path_shark, access='r')
   assertInt(snapshot, null.ok=TRUE)
   assertInt(subvolume, null.ok=TRUE)
-  assertNumber(redshift,lower=1e-100)
   assertScalar(h)
   assertInt(cores)
   assertCharacter(filters)
@@ -36,6 +35,13 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift=0.1, h
   Shark_SFH=h5file(paste(path_shark,'star_formation_histories.hdf5',sep='/'), mode='r')
 
   time=Shark_SFH[['lbt_mean']][]*1e9
+
+  if(redshift=='get'){
+    redshift=Shark_SFH[['run_info/redshift']][]
+    if(redshift==0){redshift=1e-10}
+  }
+
+  assertNumeric(redshift)
 
   if(id_galaxy_sam[1]=='all'){
     select=1:Shark_SFH[['galaxies/id_galaxy']]$dims

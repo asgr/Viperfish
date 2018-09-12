@@ -7,7 +7,7 @@ Convert Shark Outputs to SEDs
 Takes Shark boxes and converts to apparent and absolute SEDs.
 }
 \usage{
-genShark(path_shark = ".", snapshot = NULL, subvolume = NULL, redshift = 0.1, h = 0.678,
+genShark(path_shark = ".", snapshot = NULL, subvolume = NULL, redshift = "get", h = 0.678,
 cores = 4, id_galaxy_sam = "all", filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS",
 "i_SDSS", "Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA", "K_VISTA", "W1", "W2", "W3", "W4",
 "P100", "P160", "S250", "S350", "S500"), tau_birth = 1.5, tau_screen = 0.5, sparse = 5,
@@ -24,7 +24,7 @@ Integer scalar; snapshot number to use.
 Integer scalar; sub-volume snapshot number to use.
 }
   \item{redshift}{
-Numeric vector; can be a single value for all galaxies, or a vector the same length as \option{select}.
+Numeric vector; can be a single value for all galaxies, or a vector the same length as \option{select}. If set to "get" (default) it will inherit the redshift from the target \option{snapshot} and \option{subvolume}, which is probably what you want most of the time.
 }
   \item{h}{
 Numeric scalar; little-h assumed in Shark (needed to convert SFRs to actual SFR since they use Msun/yr/h).
