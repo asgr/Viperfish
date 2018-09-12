@@ -1,4 +1,8 @@
-exportPattern("^[[:alpha:]]+")
+export(genSED)
+export(genShark)
+export(genSting)
+export(write.custom.dataset)
+export(write.SED)
 
 import("ProSpect")
 import("data.table")

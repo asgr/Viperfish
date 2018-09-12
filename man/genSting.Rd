@@ -12,16 +12,18 @@ Convert Stingray Outputs to SEDs
 Takes Stingray light cones and converts to apparent and absolute SEDs.
 }
 \usage{
-genSting(file_sting = "mocksurvey.hdf5", path_shark = ".", h = 0.678, cores = 4,
-snapmax = 199, filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS", "i_SDSS",
-"Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA", "K_VISTA", "W1", "W2", "W3", "W4", "P100",
-"P160", "S250", "S350", "S500"), tau_birth = 1.5, tau_screen = 0.5, sparse = 5,
-time = NULL, mockcone = NULL, intSFR = TRUE, file_output = "temp.csv", verbose = TRUE)
+genSting(file_sting = NULL, path_shark = NULL, config_file = NULL,
+h = 0.678, cores = 4, snapmax = 199, filters = c("FUV", "NUV", "u_SDSS",
+"g_SDSS", "r_SDSS", "i_SDSS", "Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA",
+"K_VISTA", "W1", "W2", "W3", "W4", "P100", "P160", "S250", "S350", "S500"),
+tau_birth = 1.5, tau_screen = 0.5, sparse = 5, time = NULL, mockcone = NULL,
+intSFR = TRUE, file_output = "temp.csv", verbose = TRUE)
 
-getSFHfull(file_sting = "mocksurvey.hdf5", path_shark = ".", snapmax = 199, cores = 4,
-verbose = TRUE)
+getSFHfull(file_sting = "mocksurvey.hdf5", path_shark = NULL,
+config_file = NULL, snapmax = 199, cores = 4, verbose = TRUE)
 
-getSFHsing(id_galaxy_sam, snapshot = NULL, subvolume = NULL, path_shark = ".")
+getSFHsing(id_galaxy_sam, snapshot = NULL, subvolume = NULL, path_shark = NULL,
+config_file = NULL)
 
 mockcone(file_sting = "mocksurvey.hdf5", galsname='galaxies', reorder = TRUE)
 
@@ -36,7 +38,10 @@ Character scalar; full path to Stingray HDF5 file. The package will check that t
 data.table; the output of \code{mockcone}.
 }
   \item{path_shark}{
-Character scalar; path to top directory containing Shark outputs. The package will check that the files and path exists and we have read access.
+Character scalar; path to top directory containing Shark outputs. The package will check that the files and path exists and we have read access. This option and \option{config_file} are mutually exclusive. If none is given, '.' is assumed.
+}
+  \item{config_file}{
+Character scalar; path to a shark configuration file, out of which the value of \option{path_shark} can be read. The package will check that the file exists and we have read access. This option and \option{path_shark} are mutually exclusive.
 }
 \item{id_galaxy_sam}{
 Integer vector; a list of Shark SAM galaxies to be extracted from a given snapshot and subsnapshot.
