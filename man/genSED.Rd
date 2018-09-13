@@ -89,6 +89,8 @@ Logical; should the \option{massfunc} be intergrated between ages? This might be
 }
 \details{
 Lower level function for computing bulge and disk SEDs. Most users will not use this function directly.
+
+Note the output absolute magnitudes are rest frame, whilst the apparent magnitudes are observed frame.
 }
 \value{
 List of named absolute and apparent magnitudes for bulge, disk and total photometry.

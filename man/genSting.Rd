@@ -89,11 +89,13 @@ Logical; should helpful verbose outputs be printed regarding the processing?
 }
 \details{
 This interface is pretty high level, so should work fine if the paths are correct.
+
+Note the output absolute magnitudes are rest frame, whilst the apparent magnitudes are observed frame.
 }
 \value{
 \code{genSting} returns a list called \option{outSED} containing a data.frame of named absolute and apparent magnitudes for bulge, disk and total photometry.
 
-\code{getSFHfull} returns a full list of the SFRs and the Z for the bulge and disk (which can be passed to \code{genSting} directly) for a given Stingray mock cone.
+\code{getSFHfull} returns a full list of the SFRs and the Z for the bulge (disk instability and merger driven) and disk for a given Stingray mock cone.
 
 \code{getSFHsing} returns a list of the SFRs and the Z for the bulge (disk instability and merger driven) and disk for a subset of galaxies for a given snapshot and subsnapshot. Also returns the id_galaxy_sam actually present, and the location of the present galaxies relative to the input \option{id_galaxy_sam} (keep).
 

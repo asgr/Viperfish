@@ -59,6 +59,8 @@ Logical; whether to write the output of this function into a .csv file within th
 }
 \details{
 By default outputs all SEDs in the box.
+
+Note the output absolute magnitudes are rest frame, whilst the apparent magnitudes are observed frame.
 }
 \value{
 Data.frame of named absolute and apparent magnitudes for bulge, disk and total photometry.
