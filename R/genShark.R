@@ -34,7 +34,7 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
 
   time=Shark_SFH[['lbt_mean']][]*1e9
 
-  if(redshift=='get'){
+  if(redshift[1]=='get'){
     redshift=Shark_SFH[['run_info/redshift']][]
     if(redshift==0){redshift=1e-10}
   }
