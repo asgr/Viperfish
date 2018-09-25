@@ -11,7 +11,12 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
   assertScalar(h)
   assertInt(cores)
   assertInt(snapmax)
-  assertCharacter(filters)
+  if(is.list(filters)){
+    filterlist=TRUE
+  }else{
+    filterlist=FALSE
+    assertCharacter(filters)
+  }
   assertScalar(tau_birth)
   assertScalar(tau_screen)
   assertInt(sparse)
@@ -42,8 +47,12 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
   data("BC03lr", envir = environment())
   data("Dale_Msol", envir = environment())
 
-  filtout=foreach(i = filters)%do%{getfilt(i)}
-  names(filtout)=filters
+  if(filterlist==FALSE){
+    filtout=foreach(i = filters)%do%{getfilt(i)}
+    names(filtout)=filters
+  }else{
+    filtout=filters
+  }
 
   # if(!is.null(SFHfull) & doSFHbatch==TRUE){
   #   stop('You should not provide an input to SFHfull and have doSFHbatch=TRUE set, since the requested behaviour is ambiguous!')

@@ -12,7 +12,12 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   assertInt(subvolume, null.ok=TRUE)
   assertScalar(h)
   assertInt(cores)
-  assertCharacter(filters)
+  if(is.list(filters)){
+    filterlist=TRUE
+  }else{
+    filterlist=FALSE
+    assertCharacter(filters)
+  }
   assertScalar(tau_birth)
   assertScalar(tau_screen)
   assertInt(sparse)
@@ -25,8 +30,12 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   data("BC03lr", envir = environment())
   data("Dale_Msol", envir = environment())
 
-  filtout=foreach(i = filters)%do%{getfilt(i)}
-  names(filtout)=filters
+  if(filterlist==FALSE){
+    filtout=foreach(i = filters)%do%{getfilt(i)}
+    names(filtout)=filters
+  }else{
+    filtout=filters
+  }
 
   sfh_fname = paste(path_shark, snapshot, subvolume, 'star_formation_histories.hdf5',sep='/')
   assertAccess(sfh_fname, access='r')
