@@ -89,7 +89,7 @@ Character scalar; name for the temporary file to write to. This should not be an
 Logical; should helpful verbose outputs be printed regarding the processing?
 }
   \item{write.csv}{
-Logical; whether to write the output of this function into a .csv file within the same directory containing \option{file_sting}.
+Logical; whether to write the output of this function into a csv file (named Stingray-SED.csv) within the same directory as \option{file_sting}.
 }
 }
 \details{
