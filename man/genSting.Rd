@@ -3,6 +3,7 @@
 \alias{getSFHfull}
 \alias{getSFHsing}
 \alias{mockcone}
+\alias{mockcone_extract}
 \alias{mocksubsets}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
@@ -23,7 +24,7 @@ verbose = TRUE)
 
 getSFHsing(id_galaxy_sam, snapshot = NULL, subvolume = NULL, path_shark = ".")
 
-mockcone(file_sting = "mocksurvey.hdf5", galsname='galaxies', reorder = TRUE)
+mockcone_extract(file_sting = "mocksurvey.hdf5", galsname='galaxies', reorder = TRUE)
 
 mocksubsets(mockcone)
 }

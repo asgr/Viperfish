@@ -42,7 +42,7 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
     rm(Sting_date)
   }
 
-  BC03lr=Dale_Msol=Nid=id_galaxy_sam=idlist=snapshot=subsnapID=subvolume=z=i=j=mocksubsets=Ntime=zobs=NULL
+  BC03lr=Dale_Msol=Nid=id_galaxy=id_galaxy_sam=idlist=snapshot=subsnapID=subvolume=z=i=j=mocksubsets=Ntime=zobs=NULL
 
   data("BC03lr", envir = environment())
   data("Dale_Msol", envir = environment())
@@ -72,7 +72,7 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
   #Make mock subsets:
 
   if(is.null(mockcone)){
-    mockcone=mockcone(file_sting=file_sting)
+    mockcone=mockcone_extract(file_sting=file_sting)
   }else{
     assertDataTable(mockcone)
   }
@@ -114,7 +114,7 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
     select=which(mockcone$subsnapID==use)
     snapshot=mockcone[select[1],snapshot]
     subvolume=mockcone[select[1],subvolume]
-    id_galaxy=mockcone[select,id_galaxy]
+    id_galaxy_sky=mockcone[select,id_galaxy_sky]
     id_galaxy_sam=mockcone[select,id_galaxy_sam]
     zcos=mockcone[select,zcos]
     zobs=mockcone[select,zobs]
@@ -128,8 +128,7 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
     Zdisk_subsnap=SFHsing_subsnap$Zdisk/h
 
     tempout=foreach(j=1:length(select), .combine='rbind')%do%{
-    #for(j in 1:length(SFHsing_subsnap$id_galaxy_sam)){
-      tempSED=tryCatch(c(id_galaxy[SFHsing_subsnap$keep[j]], unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,], SFRbulge_m=SFRbulge_m_subsnap[j,], SFRdisk=SFRdisk_subsnap[j,], redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))), error = function(e) NULL)
+      tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,], SFRbulge_m=SFRbulge_m_subsnap[j,], SFRdisk=SFRdisk_subsnap[j,], redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))), error = function(e) NULL)
       tempSED
     }
     as.data.table(rbind(tempout))
@@ -148,7 +147,7 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
 
   outSED=as.data.frame(outSED)
   colnamesSED=c(
-    'id_galaxy',
+    'id_galaxy_sky',
     paste0('ab_mag_nodust_b_d_',filters),
     paste0('ab_mag_nodust_b_m_',filters),
     paste0('ab_mag_nodust_b_',filters),
@@ -179,13 +178,13 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
 
   #output=list(outSED=outSED, SFHfull=SFHfull)
 
-  outSED=outSED[match(mockcone$id_galaxy, outSED$id_galaxy),]
+  outSED=outSED[match(mockcone$id_galaxy_sky, outSED$id_galaxy_sky),]
 
   class(outSED)=c(class(outSED),'Viperfish-Shark')
   invisible(outSED)
 }
 
-mockcone=function(file_sting="mocksurvey.hdf5", galsname='galaxies', reorder=TRUE){
+mockcone_extract=function(file_sting="mocksurvey.hdf5", galsname='galaxies', reorder=TRUE){
   subsnapID=snapshot=subvolume=id_galaxy_sam=NULL
   assertCharacter(file_sting, max.len=1)
   assertAccess(file_sting, access='r')
