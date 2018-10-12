@@ -1,4 +1,4 @@
-genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, file_output='temp.csv', verbose=TRUE){
+genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, file_output='temp.csv', verbose=TRUE, write.csv=FALSE){
 
   timestart=proc.time()[3]
 
@@ -179,6 +179,14 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
   #output=list(outSED=outSED, SFHfull=SFHfull)
 
   outSED=outSED[match(mockcone$id_galaxy_sky, outSED$id_galaxy_sky),]
+
+  if (write.csv) {
+    outfile = paste(dirname(file_sting), 'Stingray-SED.csv', sep='/')
+    if (verbose) {
+      message(paste('Writing CSV file on ', outfile))
+    }
+    fwrite(outSED, file=outfile)
+  }
 
   class(outSED)=c(class(outSED),'Viperfish-Shark')
   invisible(outSED)
