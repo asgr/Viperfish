@@ -1,4 +1,4 @@
-genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, file_output='temp.csv', verbose=TRUE, write.csv=FALSE){
+genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, final_file_output='Stingray-SED.csv', temp_file_output='temp.csv', restart=FALSE, verbose=TRUE, write_final_file=FALSE){
 
   timestart=proc.time()[3]
 
@@ -69,6 +69,19 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
   #   Zdisk=SFHfull$Zdisk
   # }
 
+  if(file.exists(temp_file_output) & restart==FALSE){
+    stop(paste(temp_file_output,'already exists! Please use another temporary temp_file_output file name.'))
+    #assertAccess(temp_file_output, access='w')
+    #file.remove(temp_file_output)
+  }else if(restart==FALSE){
+    file.create(temp_file_output)
+  }
+  assertAccess(temp_file_output, access='w')
+
+  if(restart){
+    outSED=fread(temp_file_output)
+  }
+
   #Make mock subsets:
 
   if(is.null(mockcone)){
@@ -92,7 +105,11 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
   registerDoSNOW(cl)
 
   #iterations=dim(mockcone)[1]
-  subsnapIDs=unique(mockcone$subsnapID)
+  if(restart){
+    subsnapIDs=unique(mockcone[!id_galaxy_sky %in% outSED$id_galaxy_sky,subsnapID])
+  }else{
+    subsnapIDs=unique(mockcone$subsnapID)
+  }
 
   if(verbose){
     pb = txtProgressBar(max = length(subsnapIDs), style = 3)
@@ -100,15 +117,7 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
     opts = list(progress=progress)
   }
 
-  if(file.exists(file_output)){
-    stop(paste(file_output,'already exists! Please use another temporary file_output file name.'))
-    #assertAccess(file_output, access='w')
-    #file.remove(file_output)
-  }
-  file.create(file_output)
-  assertAccess(file_output, access='w')
-
-  outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts})%dopar%{
+  outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts})%dopar%{
   #for(i in 1:length(subsnapIDs)){
     use=subsnapIDs[i]
     select=which(mockcone$subsnapID==use)
@@ -136,9 +145,9 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
 
   stopCluster(cl)
 
-  #if(file.exists(file_output)){
-  #  assertAccess(file_output, access='w')
-  #  file.remove(file_output)
+  #if(file.exists(temp_file_output)){
+  #  assertAccess(temp_file_output, access='w')
+  #  file.remove(temp_file_output)
   #}
 
   if(verbose){
@@ -178,10 +187,12 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
 
   #output=list(outSED=outSED, SFHfull=SFHfull)
 
+  outSED=unique(outSED, by=id_galaxy_sky)
+
   outSED=outSED[match(mockcone$id_galaxy_sky, outSED$id_galaxy_sky),]
 
-  if (write.csv) {
-    outfile = paste(dirname(file_sting), 'Stingray-SED.csv', sep='/')
+  if (write_final_file) {
+    outfile = paste(dirname(file_sting), final_file_output, sep='/')
     if (verbose) {
       message(paste('Writing CSV file on ', outfile))
     }
@@ -217,17 +228,17 @@ mocksubsets=function(mockcone){
   invisible(mocksubsets)
 }
 
-.dumpout = function(file_output='temp.csv', ...) {
+.dumpout = function(temp_file_output='temp.csv', ...) {
   for(r in list(...))
-    fwrite(x=r, file=file_output, append=TRUE)
-  file_output
+    fwrite(x=r, file=temp_file_output, append=TRUE)
+  temp_file_output
 }
 
-.dumpin = function(file_output='temp.csv') {
-  fread(file_output)
+.dumpin = function(temp_file_output='temp.csv') {
+  fread(temp_file_output)
 }
 
 
-# .filedump=function(file_output='temp.csv', data){
+# .filedump=function(temp_file_output='temp.csv', data){
 #   fwrite(x=data, file='temp.csv', append=TRUE)
 # }
