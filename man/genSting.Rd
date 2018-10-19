@@ -13,12 +13,12 @@ Convert Stingray Outputs to SEDs
 Takes Stingray light cones and converts to apparent and absolute SEDs.
 }
 \usage{
-genSting(file_sting = NULL, path_shark = ".", h = 0.678, cores = 4,
-snapmax = 199, filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS", "i_SDSS",
-"Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA", "K_VISTA", "W1", "W2", "W3", "W4", "P100",
-"P160", "S250", "S350", "S500"), tau_birth = 1.5, tau_screen = 0.5, sparse = 5,
-time = NULL, mockcone = NULL, intSFR = TRUE, final_file_output = 'Stingray-SED.csv',
-temp_file_output = 'temp.csv', restart = FALSE, verbose = TRUE, write_final_file = FALSE)
+genSting(file_sting = NULL, path_shark = ".", h = 'get', cores = 4, snapmax = 199,
+filters = c("FUV", "NUV", "u_SDSS", "g_SDSS", "r_SDSS", "i_SDSS", "Z_VISTA", "Y_VISTA",
+"J_VISTA", "H_VISTA", "K_VISTA", "W1", "W2", "W3", "W4", "P100", "P160", "S250", "S350",
+"S500"), tau_birth = 1.5, tau_screen = 0.5, sparse = 5, time = NULL, mockcone = NULL,
+intSFR = TRUE, final_file_output = 'Stingray-SED.csv', temp_file_output = 'temp.csv',
+reorder = TRUE, restart = FALSE, verbose = TRUE, write_final_file = FALSE)
 
 getSFHfull(file_sting = "mocksurvey.hdf5", path_shark = ".", snapmax = 199, cores = 4,
 verbose = TRUE)
@@ -44,7 +44,7 @@ Character scalar; path to top directory containing Shark outputs. The package wi
 Integer vector; a list of Shark SAM galaxies to be extracted from a given snapshot and subsnapshot.
 }
   \item{h}{
-Numeric scalar; little-h assumed in Shark (needed to convert SFRs to actual SFR since they use Msun/yr/h).
+Numeric scalar; little-h assumed in Shark (needed to convert SFRs to actual SFR since they use Msun/yr/h). If set to "get" (default) it will inherit the redshift from the target Stingray HDF5 file, which is probably what you want most of the time.
 }
   \item{cores}{
 Integer scalar; number of cores to process on.
@@ -82,6 +82,9 @@ Character scalar; name for the temporary file to write to. This should not be an
   \item{write_final_file}{
 Logical; whether to write the output of this function into a csv file (with name specified by \option{final_file_output}) within the same directory as \option{file_sting}.
 }
+  \item{reorder}{
+Logical; Should the output mock cone be re-ordered so to enforce that it is first ascending in subsnapID, followed by id_galaxy_sam within groups of subsnapID? It might improve speed for this to be TRUE (meaning subsets are contiguous), but it means the ordering will be different compared to the target mockcone.
+}
   \item{restart}{
 Logical; should \code{genSting} read in the current temporary file (as specified by \option{temp_file_output}) and carry on from where the code terminated? This is useful if the process is killed accidentally, or hits a machine wall time for running.
 }
@@ -94,14 +97,13 @@ Integer scalar; snapshot number to use.
   \item{subvolume}{
 Integer scalar; sub-volume snapshot number to use.
 }
-  \item{reorder}{
-Logical; Should the output mock cone be re-ordered so to enforce that it is first ascending in subsnapID, followed by id_galaxy_sam within groups of subsnapID? It is safest to enforece this since the cones made by Stingray might not always be so ordered.
-}
 }
 \details{
 This interface is pretty high level, so should work fine if the paths are correct.
 
 Note the output absolute magnitudes are rest frame, whilst the apparent magnitudes are observed frame.
+
+The apparent and absolute magnitudes are physical assuming a fixed H0=67.8 km/s/Mpc (Planck 2018) cosmology. This cannot be changed by the user (to remove silly H0 mistakes), so you should add 5.log10(0.678) (which is -0.844) to the absolute magnitudes if you want H0=100 km/s/Mpc type magnitudes. You should not adjust the apparent magnitudes since the Universe does not look different just because we change our mind about H0, and nor should our apparent magnitudes!
 }
 \value{
 \code{genSting} returns a list called \option{outSED} containing a data.frame of named absolute and apparent magnitudes for bulge, disk and total photometry.
@@ -110,9 +112,9 @@ Note the output absolute magnitudes are rest frame, whilst the apparent magnitud
 
 \code{getSFHsing} returns a list of the SFRs and the Z for the bulge (disk instability and merger driven) and disk for a subset of galaxies for a given snapshot and subsnapshot. Also returns the id_galaxy_sam actually present, and the location of the present galaxies relative to the input \option{id_galaxy_sam} (keep).
 
-\code{mockcone} outputs the contents of a target Stingray HDF5 into an R data.table. Mostly present for use inside \code{genSting}.
+\code{mockcone_extract} outputs the contents of a target Stingray HDF5 into an R data.table. Mostly present for use inside \code{genSting}, but currently deprecated.
 
-\code{mocksubsets} outputs the minimally required sub-volumes and SAM galaxy ID list from a target mockcone. Mostly present for use inside \code{genSting}.
+\code{mocksubsets} outputs the minimally required sub-volumes and SAM galaxy ID list from a target mockcone. Mostly present for use inside an older version of \code{genSting}, but currently deprecated.
 }
 \author{
 Aaron Robotham

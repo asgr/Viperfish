@@ -15,13 +15,13 @@ intSFR = TRUE)
 }
 \arguments{
   \item{SFRbulge_d}{
-Numeric vector; star formation rate of the bulge (formed via disk instabilities) in units Msun/yr/h.
+Numeric vector; star formation rate of the bulge (formed via disk instabilities) in units of physical Msun/yr (i.e. scaled by the correct value of H0, so a value near 70 km/s/Mpc). This is key since most simulations will natively output Msun/yr/h, so be careful here!
 }
   \item{SFRbulge_m}{
-Numeric vector; star formation rate of the bulge (formed via mergers) in units Msun/yr/h.
+Numeric vector; star formation rate of the bulge (formed via mergers) in units of physical Msun/yr (i.e. scaled by the correct value of H0, so a value near 70 km/s/Mpc). This is key since most simulations will natively output Msun/yr/h, so be careful here!
 }
   \item{SFRdisk}{
-Numeric vector; star formation rate of the disk in units Msun/yr/h.
+Numeric vector; star formation rate of the disk in units of physical Msun/yr (i.e. scaled by the correct value of H0, so a value near 70 km/s/Mpc). This is key since most simulations will natively output Msun/yr/h, so be careful here!
 }
   \item{redshift}{
 Numeric scalar; redshift of the galaxy for computing apparent magnitudes. Must be above 0!
@@ -78,7 +78,7 @@ Pass in the Dale dust library directly. Must be one of \code{\link{Dale_Orig}}, 
 Pass in the photometric filters directly. If \code{filters} is a vector of filter names, this can be achieved efficiently with a command like: filtout=foreach(i = filters)\%do\%{getfilt(i)} (see \code{\link{getfilt}}).
 }
   \item{H0}{
-Numeric scalar; Hubble constant as defined at z=0 (default is H0=67.8 (km/s)/Mpc).
+Numeric scalar; Hubble constant as defined at z=0 (default is H0=67.8 (km/s)/Mpc, i.e. Planck 2018). This only adjusts the output absolute magnitudes, i.e. it acts like it would do in observations where apparent magniatudes of a galaxy do not change just because we update our knowledge of H0, but the absolute values computed will change.
 }
   \item{sparse}{
 Numeric scalar; amount of sparse sampling of the spectra to make. Higher values mean coarser spectra is processed, which means less accurate photometry, but faster processing. Generally done when computing higher resolution libraries for AB mags.

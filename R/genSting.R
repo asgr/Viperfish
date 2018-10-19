@@ -1,4 +1,4 @@
-genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, final_file_output='Stingray-SED.csv', temp_file_output='temp.csv', restart=FALSE, verbose=TRUE, write_final_file=FALSE){
+genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, final_file_output='Stingray-SED.csv', temp_file_output='temp.csv', reorder=TRUE, restart=FALSE, verbose=TRUE, write_final_file=FALSE){
 
   timestart=proc.time()[3]
 
@@ -8,7 +8,6 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
 
   assertCharacter(path_shark, max.len=1)
   assertAccess(path_shark, access='r')
-  assertScalar(h)
   assertInt(cores)
   assertInt(snapmax)
   if(is.list(filters)){
@@ -32,7 +31,7 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
     assertAccess(file_sting, access='r')
     Sting_date=h5file(file_sting, mode='r')[['run_info/shark_timestamp']][]
 
-    check= (Shark_date==Sting_date)
+    check = (Shark_date==Sting_date)
 
     if(check==FALSE){
       stop(paste('Date stamps do not match! Shark',Shark_date,'compared to Sting',Sting_date))
@@ -40,9 +39,15 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
 
     rm(Shark_date)
     rm(Sting_date)
+
+    if(h=='get'){
+      h=h5file(file_sting, mode='r')[['parameters/h']][]
+    }
   }
 
-  BC03lr=Dale_Msol=Nid=id_galaxy=id_galaxy_sam=idlist=snapshot=subsnapID=subvolume=z=i=j=mocksubsets=Ntime=zobs=NULL
+  assertScalar(h)
+
+  BC03lr=Dale_Msol=Nid=id_galaxy=id_galaxy_sam=idlist=snapshot=subsnapID=subvolume=z=i=j=Ntime=zobs=NULL
 
   data("BC03lr", envir = environment())
   data("Dale_Msol", envir = environment())
@@ -85,11 +90,11 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
   #Make mock subsets:
 
   if(is.null(mockcone)){
-    mockcone=mockcone_extract(file_sting=file_sting)
+    mockcone=mockcone_extract(file_sting=file_sting, reorder=reorder)
   }else{
     assertDataTable(mockcone)
   }
-  mocksubsets=mocksubsets(mockcone=mockcone)
+  #mocksubsets=mocksubsets(mockcone=mockcone)
 
   if(is.null(time)){
     assertAccess(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), access='r')
@@ -99,7 +104,7 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
   }
   Ntime=length(time)
 
-  SEDlookup=data.table(id=unlist(mocksubsets$idlist), subsnapID=rep(mocksubsets$subsnapID, mocksubsets$Nid))
+  #SEDlookup=data.table(id=unlist(mocksubsets$idlist), subsnapID=rep(mocksubsets$subsnapID, mocksubsets$Nid))
 
   cl=makeCluster(cores)
   registerDoSNOW(cl)
@@ -136,8 +141,10 @@ genSting=function(file_sting=NULL, path_shark='.', h=0.678, cores=4, snapmax=199
     Zbulge_m_subsnap=SFHsing_subsnap$Zbulge_m/h
     Zdisk_subsnap=SFHsing_subsnap$Zdisk/h
 
+    # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
+
     tempout=foreach(j=1:length(select), .combine='rbind')%do%{
-      tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,], SFRbulge_m=SFRbulge_m_subsnap[j,], SFRdisk=SFRdisk_subsnap[j,], redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))), error = function(e) NULL)
+      tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,]/h, SFRbulge_m=SFRbulge_m_subsnap[j,]/h, SFRdisk=SFRdisk_subsnap[j,]/h, redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))), error = function(e) NULL)
       tempSED
     }
     as.data.table(rbind(tempout))

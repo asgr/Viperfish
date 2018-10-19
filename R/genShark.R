@@ -1,4 +1,4 @@
-genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get", h=0.678, cores=4, id_galaxy_sam='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, intSFR=TRUE, verbose=TRUE, write.csv=FALSE){
+genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get", h='get', cores=4, id_galaxy_sam='all', filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500'), tau_birth=1.5, tau_screen=0.5, sparse=5, final_file_output='Shark-SED.csv', intSFR=TRUE, verbose=TRUE, write_final_file=FALSE){
 
   timestart=proc.time()[3]
 
@@ -10,7 +10,6 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   assertAccess(path_shark, access='r')
   assertInt(snapshot, null.ok=TRUE)
   assertInt(subvolume, null.ok=TRUE)
-  assertScalar(h)
   assertInt(cores)
   if(is.list(filters)){
     filterlist=TRUE
@@ -41,6 +40,8 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   assertAccess(sfh_fname, access='r')
   Shark_SFH=h5file(sfh_fname, mode='r')
 
+  # Read things in from the Shark HDF5 file:
+
   time=Shark_SFH[['lbt_mean']][]*1e9
 
   if(redshift[1]=='get'){
@@ -48,7 +49,12 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
     if(redshift==0){redshift=1e-10}
   }
 
+  if(h=='get'){
+    h=Shark_SFH[['cosmology/h']][]
+  }
+
   assertNumeric(redshift)
+  assertScalar(h)
 
   if(id_galaxy_sam[1]=='all'){
     select=1:Shark_SFH[['galaxies/id_galaxy']]$dims
@@ -81,6 +87,8 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
     progress = function(n) setTxtProgressBar(pb, n)
     opts = list(progress=progress)
   }
+
+  # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
 
   outSED=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
   unlist(genSED(SFRbulge_d=SFRbulge_d[,i]/h, SFRbulge_m=SFRbulge_m[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time, speclib=BC03lr, Zbulge_d=Zbulge_d[,i], Zbulge_m=Zbulge_m[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, tau_birth=tau_birth, tau_screen=tau_screen, sparse=sparse, intSFR=intSFR))
@@ -124,12 +132,12 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
     message(paste('Finished Viperfish on Shark -',round(proc.time()[3]-timestart,3),'sec'))
   }
 
-  if (write.csv) {
+  if (write_final_file) {
     outdir = paste(path_shark, 'Photometry', snapshot, subvolume, sep='/')
     if (!dir.exists(outdir)) {
       dir.create(outdir, recursive=TRUE)
     }
-    outfile = paste(outdir, 'Shark-SED.csv', sep='/')
+    outfile = paste(outdir, final_file_output, sep='/')
     if (verbose) {
       message(paste('Writing CSV file on ', outfile))
     }
