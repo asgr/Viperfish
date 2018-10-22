@@ -83,10 +83,6 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   }
   assertAccess(temp_file_output, access='w')
 
-  if(restart){
-    outSED=fread(temp_file_output)
-  }
-
   #Make mock subsets:
 
   if(is.null(mockcone)){
@@ -111,6 +107,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
 
   #iterations=dim(mockcone)[1]
   if(restart){
+    outSED=fread(temp_file_output)
     subsnapIDs=unique(mockcone[!id_galaxy_sky %in% outSED$id_galaxy_sky,subsnapID])
   }else{
     subsnapIDs=unique(mockcone$subsnapID)
@@ -235,13 +232,14 @@ mocksubsets=function(mockcone){
   invisible(mocksubsets)
 }
 
-.dumpout = function(temp_file_output='temp.csv', ...) {
+.dumpout = function(temp_file_output='temp.csv', ...){
+  # Writing like this prevents race conditions between threads. All results from a batch of N-cores are written to the file sequentially, so no chance of over-write etc.
   for(r in list(...))
     fwrite(x=r, file=temp_file_output, append=TRUE)
   temp_file_output
 }
 
-.dumpin = function(temp_file_output='temp.csv') {
+.dumpin = function(temp_file_output='temp.csv'){
   fread(temp_file_output)
 }
 
