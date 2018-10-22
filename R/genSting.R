@@ -134,12 +134,12 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
     zobs=mockcone[select,zobs]
     SFHsing_subsnap=getSFHsing(id_galaxy_sam=id_galaxy_sam, snapshot=snapshot, subvolume=subvolume, path_shark=path_shark)
 
-    SFRbulge_d_subsnap=SFHsing_subsnap$SFRbulge_d/h
-    SFRbulge_m_subsnap=SFHsing_subsnap$SFRbulge_m/h
-    SFRdisk_subsnap=SFHsing_subsnap$SFRdisk/h
-    Zbulge_d_subsnap=SFHsing_subsnap$Zbulge_d/h
-    Zbulge_m_subsnap=SFHsing_subsnap$Zbulge_m/h
-    Zdisk_subsnap=SFHsing_subsnap$Zdisk/h
+    SFRbulge_d_subsnap=SFHsing_subsnap$SFRbulge_d
+    SFRbulge_m_subsnap=SFHsing_subsnap$SFRbulge_m
+    SFRdisk_subsnap=SFHsing_subsnap$SFRdisk
+    Zbulge_d_subsnap=SFHsing_subsnap$Zbulge_d
+    Zbulge_m_subsnap=SFHsing_subsnap$Zbulge_m
+    Zdisk_subsnap=SFHsing_subsnap$Zdisk
 
     # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
 
