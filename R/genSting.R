@@ -30,7 +30,6 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
     Shark_date=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')[['run_info/timestamp']][]
     assertAccess(file_sting, access='r')
     Sting_date=h5file(file_sting, mode='r')[['run_info/shark_timestamp']][]
-
     check = (Shark_date==Sting_date)
 
     if(check==FALSE){
@@ -43,11 +42,14 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
     if(h=='get'){
       h=h5file(file_sting, mode='r')[['parameters/h']][]
     }
+
+    #Extract the original id_galaxy_sky for final re-ordering.
+    Sting_id_galaxy_sky=h5file(file_sting, mode='r')[['galaxies/id_galaxy_sky']][]
   }
 
   assertScalar(h)
 
-  BC03lr=Dale_Msol=Nid=id_galaxy=id_galaxy_sam=idlist=snapshot=subsnapID=subvolume=z=i=j=Ntime=zobs=NULL
+  BC03lr=Dale_Msol=Nid=id_galaxy_sky=id_galaxy_sam=idlist=snapshot=subsnapID=subvolume=z=i=j=Ntime=zobs=NULL
 
   data("BC03lr", envir = environment())
   data("Dale_Msol", envir = environment())
@@ -193,7 +195,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
 
   outSED=unique(outSED, by=id_galaxy_sky)
 
-  outSED=outSED[match(mockcone$id_galaxy_sky, outSED$id_galaxy_sky),]
+  outSED=outSED[match(Sting_id_galaxy_sky, outSED$id_galaxy_sky),]
 
   if (write_final_file) {
     outfile = paste(dirname(file_sting), final_file_output, sep='/')
@@ -207,11 +209,11 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   invisible(outSED)
 }
 
-mockcone_extract=function(file_sting="mocksurvey.hdf5", galsname='galaxies', reorder=TRUE){
+mockcone_extract=function(file_sting="mocksurvey.hdf5", reorder=TRUE){
   subsnapID=snapshot=subvolume=id_galaxy_sam=NULL
   assertCharacter(file_sting, max.len=1)
   assertAccess(file_sting, access='r')
-  mocksurvey=h5file(file_sting, mode='r')[[galsname]]
+  mocksurvey=h5file(file_sting, mode='r')[['galaxies']]
   extract_col=list.datasets(mocksurvey, recursive = TRUE)
   mockcone=as.data.table(lapply(extract_col, function(x) mocksurvey[[x]][]))
   colnames(mockcone)=extract_col

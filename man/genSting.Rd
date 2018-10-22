@@ -25,7 +25,7 @@ verbose = TRUE)
 
 getSFHsing(id_galaxy_sam, snapshot = NULL, subvolume = NULL, path_shark = ".")
 
-mockcone_extract(file_sting = "mocksurvey.hdf5", galsname='galaxies', reorder = TRUE)
+mockcone_extract(file_sting = "mocksurvey.hdf5", reorder = TRUE)
 
 mocksubsets(mockcone)
 }
@@ -63,9 +63,6 @@ Numeric scalar; dust tau for screen. See \code{\link{SFH}}.
 }
   \item{time}{
 Numeric vector; if provided this should be the full vector of lookback time corresponding to the time outputs in \option{SFHlist}. It should have the same length as the matrices in \option{SFHlist} have columns.
-}
-  \item{galsname}{
-Character scalar; the name of the group containing galaxies in the Stingray HDF5 output (to cope with name changes through versions).
 }
   \item{sparse}{
 Numeric scalar; amount of sparse sampling of the spectra to make. Higher values mean coarser spectra is processed, which means less accurate photometry, but faster processing. Generally done when computing higher resolution libraries for AB mags.
