@@ -77,7 +77,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   # }
 
   if(file.exists(temp_file_output) & restart==FALSE){
-    stop(paste(temp_file_output,'already exists! Please use another temporary temp_file_output file name.'))
+    stop(paste(temp_file_output,'already exists! Use another temporary temp_file_output file name, or set restart=TRUE to continue from where genSting finished.'))
     #assertAccess(temp_file_output, access='w')
     #file.remove(temp_file_output)
   }else if(restart==FALSE){
