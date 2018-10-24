@@ -29,6 +29,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   if(h=='get'){
     h=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')[['cosmology/h']][]
   }
+  rm(Shark_date)
 
   if(! is.null(file_sting)){
     assertCharacter(file_sting, max.len=1, null.ok=TRUE)
@@ -40,11 +41,16 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
       stop(paste('Date stamps do not match! Shark',Shark_date,'compared to Sting',Sting_date))
     }
 
-    rm(Shark_date)
     rm(Sting_date)
 
     #Extract the original id_galaxy_sky for final re-ordering.
     Sting_id_galaxy_sky=h5file(file_sting, mode='r')[['galaxies/id_galaxy_sky']][]
+  }else{
+    if(! is.null(mockcone)){
+      Sting_id_galaxy_sky=mockcone$id_galaxy_sky
+    }else{
+      stop('Need either file_sting or mockcone to be input!')
+    }
   }
 
   assertScalar(h)
