@@ -193,10 +193,6 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   colnames(outSED)=colnamesSED
   #outSED=cbind(id_galaxy=mockcone$id_galaxy, outSED)
 
-  if(verbose){
-    message(paste('Finished Viperfish on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
-  }
-
   #output=list(outSED=outSED, SFHfull=SFHfull)
 
   outSED=unique(outSED, by=id_galaxy_sky)
@@ -209,6 +205,10 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
       message(paste('Writing CSV file on ', outfile))
     }
     fwrite(outSED, file=outfile)
+  }
+
+  if(verbose){
+    message(paste('Finished Viperfish on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
   }
 
   class(outSED)=c(class(outSED),'Viperfish-Shark')
