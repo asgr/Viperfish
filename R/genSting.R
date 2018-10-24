@@ -122,6 +122,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   }
 
   mockcone=as.big.matrix(mockcone)
+  mockpoint=describe(mockcone)
 
   if(verbose){
     pb = txtProgressBar(max = length(subsnapIDs), style = 3)
@@ -129,16 +130,17 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
     opts = list(progress=progress)
   }
 
-  outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts})%dopar%{
+  outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts}, .packages=c('Viperfish','bigmemory'))%dopar%{
   #for(i in 1:length(subsnapIDs)){
     use=subsnapIDs[i]
-    select=which(mockcone[,'subsnapID']==use)
-    snapshot=mockcone[select[1],'snapshot']
-    subvolume=mockcone[select[1],'subvolume']
-    id_galaxy_sky=mockcone[select,'id_galaxy_sky']
-    id_galaxy_sam=mockcone[select,'id_galaxy_sam']
-    zcos=mockcone[select,'zcos']
-    zobs=mockcone[select,'zobs']
+    mockloop=attach.big.matrix(mockpoint)
+    select=which(mockloop[,'subsnapID']==use)
+    snapshot=mockloop[select[1],'snapshot']
+    subvolume=mockloop[select[1],'subvolume']
+    id_galaxy_sky=mockloop[select,'id_galaxy_sky']
+    id_galaxy_sam=mockloop[select,'id_galaxy_sam']
+    zcos=mockloop[select,'zcos']
+    zobs=mockloop[select,'zobs']
     SFHsing_subsnap=getSFHsing(id_galaxy_sam=id_galaxy_sam, snapshot=snapshot, subvolume=subvolume, path_shark=path_shark)
 
     SFRbulge_d_subsnap=SFHsing_subsnap$SFRbulge_d
