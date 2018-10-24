@@ -98,7 +98,6 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   }else{
     assertDataTable(mockcone)
   }
-  mockcone=as.big.matrix(mockcone)
   #mocksubsets=mocksubsets(mockcone=mockcone)
 
   if(is.null(time)){
@@ -122,6 +121,8 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
     subsnapIDs=base::unique(mockcone$subsnapID)
   }
 
+  mockcone=as.big.matrix(mockcone)
+
   if(verbose){
     pb = txtProgressBar(max = length(subsnapIDs), style = 3)
     progress = function(n) setTxtProgressBar(pb, n)
@@ -131,13 +132,13 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts})%dopar%{
   #for(i in 1:length(subsnapIDs)){
     use=subsnapIDs[i]
-    select=which(mockcone$subsnapID==use)
-    snapshot=mockcone[select[1],snapshot]
-    subvolume=mockcone[select[1],subvolume]
-    id_galaxy_sky=mockcone[select,id_galaxy_sky]
-    id_galaxy_sam=mockcone[select,id_galaxy_sam]
-    zcos=mockcone[select,zcos]
-    zobs=mockcone[select,zobs]
+    select=which(mockcone[,'subsnapID']==use)
+    snapshot=mockcone[select[1],'snapshot']
+    subvolume=mockcone[select[1],'subvolume']
+    id_galaxy_sky=mockcone[select,'id_galaxy_sky']
+    id_galaxy_sam=mockcone[select,'id_galaxy_sam']
+    zcos=mockcone[select,'zcos']
+    zobs=mockcone[select,'zobs']
     SFHsing_subsnap=getSFHsing(id_galaxy_sam=id_galaxy_sam, snapshot=snapshot, subvolume=subvolume, path_shark=path_shark)
 
     SFRbulge_d_subsnap=SFHsing_subsnap$SFRbulge_d
