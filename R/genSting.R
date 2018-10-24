@@ -24,10 +24,14 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   assertFlag(intSFR)
   assertFlag(verbose)
 
+  assertAccess(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), access='r')
+  Shark_date=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')[['run_info/timestamp']][]
+  if(h=='get'){
+    h=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')[['cosmology/h']][]
+  }
+
   if(! is.null(file_sting)){
     assertCharacter(file_sting, max.len=1, null.ok=TRUE)
-    assertAccess(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), access='r')
-    Shark_date=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')[['run_info/timestamp']][]
     assertAccess(file_sting, access='r')
     Sting_date=h5file(file_sting, mode='r')[['run_info/shark_timestamp']][]
     check = (Shark_date==Sting_date)
@@ -38,10 +42,6 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
 
     rm(Shark_date)
     rm(Sting_date)
-
-    if(h=='get'){
-      h=h5file(file_sting, mode='r')[['parameters/h']][]
-    }
 
     #Extract the original id_galaxy_sky for final re-ordering.
     Sting_id_galaxy_sky=h5file(file_sting, mode='r')[['galaxies/id_galaxy_sky']][]
