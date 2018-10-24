@@ -98,6 +98,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   }else{
     assertDataTable(mockcone)
   }
+  mockcone=as.big.matrix(mockcone)
   #mocksubsets=mocksubsets(mockcone=mockcone)
 
   if(is.null(time)){

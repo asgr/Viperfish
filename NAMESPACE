@@ -7,6 +7,7 @@ import("celestial")
 import("bit64")
 import("foreach")
 import("checkmate")
+import("bigmemory")
 
 importFrom("stats", "approxfun")
 importFrom("utils", "data", "txtProgressBar", "setTxtProgressBar")
