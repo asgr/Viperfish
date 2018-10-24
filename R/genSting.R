@@ -110,9 +110,9 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   #iterations=dim(mockcone)[1]
   if(restart){
     outSED=fread(temp_file_output)
-    subsnapIDs=unique(mockcone[!id_galaxy_sky %in% outSED$V1])
+    subsnapIDs=base::unique(mockcone[!id_galaxy_sky %in% outSED$V1,subsnapID])
   }else{
-    subsnapIDs=unique(mockcone$subsnapID)
+    subsnapIDs=base::unique(mockcone$subsnapID)
   }
 
   if(verbose){
