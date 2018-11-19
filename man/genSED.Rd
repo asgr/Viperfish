@@ -8,10 +8,10 @@ Convert target bulge and disk SFHs to SEDs.
 }
 \usage{
 genSED(SFRbulge_d, SFRbulge_m, SFRdisk, redshift = 0.1, time = NULL, tau_birth = 1,
-tau_screen = 0.3, Zbulge_d = 5, Zbulge_m = 5, Zdisk = 5, alpha_SF = 1, AGNfrac = 0,
-ab_nodust = TRUE, ap_nodust = TRUE, ab_dust = TRUE, ap_dust = TRUE, emitdust = TRUE,
-unimax = 1.38e+10, speclib = NULL, Dale = NULL, filtout = NULL, H0 = 67.8, sparse = 1,
-intSFR = TRUE)
+tau_screen = 0.3, pow_birth = -0.7, pow_screen = -0.7, alpha_SF = 1, AGNfrac = 0,
+Zbulge_d = 5, Zbulge_m = 5, Zdisk = 5, ab_nodust = TRUE, ap_nodust = TRUE, ab_dust = TRUE,
+ap_dust = TRUE, emitdust = TRUE, unimax = 1.38e+10, speclib = NULL, Dale = NULL,
+filtout = NULL, H0 = 67.8, sparse = 1, intSFR = TRUE)
 }
 \arguments{
   \item{SFRbulge_d}{
@@ -35,6 +35,18 @@ Numeric scalar; dust tau for birth clouds. Associated with sub 10 Myr star forma
   \item{tau_screen}{
 Numeric scalar; dust tau for screen. See \code{\link{SFH}}.
 }
+  \item{pow_birth}{
+Numeric scalar; power to further raise the dust attenuation of birth clouds. See \code{\link{CF_birth}}.
+}
+  \item{pow_screen}{
+Numeric scalar; power to further raise the dust attenuation of the dust screen. See \code{\link{CF_screen}}.
+}
+  \item{alpha_SF}{
+Numeric scalar; desired interpolated alpha slope of the star forming population. See \code{\link{Dale_interp}}.
+}
+  \item{AGNfrac}{
+Numeric scalar; desired interpolated AGN fraction linearly mixed in energy over the range 5-20 microns (see Dale 2014). See \code{\link{Dale_interp}}.
+}
   \item{Zbulge_d}{
 Numeric vector; metallicity of star formation in the bulge (formed via disk instabilities). Can be a single value or a vector that matches the history, in which case it must be same length as \option{SFRbulge}.
 }
@@ -43,12 +55,6 @@ Numeric vector; metallicity of star formation in the bulge (formed via mergers).
 }
   \item{Zdisk}{
 Numeric vector; metallicity of star formation in the disk. Can be a single value or a vector that matches the history, in which case it must be same length as \option{SFRdisk}.
-}
-  \item{alpha_SF}{
-Numeric scalar; desired interpolated alpha slope of the star forming population. See \code{\link{Dale_interp}}.
-}
-  \item{AGNfrac}{
-Numeric scalar; desired interpolated AGN fraction. See \code{\link{Dale_interp}}.
 }
   \item{ab_nodust}{
 Logical; should absolute magnitudes for intrinsic SEDs be conmputed?

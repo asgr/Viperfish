@@ -17,9 +17,10 @@ genSting(file_sting = NULL, path_shark = ".", h = 'get', cores = 4, snapmax = 19
 filters = c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA',
 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE',
 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'),
-tau_birth = 1.5, tau_screen = 0.5, sparse = 5, time = NULL, mockcone = NULL,
-intSFR = TRUE, final_file_output = 'Stingray-SED.csv', temp_file_output = 'temp.csv',
-reorder = TRUE, restart = FALSE, verbose = TRUE, write_final_file = FALSE)
+tau_birth = 1.5, tau_screen = 0.5, pow_birth = -0.7, pow_screen = -0.7, alpha_SF = 1,
+AGNfrac = 0, sparse = 5, time = NULL, mockcone = NULL, intSFR = TRUE,
+final_file_output = 'Stingray-SED.csv', temp_file_output = 'temp.csv', reorder = TRUE,
+restart = FALSE, verbose = TRUE, write_final_file = FALSE)
 
 getSFHfull(file_sting = "mocksurvey.hdf5", path_shark = ".", snapmax = 199, cores = 4,
 verbose = TRUE)
@@ -61,6 +62,18 @@ Numeric scalar; dust tau for birth clouds. Associated with sub 10 Myr star forma
 }
   \item{tau_screen}{
 Numeric scalar; dust tau for screen. See \code{\link{SFH}}.
+}
+  \item{pow_birth}{
+Numeric scalar; power to further raise the dust attenuation of birth clouds. See \code{\link{CF_birth}}.
+}
+  \item{pow_screen}{
+Numeric scalar; power to further raise the dust attenuation of the dust screen. See \code{\link{CF_screen}}.
+}
+  \item{alpha_SF}{
+Numeric scalar; desired interpolated alpha slope of the star forming population. See \code{\link{Dale_interp}}.
+}
+  \item{AGNfrac}{
+Numeric scalar; desired interpolated AGN fraction linearly mixed in energy over the range 5-20 microns (see Dale 2014). See \code{\link{Dale_interp}}.
 }
   \item{time}{
 Numeric vector; if provided this should be the full vector of lookback time corresponding to the time outputs in \option{SFHlist}. It should have the same length as the matrices in \option{SFHlist} have columns.

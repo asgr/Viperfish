@@ -1,4 +1,4 @@
-genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get", h='get', cores=4, id_galaxy_sam='all', filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth=1.5, tau_screen=0.5, sparse=5, final_file_output='Shark-SED.csv', intSFR=TRUE, verbose=TRUE, write_final_file=FALSE){
+genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get", h='get', cores=4, id_galaxy_sam='all', filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth=1.5, tau_screen=0.5, pow_birth=-0.7, pow_screen=-0.7, alpha_SF=1, AGNfrac=0, sparse=5, final_file_output='Shark-SED.csv', intSFR=TRUE, verbose=TRUE, write_final_file=FALSE){
 
   timestart=proc.time()[3]
 
@@ -17,8 +17,6 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
     filterlist=FALSE
     assertCharacter(filters)
   }
-  assertScalar(tau_birth)
-  assertScalar(tau_screen)
   assertInt(sparse)
   assertFlag(intSFR)
   assertFlag(verbose)
@@ -82,6 +80,20 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
 
   iterations=length(select)
 
+  if(length(tau_birth)==1){tau_birth=rep(tau_birth,iterations)}
+  if(length(tau_screen)==1){tau_screen=rep(tau_screen,iterations)}
+  if(length(pow_birth)==1){pow_birth=rep(pow_birth,iterations)}
+  if(length(pow_screen)==1){pow_screen=rep(pow_screen,iterations)}
+  if(length(alpha_SF)==1){alpha_SF=rep(alpha_SF,iterations)}
+  if(length(AGNfrac)==1){AGNfrac=rep(AGNfrac,iterations)}
+
+  assertNumeric(tau_birth, len=iterations)
+  assertNumeric(tau_screen, len=iterations)
+  assertNumeric(pow_birth, len=iterations)
+  assertNumeric(pow_screen, len=iterations)
+  assertNumeric(alpha_SF, len=iterations)
+  assertNumeric(AGNfrac, len=iterations)
+
   if(verbose){
     pb = txtProgressBar(max = iterations, style = 3)
     progress = function(n) setTxtProgressBar(pb, n)
@@ -91,7 +103,7 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
 
   outSED=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
-  unlist(genSED(SFRbulge_d=SFRbulge_d[,i]/h, SFRbulge_m=SFRbulge_m[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time, speclib=BC03lr, Zbulge_d=Zbulge_d[,i], Zbulge_m=Zbulge_m[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, tau_birth=tau_birth, tau_screen=tau_screen, sparse=sparse, intSFR=intSFR))
+  unlist(genSED(SFRbulge_d=SFRbulge_d[,i]/h, SFRbulge_m=SFRbulge_m[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time, speclib=BC03lr, Zbulge_d=Zbulge_d[,i], Zbulge_m=Zbulge_m[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, tau_birth=tau_birth[i], tau_screen=tau_screen[i], pow_birth=pow_birth[i], pow_screen=pow_screen[i], alpha_SF=alpha_SF[i], AGNfrac=AGNfrac[i], sparse=sparse, intSFR=intSFR))
   }
 
   stopCluster(cl)
