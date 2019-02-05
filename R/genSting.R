@@ -171,45 +171,12 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
     close(pb)
   }
 
-  outSED=as.data.frame(outSED)
-  colnamesSED=c(
-    'id_galaxy_sky',
-    paste0('ab_mag_nodust_b_d_',filters),
-    paste0('ab_mag_nodust_b_m_',filters),
-    paste0('ab_mag_nodust_b_',filters),
-    paste0('ab_mag_nodust_d_',filters),
-    paste0('ab_mag_nodust_t_',filters),
-    paste0('ap_mag_nodust_b_d_',filters),
-    paste0('ap_mag_nodust_b_m_',filters),
-    paste0('ap_mag_nodust_b_',filters),
-    paste0('ap_mag_nodust_d_',filters),
-    paste0('ap_mag_nodust_t_',filters),
-    paste0('ab_mag_dust_b_d_',filters),
-    paste0('ab_mag_dust_b_m_',filters),
-    paste0('ab_mag_dust_b_',filters),
-    paste0('ab_mag_dust_d_',filters),
-    paste0('ab_mag_dust_t_',filters),
-    paste0('ap_mag_dust_b_d_',filters),
-    paste0('ap_mag_dust_b_m_',filters),
-    paste0('ap_mag_dust_b_',filters),
-    paste0('ap_mag_dust_d_',filters),
-    paste0('ap_mag_dust_t_',filters)
-    )
-  colnames(outSED)=colnamesSED
-  #outSED=cbind(id_galaxy=mockcone$id_galaxy, outSED)
-
-  #output=list(outSED=outSED, SFHfull=SFHfull)
-
   outSED=unique(outSED, by=id_galaxy_sky)
 
   outSED=outSED[match(Sting_id_galaxy_sky, outSED$id_galaxy_sky),]
 
   if (write_final_file) {
-    outfile = paste(dirname(file_sting), final_file_output, sep='/')
-    if (verbose) {
-      message(paste('Writing CSV file on ', outfile))
-    }
-    fwrite(outSED, file=outfile)
+    write.SED(outSED, filters, dirname(file_sting), final_file_output)
   }
 
   if(verbose){
