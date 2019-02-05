@@ -109,6 +109,61 @@ write.SED.hdf5=function(SED, filename='temp.hdf5', overwrite=FALSE, filters=c('F
   write.custom.dataset(filename=filename, group="SED/ap_dust", object=SED[,1+colrun+Ncol*11], dataset.name='total', overwrite=overwrite)
 }
 
+write.SED.csv = function(SED, filters, fname)
+{
+  colnames = c(
+      'id_galaxy',
+      paste0('ab_mag_nodust_b_d_',filters),
+      paste0('ab_mag_nodust_b_m_',filters),
+      paste0('ab_mag_nodust_b_',filters),
+      paste0('ab_mag_nodust_d_',filters),
+      paste0('ab_mag_nodust_t_',filters),
+      paste0('ap_mag_nodust_b_d_',filters),
+      paste0('ap_mag_nodust_b_m_',filters),
+      paste0('ap_mag_nodust_b_',filters),
+      paste0('ap_mag_nodust_d_',filters),
+      paste0('ap_mag_nodust_t_',filters),
+      paste0('ab_mag_dust_b_d_',filters),
+      paste0('ab_mag_dust_b_m_',filters),
+      paste0('ab_mag_dust_b_',filters),
+      paste0('ab_mag_dust_d_',filters),
+      paste0('ab_mag_dust_t_',filters),
+      paste0('ap_mag_dust_b_d_',filters),
+      paste0('ap_mag_dust_b_m_',filters),
+      paste0('ap_mag_dust_b_',filters),
+      paste0('ap_mag_dust_d_',filters),
+      paste0('ap_mag_dust_t_',filters)
+  )
+  colnames(SED) = colnames
+  fwrite(SED, file=fname)
+}
+
+write.SED = function(SED, filters, outdir, fname, verbose=FALSE)
+{
+  # Automatically determine format from file extension
+  if (endsWith(fname, '.hdf5') | endsWith(fname, '.h5')) {
+    format = 'hdf5'
+  }
+  else if (endsWith(fname, '.csv')) {
+    format = 'csv'
+  }
+  else {
+    stop(paste("Cannot determine format (hdf5/csv) from file extension:", fname))
+  }
+
+  if (!dir.exists(outdir)) {
+    dir.create(outdir, recursive=TRUE)
+  }
+  fname = paste(outdir, fname, sep='/')
+  message(paste('Writing SED to', fname))
+  if (format == 'hdf5') {
+    write.SED.hdf5(SED, fname, overwrite=TRUE, filters=filters)
+  }
+  else if (format == 'csv') {
+    write.SED.csv(outSED, filters, fname)
+  }
+}
+
 write.SFH=function(SFHlist, filename='temp.hdf5', overwrite=FALSE){
   assertPathForOutput(filename, overwrite=TRUE)
 
