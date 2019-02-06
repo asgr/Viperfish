@@ -100,30 +100,6 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
     close(pb)
   }
 
-  outSED=as.data.table(rbind(outSED))
-  colnamesSED=c(
-    paste0('ab_mag_nodust_b_d_',filters),
-    paste0('ab_mag_nodust_b_m_',filters),
-    paste0('ab_mag_nodust_b_',filters),
-    paste0('ab_mag_nodust_d_',filters),
-    paste0('ab_mag_nodust_t_',filters),
-    paste0('ap_mag_nodust_b_d_',filters),
-    paste0('ap_mag_nodust_b_m_',filters),
-    paste0('ap_mag_nodust_b_',filters),
-    paste0('ap_mag_nodust_d_',filters),
-    paste0('ap_mag_nodust_t_',filters),
-    paste0('ab_mag_dust_b_d_',filters),
-    paste0('ab_mag_dust_b_m_',filters),
-    paste0('ab_mag_dust_b_',filters),
-    paste0('ab_mag_dust_d_',filters),
-    paste0('ab_mag_dust_t_',filters),
-    paste0('ap_mag_dust_b_d_',filters),
-    paste0('ap_mag_dust_b_m_',filters),
-    paste0('ap_mag_dust_b_',filters),
-    paste0('ap_mag_dust_d_',filters),
-    paste0('ap_mag_dust_t_',filters)
-    )
-  colnames(outSED)=colnamesSED
   outSED=cbind(id_galaxy=Shark_SFH[['galaxies/id_galaxy']][select], outSED)
 
   Shark_SFH$close()
@@ -134,14 +110,7 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
 
   if (write_final_file) {
     outdir = paste(path_shark, 'Photometry', snapshot, subvolume, sep='/')
-    if (!dir.exists(outdir)) {
-      dir.create(outdir, recursive=TRUE)
-    }
-    outfile = paste(outdir, final_file_output, sep='/')
-    if (verbose) {
-      message(paste('Writing CSV file on ', outfile))
-    }
-    fwrite(outSED, file=outfile)
+    write.SED(outSED, filters, outdir, final_file_output, verbose=TRUE)
   }
 
   class(outSED)=c(class(outSED),'Viperfish-Shark')
