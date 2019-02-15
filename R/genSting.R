@@ -173,8 +173,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
 
   outSED=as.data.frame(outSED)
   outSED=unique(outSED, by=id_galaxy_sky)
-
-  outSED=outSED[match(Sting_id_galaxy_sky, outSED$id_galaxy_sky),]
+  outSED=outSED[match(Sting_id_galaxy_sky, outSED[,1]),]
 
   if (write_final_file) {
     write.SED(outSED, filters, dirname(file_sting), final_file_output)
