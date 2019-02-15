@@ -160,7 +160,7 @@ write.SED = function(SED, filters, outdir, fname, verbose=FALSE)
     write.SED.hdf5(SED, fname, overwrite=TRUE, filters=filters)
   }
   else if (format == 'csv') {
-    write.SED.csv(outSED, filters, fname)
+    write.SED.csv(SED, filters, fname)
   }
 }
 

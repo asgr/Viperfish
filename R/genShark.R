@@ -100,6 +100,7 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
     close(pb)
   }
 
+  outSED=as.data.table(rbind(outSED))
   outSED=cbind(id_galaxy=Shark_SFH[['galaxies/id_galaxy']][select], outSED)
 
   Shark_SFH$close()

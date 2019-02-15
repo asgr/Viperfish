@@ -171,6 +171,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
     close(pb)
   }
 
+  outSED=as.data.frame(outSED)
   outSED=unique(outSED, by=id_galaxy_sky)
 
   outSED=outSED[match(Sting_id_galaxy_sky, outSED$id_galaxy_sky),]
