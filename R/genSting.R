@@ -111,69 +111,73 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
 
   #SEDlookup=data.table(id=unlist(mocksubsets$idlist), subsnapID=rep(mocksubsets$subsnapID, mocksubsets$Nid))
 
-  cl=makeCluster(cores)
-  registerDoSNOW(cl)
-
   #iterations=dim(mockcone)[1]
   if(restart){
     outSED=fread(temp_file_output)
     subsnapIDs=base::unique(mockcone[!id_galaxy_sky %in% outSED$V1,subsnapID])
+    run_foreach = length(subsnapIDs) > 0
   }else{
     subsnapIDs=base::unique(mockcone$subsnapID)
+    run_foreach = TRUE
   }
 
   mockcone=as.big.matrix(mockcone)
   mockpoint=describe(mockcone)
 
-  if(verbose){
-    pb = txtProgressBar(max = length(subsnapIDs), style = 3)
-    progress = function(n) setTxtProgressBar(pb, n)
-    opts = list(progress=progress)
-  }
+  if (run_foreach) {
 
-  outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts}, .packages=c('Viperfish','bigmemory'))%dopar%{
-  #for(i in 1:length(subsnapIDs)){
-    use=subsnapIDs[i]
-    mockloop=attach.big.matrix(mockpoint)
-    select=which(mockloop[,'subsnapID']==use)
-    snapshot=mockloop[select[1],'snapshot']
-    subvolume=mockloop[select[1],'subvolume']
-    id_galaxy_sky=mockloop[select,'id_galaxy_sky']
-    id_galaxy_sam=mockloop[select,'id_galaxy_sam']
-    zcos=mockloop[select,'zcos']
-    zobs=mockloop[select,'zobs']
-    SFHsing_subsnap=getSFHsing(id_galaxy_sam=id_galaxy_sam, snapshot=snapshot, subvolume=subvolume, path_shark=path_shark)
+    cl=makeCluster(cores)
+    registerDoSNOW(cl)
 
-    SFRbulge_d_subsnap=SFHsing_subsnap$SFRbulge_d
-    SFRbulge_m_subsnap=SFHsing_subsnap$SFRbulge_m
-    SFRdisk_subsnap=SFHsing_subsnap$SFRdisk
-    Zbulge_d_subsnap=SFHsing_subsnap$Zbulge_d
-    Zbulge_m_subsnap=SFHsing_subsnap$Zbulge_m
-    Zdisk_subsnap=SFHsing_subsnap$Zdisk
-
-    # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
-
-    tempout=foreach(j=1:length(select), .combine='rbind')%do%{
-      tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,]/h, SFRbulge_m=SFRbulge_m_subsnap[j,]/h, SFRdisk=SFRdisk_subsnap[j,]/h, redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))), error = function(e) NULL)
-      tempSED
+    if(verbose){
+      pb = txtProgressBar(max = length(subsnapIDs), style = 3)
+      progress = function(n) setTxtProgressBar(pb, n)
+      opts = list(progress=progress)
     }
-    as.data.table(rbind(tempout))
+
+    outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts}, .packages=c('Viperfish','bigmemory'))%dopar%{
+      use=subsnapIDs[i]
+      mockloop=attach.big.matrix(mockpoint)
+      select=which(mockloop[,'subsnapID']==use)
+      snapshot=mockloop[select[1],'snapshot']
+      subvolume=mockloop[select[1],'subvolume']
+      id_galaxy_sky=mockloop[select,'id_galaxy_sky']
+      id_galaxy_sam=mockloop[select,'id_galaxy_sam']
+      zcos=mockloop[select,'zcos']
+      zobs=mockloop[select,'zobs']
+      SFHsing_subsnap=getSFHsing(id_galaxy_sam=id_galaxy_sam, snapshot=snapshot, subvolume=subvolume, path_shark=path_shark)
+
+      SFRbulge_d_subsnap=SFHsing_subsnap$SFRbulge_d
+      SFRbulge_m_subsnap=SFHsing_subsnap$SFRbulge_m
+      SFRdisk_subsnap=SFHsing_subsnap$SFRdisk
+      Zbulge_d_subsnap=SFHsing_subsnap$Zbulge_d
+      Zbulge_m_subsnap=SFHsing_subsnap$Zbulge_m
+      Zdisk_subsnap=SFHsing_subsnap$Zdisk
+
+      # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
+      tempout=foreach(j=1:length(select), .combine='rbind')%do%{
+        tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,]/h, SFRbulge_m=SFRbulge_m_subsnap[j,]/h, SFRdisk=SFRdisk_subsnap[j,]/h, redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_Msol, sparse=sparse, tau_birth=tau_birth, tau_screen=tau_screen, intSFR = intSFR))), error = function(e) NULL)
+        tempSED
+      }
+      as.data.table(rbind(tempout))
+    }
+
+    if(verbose){
+      close(pb)
+    }
+
+    stopCluster(cl)
   }
 
-  stopCluster(cl)
 
   #if(file.exists(temp_file_output)){
   #  assertAccess(temp_file_output, access='w')
   #  file.remove(temp_file_output)
   #}
 
-  if(verbose){
-    close(pb)
-  }
-
+  outSED=as.data.frame(outSED)
   outSED=unique(outSED, by=id_galaxy_sky)
-
-  outSED=outSED[match(Sting_id_galaxy_sky, outSED$id_galaxy_sky),]
+  outSED=outSED[match(Sting_id_galaxy_sky, outSED[,1]),]
 
   if (write_final_file) {
     write.SED(outSED, filters, dirname(file_sting), final_file_output)
