@@ -9,5 +9,5 @@ Description: Makes SEDs with outputs from Shark and/or Stingray using ProSpect.
 License: LGPL-3
 Encoding: UTF-8
 LazyData: true
-Depends: ProSpect (>= 0.2.2), data.table, hdf5r
+Depends: ProSpect (>= 0.6.0), data.table, hdf5r
 Imports: celestial (>= 1.4.5), bit64, foreach, doSNOW, checkmate, snow, ini, bigmemory
