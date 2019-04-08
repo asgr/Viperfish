@@ -110,11 +110,9 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
     #print(dustout_d)
 
     if(ab_dust){
-      #magplot(lumwave,bulge_dust$lum_atten,log='xy',xlim=c(1e2,1e7),ylim=c(1e2,2e6),type='l')
-      bulge_d_dust$lum=addspec(Dale$Wave, Dale_interp_b_d[,2]*dustout_b_d[1], lumwave, bulge_d_dust$lum_atten)[,2]
-      bulge_m_dust$lum=addspec(Dale$Wave, Dale_interp_b_m[,2]*dustout_b_m[1], lumwave, bulge_m_dust$lum_atten)[,2]
-      disk_dust$lum=addspec(Dale$Wave, Dale_interp_d[,2]*dustout_d[1], lumwave, disk_dust$lum_atten)[,2]
-      #lines(sort(c(Dale$Wave, lumwave)), bulge_dust$lum,col='red')
+      bulge_d_dust$lum_atten=addspec(Dale$Wave, Dale_interp_b_d[,2]*dustout_b_d[1], lumwave, bulge_d_dust$lum_atten)[,2]
+      bulge_m_dust$lum_atten=addspec(Dale$Wave, Dale_interp_b_m[,2]*dustout_b_m[1], lumwave, bulge_m_dust$lum_atten)[,2]
+      disk_dust$lum_atten=addspec(Dale$Wave, Dale_interp_d[,2]*dustout_d[1], lumwave, disk_dust$lum_atten)[,2]
 
       lumwave=sort(c(Dale$Wave, lumwave))
     }
@@ -136,9 +134,9 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
   }
 
   if(ab_nodust){
-    bulge_d_nodust_lum=bulge_d_nodust$lum
-    bulge_m_nodust_lum=bulge_m_nodust$lum
-    disk_nodust_lum=disk_nodust$lum
+    bulge_d_nodust_lum=bulge_d_nodust$lum_atten
+    bulge_m_nodust_lum=bulge_m_nodust$lum_atten
+    disk_nodust_lum=disk_nodust$lum_atten
   }else{
     bulge_d_nodust_lum=NA
     bulge_d_nodust_lum=NA
@@ -156,9 +154,9 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
   }
 
   if(ab_dust){
-    bulge_d_dust_lum=bulge_d_dust$lum
-    bulge_m_dust_lum=bulge_m_dust$lum
-    disk_dust_lum=disk_dust$lum
+    bulge_d_dust_lum=bulge_d_dust$lum_atten
+    bulge_m_dust_lum=bulge_m_dust$lum_atten
+    disk_dust_lum=disk_dust$lum_atten
   }else{
     bulge_d_dust_lum=NA
     bulge_d_dust_lum=NA
