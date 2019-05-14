@@ -65,6 +65,8 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
     }
   }
 
+  message(paste0('#Galaxy IDs from mock catalogue: ', length(Sting_id_galaxy_sky),
+                 ', type/class: ', typeof(Sting_id_galaxy_sky), '/', class(Sting_id_galaxy_sky)))
   assertScalar(h)
 
   BC03lr=Dale_Msol=Nid=id_galaxy_sky=id_galaxy_sam=idlist=snapshot=subsnapID=subvolume=z=i=j=Ntime=zobs=NULL
