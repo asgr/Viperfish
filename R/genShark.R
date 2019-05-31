@@ -78,19 +78,18 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   tau_dust = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
   tau_clump = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
 
-  print("will now read extinction") 
   if(read_extinct){
      #read in disks
-     tau_dust[3,] = Shark_Extinct[['galaxies/tau_diff_disk']][,select,drop=FALSE]
-     tau_clump[3,] = Shark_Extinct[['galaxies/tau_clump_disk']][,select,drop=FALSE]
+     tau_dust[,3] = Shark_Extinct[['galaxies/tau_diff_disk']][select]
+     tau_clump[,3] = Shark_Extinct[['galaxies/tau_clump_disk']][select]
 
-     tau_dust[1,] = Shark_Extinct[['galaxies/tau_diff_bulge']][,select,drop=FALSE]
+     tau_dust[,1] = Shark_Extinct[['galaxies/tau_diff_bulge']][select]
      #bulges are a single phase
-     tau_clump[1,] = tau_dust[1,]
+     tau_clump[,1] = tau_dust[,1]
 
      #assume the same for bulges regardless of origin of star formation
-     tau_dust[2,] = tau_dust[1,]
-     tau_clump[2,] = tau_clump[1,]
+     tau_dust[,2] = tau_dust[,1]
+     tau_clump[,2] = tau_clump[,1]
   }
   else{
     tau_dust[,] = tau_screen
