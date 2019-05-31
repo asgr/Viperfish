@@ -75,21 +75,22 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   Zdisk=Shark_SFH[['disks/metallicity_histories']][,select,drop=FALSE]
 
   #define tau in extinction laws
-  tau_dust = matrix(ncol = 3, nrow = length(SFRbulge_d)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
-  tau_clump = matrix(ncol = 3, nrow = length(SFRbulge_d)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
- 
+  tau_dust = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+  tau_clump = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+
+  print("will now read extinction") 
   if(read_extinct){
      #read in disks
-     tau_dust[,3] = Shark_Extinct[['galaxies/tau_diff_disk']][,select,drop=FALSE]
-     tau_clump[,3] = Shark_Extinct[['galaxies/tau_clump_disk']][,select,drop=FALSE]
+     tau_dust[3,] = Shark_Extinct[['galaxies/tau_diff_disk']][,select,drop=FALSE]
+     tau_clump[3,] = Shark_Extinct[['galaxies/tau_clump_disk']][,select,drop=FALSE]
 
-     tau_dust[,1] = Shark_Extinct[['galaxies/tau_diff_bulge']][,select,drop=FALSE]
+     tau_dust[1,] = Shark_Extinct[['galaxies/tau_diff_bulge']][,select,drop=FALSE]
      #bulges are a single phase
-     tau_clump[,1] = tau_dust[,1]
+     tau_clump[1,] = tau_dust[1,]
 
      #assume the same for bulges regardless of origin of star formation
-     tau_dust[,2] = tau_dust[,1]
-     tau_clump[,2] = tau_clump[,1]
+     tau_dust[2,] = tau_dust[1,]
+     tau_clump[2,] = tau_clump[1,]
   }
   else{
     tau_dust[,] = tau_screen
@@ -118,7 +119,7 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
 
   outSED=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
-  unlist(genSED(SFRbulge_d=SFRbulge_d[,i]/h, SFRbulge_m=SFRbulge_m[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time, speclib=BC03lr, Zbulge_d=Zbulge_d[,i], Zbulge_m=Zbulge_m[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, tau_birth=tau_clump[,i], tau_screen=tau_dust[,i], sparse=sparse, intSFR=intSFR))
+  unlist(genSED(SFRbulge_d=SFRbulge_d[,i]/h, SFRbulge_m=SFRbulge_m[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time, speclib=BC03lr, Zbulge_d=Zbulge_d[,i], Zbulge_m=Zbulge_m[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, tau_birth=tau_clump[i,], tau_screen=tau_dust[i,], sparse=sparse, intSFR=intSFR))
   }
 
   stopCluster(cl)
