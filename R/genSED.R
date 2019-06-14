@@ -1,4 +1,4 @@
-genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_birth=1, tau_screen=0.3, Zbulge_d=5, Zbulge_m=5, Zdisk=5, alpha_SF=1, AGNfrac=0, ab_nodust=TRUE, ap_nodust=TRUE, ab_dust=TRUE, ap_dust=TRUE, emitdust=TRUE, unimax=13.8e9, speclib=NULL, Dale=NULL, filtout=NULL, H0=67.8, sparse=1, intSFR=TRUE){
+genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_birth=1, tau_screen=0.3, pow_birth=-0.7, pow_screen=-0.7, Zbulge_d=5, Zbulge_m=5, Zdisk=5, alpha_SF=1, AGNfrac=0, ab_nodust=TRUE, ap_nodust=TRUE, ab_dust=TRUE, ap_dust=TRUE, emitdust=TRUE, unimax=13.8e9, speclib=NULL, Dale=NULL, filtout=NULL, H0=67.8, sparse=1, intSFR=TRUE){
 
   if(is.null(time)){stop('Need time input!')}
   if(is.null(speclib)){stop('Need speclib (e.g. BC03lr)')}
@@ -16,6 +16,9 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
 
   if(length(tau_birth)==1){tau_birth=rep(tau_birth,3)}
   if(length(tau_screen)==1){tau_screen=rep(tau_screen,3)}
+  if(length(pow_birth)==1){pow_birth=rep(pow_birth,3)}
+  if(length(pow_screen)==1){pow_screen=rep(pow_screen,3)}
+
   if(length(alpha_SF)==1){alpha_SF=rep(alpha_SF,3)}
   if(length(AGNfrac)==1){AGNfrac=rep(AGNfrac,3)}
 
@@ -26,6 +29,8 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
   assertNumeric(time)
   assertNumeric(tau_birth, len=3)
   assertNumeric(tau_screen, len=3)
+  assertNumeric(pow_birth, len=3)
+  assertNumeric(pow_screen, len=3)
   assertNumeric(Zbulge_d)
   assertNumeric(Zbulge_m)
   assertNumeric(Zdisk)
@@ -78,23 +83,23 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
   lumwave=speclib$Wave
 
   if(ap_nodust){
-    bulge_d_nodust=SFHfunc(SFRbulge_dfunc, tau_birth=0, tau_screen=0, speclib=speclib, z=redshift, Z=Z[[1]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
-    bulge_m_nodust=SFHfunc(SFRbulge_mfunc, tau_birth=0, tau_screen=0, speclib=speclib, z=redshift, Z=Z[[2]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
-    disk_nodust=SFHfunc(SFRdiskfunc, tau_birth=0, tau_screen=0, speclib=speclib, z=redshift, Z=Z[[3]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
+    bulge_d_nodust=SFHfunc(SFRbulge_dfunc, tau_birth=0, tau_screen=0, pow_birth=pow_birth[1], pow_screen=pow_screen[1], speclib=speclib, z=redshift, Z=Z[[1]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
+    bulge_m_nodust=SFHfunc(SFRbulge_mfunc, tau_birth=0, tau_screen=0, pow_birth=pow_birth[2], pow_screen=pow_screen[2], speclib=speclib, z=redshift, Z=Z[[2]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
+    disk_nodust=SFHfunc(SFRdiskfunc, tau_birth=0, tau_screen=0, pow_birth=pow_birth[3], pow_screen=pow_screen[3], speclib=speclib, z=redshift, Z=Z[[3]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
   }else if(ab_nodust | emitdust){
-    bulge_d_nodust=SFHfunc(SFRbulge_dfunc, tau_birth=0, tau_screen=0, speclib=speclib, z=0, Z=Z[[1]], outtype=NULL, intSFR=intSFR, sparse=sparse)
-    bulge_m_nodust=SFHfunc(SFRbulge_mfunc, tau_birth=0, tau_screen=0, speclib=speclib, z=0, Z=Z[[2]], outtype=NULL, intSFR=intSFR, sparse=sparse)
-    disk_nodust=SFHfunc(SFRdiskfunc, tau_birth=0, tau_screen=0, speclib=speclib, z=0, Z=Z[[3]], outtype=NULL, intSFR=intSFR, sparse=sparse)
+    bulge_d_nodust=SFHfunc(SFRbulge_dfunc, tau_birth=0, tau_screen=0, pow_birth=pow_birth[1], pow_screen=pow_screen[1], speclib=speclib, z=0, Z=Z[[1]], outtype=NULL, intSFR=intSFR, sparse=sparse)
+    bulge_m_nodust=SFHfunc(SFRbulge_mfunc, tau_birth=0, tau_screen=0, pow_birth=pow_birth[2], pow_screen=pow_screen[2], speclib=speclib, z=0, Z=Z[[2]], outtype=NULL, intSFR=intSFR, sparse=sparse)
+    disk_nodust=SFHfunc(SFRdiskfunc, tau_birth=0, tau_screen=0, pow_birth=pow_birth[3], pow_screen=pow_screen[3],speclib=speclib, z=0, Z=Z[[3]], outtype=NULL, intSFR=intSFR, sparse=sparse)
   }
 
   if(ap_dust){
-    bulge_d_dust=SFHfunc(SFRbulge_dfunc, tau_birth=tau_birth[1], tau_screen=tau_screen[1], speclib=speclib, z=redshift, Z=Z[[1]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
-    bulge_m_dust=SFHfunc(SFRbulge_mfunc, tau_birth=tau_birth[2], tau_screen=tau_screen[2], speclib=speclib, z=redshift, Z=Z[[2]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
-    disk_dust=SFHfunc(SFRdiskfunc, tau_birth=tau_birth[3], tau_screen=tau_screen[3], speclib=speclib, z=redshift, Z=Z[[3]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
+    bulge_d_dust=SFHfunc(SFRbulge_dfunc, tau_birth=tau_birth[1], tau_screen=tau_screen[1], pow_birth=pow_birth[1], pow_screen=pow_screen[1], speclib=speclib, z=redshift, Z=Z[[1]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
+    bulge_m_dust=SFHfunc(SFRbulge_mfunc, tau_birth=tau_birth[2], tau_screen=tau_screen[2], pow_birth=pow_birth[2], pow_screen=pow_screen[2], speclib=speclib, z=redshift, Z=Z[[2]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
+    disk_dust=SFHfunc(SFRdiskfunc, tau_birth=tau_birth[3], tau_screen=tau_screen[3], pow_birth=pow_birth[3], pow_screen=pow_screen[3], speclib=speclib, z=redshift, Z=Z[[3]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
   }else if(ab_dust){
-    bulge_d_dust=SFHfunc(SFRbulge_dfunc, tau_birth=tau_birth[1], tau_screen=tau_screen[1], speclib=speclib, z=0, Z=Z[[1]], outtype=NULL, intSFR=intSFR, sparse=sparse)
-    bulge_m_dust=SFHfunc(SFRbulge_mfunc, tau_birth=tau_birth[2], tau_screen=tau_screen[2], speclib=speclib, z=0, Z=Z[[2]], outtype=NULL, intSFR=intSFR, sparse=sparse)
-    disk_dust=SFHfunc(SFRdiskfunc, tau_birth=tau_birth[3], tau_screen=tau_screen[3], speclib=speclib, z=0, Z=Z[[3]], outtype=NULL, intSFR=intSFR, sparse=sparse)
+    bulge_d_dust=SFHfunc(SFRbulge_dfunc, tau_birth=tau_birth[1], tau_screen=tau_screen[1], pow_birth=pow_birth[1], pow_screen=pow_screen[1], speclib=speclib, z=0, Z=Z[[1]], outtype=NULL, intSFR=intSFR, sparse=sparse)
+    bulge_m_dust=SFHfunc(SFRbulge_mfunc, tau_birth=tau_birth[2], tau_screen=tau_screen[2], pow_birth=pow_birth[2], pow_screen=pow_screen[2], speclib=speclib, z=0, Z=Z[[2]], outtype=NULL, intSFR=intSFR, sparse=sparse)
+    disk_dust=SFHfunc(SFRdiskfunc, tau_birth=tau_birth[3], tau_screen=tau_screen[3], pow_birth=pow_birth[3], pow_screen=pow_screen[3], speclib=speclib, z=0, Z=Z[[3]], outtype=NULL, intSFR=intSFR, sparse=sparse)
   }
 
   if((ab_dust | ap_dust) & emitdust & !is.null(Dale)){

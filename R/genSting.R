@@ -1,3 +1,14 @@
+with_64bit_ints = function(x)
+{
+    # When reading 64 bit integers let's make sure hdf5r reads them as such;
+    # otherwise the default behavior is convert to int32 or double if they don't loose precision
+    old_option = getOption('hdf5r.h5tor_default')
+    options(hdf5r.h5tor_default = h5const$H5TOR_CONV_NONE)
+    result = x
+    options(hdf5r.h5tor_default = old_option)
+    invisible(result)
+}
+
 genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199, filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth=1.5, tau_screen=0.5, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, final_file_output='Stingray-SED.csv', temp_file_output='temp.csv', reorder=TRUE, restart=FALSE, verbose=TRUE, write_final_file=FALSE){
 
   timestart=proc.time()[3]
@@ -45,7 +56,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
     rm(Shark_date)
 
     #Extract the original id_galaxy_sky for final re-ordering.
-    Sting_id_galaxy_sky=h5file(file_sting, mode='r')[['galaxies/id_galaxy_sky']][]
+    Sting_id_galaxy_sky = with_64bit_ints(h5file(file_sting, mode='r')[['galaxies/id_galaxy_sky']][])
   }else{
     if(! is.null(mockcone)){
       Sting_id_galaxy_sky=mockcone$id_galaxy_sky
@@ -54,6 +65,8 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
     }
   }
 
+  message(paste0('#Galaxy IDs from mock catalogue: ', length(Sting_id_galaxy_sky),
+                 ', type/class: ', typeof(Sting_id_galaxy_sky), '/', class(Sting_id_galaxy_sky)))
   assertScalar(h)
 
   BC03lr=Dale_Msol=Nid=id_galaxy_sky=id_galaxy_sam=idlist=snapshot=subsnapID=subvolume=z=i=j=Ntime=zobs=NULL
@@ -95,7 +108,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   #Make mock subsets:
 
   if(is.null(mockcone)){
-    mockcone=mockcone_extract(file_sting=file_sting, reorder=reorder)
+    mockcone = with_64bit_ints(mockcone_extract(file_sting=file_sting, reorder=reorder))
   }else{
     assertDataTable(mockcone)
   }
@@ -175,8 +188,8 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   #  file.remove(temp_file_output)
   #}
 
+  outSED=unique(outSED, by=1)
   outSED=as.data.frame(outSED)
-  outSED=unique(outSED, by=id_galaxy_sky)
   outSED=outSED[match(Sting_id_galaxy_sky, outSED[,1]),]
 
   if (write_final_file) {
