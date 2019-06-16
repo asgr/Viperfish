@@ -12,8 +12,9 @@ cores = 4, id_galaxy_sam = "all", filters = c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS'
 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA',
 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel',
 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth = 1.5, tau_screen = 0.5,
-sparse = 5, final_file_output = 'Shark-SED.csv', intSFR = TRUE, verbose = TRUE,
-write_final_file = FALSE)
+pow_birth = -0.7, pow_screen = -0.7, read_extinct = FALSE, sparse = 5,
+final_file_output = 'Shark-SED.csv', extinction_file = "extinction.hdf5", intSFR = TRUE,
+verbose = TRUE, write_final_file = FALSE)
 }
 \arguments{
   \item{path_shark}{
@@ -46,11 +47,23 @@ Numeric scalar; dust tau for birth clouds. Associated with sub 10 Myr star forma
   \item{tau_screen}{
 Numeric scalar; dust tau for screen. See \code{\link{SFH}}.
 }
+  \item{pow_birth}{
+Numeric scalar; power to further raise the dust attenuation of birth clouds. See \code{\link{CF_birth}}.
+}
+  \item{pow_screen}{
+Numeric scalar; power to further raise the dust attenuation of the dust screen. See \code{\link{CF_screen}}.
+}
+  \item{read_extinct}{
+Logical; should an HDF5 be read in to vary extinction values per galaxy?
+}
   \item{sparse}{
 Numeric scalar; amount of sparse sampling of the spectra to make. Higher values mean coarser spectra is processed, which means less accurate photometry, but faster processing. Generally done when computing higher resolution libraries for AB mags.
 }
   \item{final_file_output}{
 Character scalar;  name for the final output file to write to. This should not be an existing file and end ".csv".
+}
+  \item{extinction_file}{
+ Character scalar; name of extinction file. Only relevant if \option{read_extinct}=TRUE.
 }
   \item{intSFR}{
 Logical; should the \option{massfunc} be intergrated between ages? This might be necessary if the SFH is quite bursty, but it is more expensive to compute and not required if the SFH is quite smooth.

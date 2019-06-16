@@ -1,0 +1,31 @@
+---
+title: "Viperfish Overview"
+author: "Aaron Robotham"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Overview of ProSpect and Viperfish
+
+To generate spectrals energy distributions (SEDs) for **Shark** two packages have been developed: **ProSpect** and **Viperfish**. **ProSpect** is a low-level package that combines the popular stellar synthesis libraries Bruzual & Charlot (2003, BC03) and/or EMILES (Vazdekis et al, 2016) with a simple dust attenuation model (Charlot & Fall, 2000) and dust re-emission (Dale et al, 2014). On top of this sits **Viperfish** which allows for simple extraction of Shark star-formation histories and application of the relevant SED.
+
+**ProSpect** is designed in an opinionated manner that still allows for some user-side flexibility. Many of the design decisions are pragmatic and reasonable, and allow for fast working code that produces sensible results. For the production of galaxy SEDs, the decision was made early on to focus efforts on the BC03 spectral libraries using a Chabrier (2003) initial mass function since these are well understood, and have a very broad spectral range that makes them useful for current and next generation multi-band surveys. **ProSpect** can either be provided with a star-formation history (SFH) created by four or five discrete periods of constant star-formation, or more generally a functional form of the SFH. The functional SFH can be arbitrarily complex, with internal interpolation schemes used to map the provided form onto the discrete library of templates available. The gas metallicity of the forming stars can also be provided as discrete periods or a complex functional form (again, interpolation is used to map values back onto the discrete grids available).
+
+The generative nature of **ProSpect** means it can be used in a number of ways: either to fit real data using Bayesian modelling via optimisation of Markov-Chain Monte-Carlo (MCMC), or in a purely generative mode given a SFH and metallicity evolution of, e.g., a simulated galaxy. For producing light cones with SEDs from SAMs, this generative mode is obviously of most interest. However, some sensible assumptions must be made regarding light attenuation due to dust, and its re-emission at longer wavelengths. How to do this in a fully physical sense, given the limited range of knowledge we have about any single SAM galaxy, is a matter of ongoing research, but for the current purposes of Shark SED generation we have settled on a deliberately simplifed fiducial model of dust processing.
+
+Firstly, the dust is attenuated by a simple Charlot & Fall (2000) dust model, with the standard suggested parameters (ASGR: need to list here). As per the suggested model, light generated at different ages is attenuated differently, giving a natural means to simulate the effect of birth cloud attenuation for younger stars. This absorbed light must then be re-emitted in a sensible fashion at longer wavelengths. For this process we have adopted the Dale et al (2014) FIR dust templates, with an assumption of no significant AGN emission, and an assumed dust radiation field of $\alpha_{SF}=1$. Once the full generative spectrum has been created we pass it through a number of available filters that span the FUV to FIR. Only a subset of these filters are discussed in this work, and user defined filters can be added easily if required.
+
+This aproach, and the global values used for various parameters, are a compromise between achieving reasonable SEDs (as compared to emperical data) and simplicity. The latter is important since whilst we could make much more complex SEDs, e.g. by varying $\alpha_{SF}=1$ for different stellar populations, there is very little physics available from the SAME to justify a more complex form. In this work we are interested to see how plausible our SED predictions are given the simplest reasonable model of stellar light production, absorption and re-emission. In the future work we will look at incorporating more complex SEDs based on predictions from recent hydro-dynamical simulations (Trayford et al, in prep).
+
+The highest level code mentioned **Viperfish** allows for a very simple interface between the HDF5 outputs created by Shark and/or Stingray and **ProSpect**. It effectively reduces a few hundred lines of **R** code to a single call with the path to the relevant HDF5 file. This makes it trivial to post-process any Shark outputs at any time (it does not need to be run in parallel), and it is designed to scale naturally with the compute resources abvailable, e.g. it can use multiple cores. In testing, a lightcone that is useful for recreating the GAMA survey (similar depth and geometry) takes $\sim 10$ hours on a sinlge core, and it scales fairly inversely with the cores available.

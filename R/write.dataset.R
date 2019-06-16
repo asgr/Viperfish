@@ -117,7 +117,7 @@ write.SED.hdf5=function(SED, filename='temp.hdf5', overwrite=FALSE, filters=c('F
   write.custom.dataset(filename=filename, group="SED/ap_dust", object=SED[,1+colrun+Ncol*19], dataset.name='total', overwrite=overwrite)
 }
 
-write.SED.csv = function(SED, filters, fname)
+write.SED.csv = function(SED, filters, filename)
 {
   colnames = c(
       'id_galaxy',
@@ -143,32 +143,32 @@ write.SED.csv = function(SED, filters, fname)
       paste0('ap_mag_dust_t_',filters)
   )
   colnames(SED) = colnames
-  fwrite(SED, file=fname)
+  fwrite(SED, file=filename)
 }
 
-write.SED = function(SED, filters, outdir, fname, verbose=FALSE)
+write.SED = function(SED, filters, outdir, filename, verbose=FALSE)
 {
   # Automatically determine format from file extension
-  if (endsWith(fname, '.hdf5') | endsWith(fname, '.h5')) {
+  if (endsWith(filename, '.hdf5') | endsWith(filename, '.h5')) {
     format = 'hdf5'
   }
-  else if (endsWith(fname, '.csv')) {
+  else if (endsWith(filename, '.csv')) {
     format = 'csv'
   }
   else {
-    stop(paste("Cannot determine format (hdf5/csv) from file extension:", fname))
+    stop(paste("Cannot determine format (hdf5/csv) from file extension:", filename))
   }
 
   if (!dir.exists(outdir)) {
     dir.create(outdir, recursive=TRUE)
   }
-  fname = paste(outdir, fname, sep='/')
-  message(paste('Writing SED to', fname))
+  filename = paste(outdir, filename, sep='/')
+  message(paste('Writing SED to', filename))
   if (format == 'hdf5') {
-    write.SED.hdf5(SED, fname, overwrite=TRUE, filters=filters)
+    write.SED.hdf5(SED, filename, overwrite=TRUE, filters=filters)
   }
   else if (format == 'csv') {
-    write.SED.csv(SED, filters, fname)
+    write.SED.csv(SED, filters, filename)
   }
 }
 

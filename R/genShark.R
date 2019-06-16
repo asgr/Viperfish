@@ -30,7 +30,7 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   data("Dale_Msol", envir = environment())
 
   if(filterlist==FALSE){
-    filtout=foreach(i = filters)%do%{getfilt(i)}
+    filtout=foreach(i = filters)%do%{approxfun(getfilt(i))}
     names(filtout)=filters
   }else{
     filtout=filters
@@ -95,7 +95,7 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
      tau_dust[,2] = tau_dust[,1]
      tau_clump[,2] = tau_clump[,1]
      pow_dust[,2] = pow_dust[,1]
- 
+
      #all clumps have the same power law index of the Charlot & Fall model
      pow_clump[,] = pow_birth
   }

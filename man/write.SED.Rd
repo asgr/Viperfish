@@ -8,9 +8,7 @@ Write SED to HDF5 file
 Write SED output of \code{\link{genShark}} and/or \code{\link{genSting}}.
 }
 \usage{
-write.SED(SED, filename = "temp.hdf5", overwrite = FALSE, filters = c("FUV", "NUV",
-"u_SDSS", "g_SDSS", "r_SDSS", "i_SDSS", "Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA",
-"K_VISTA", "W1", "W2", "W3", "W4", "P100", "P160", "S250", "S350", "S500"))
+write.SED(SED, filters, outdir, filename, verbose = FALSE)
 
 write.SFH(SFHlist, filename = 'temp.hdf5', overwrite = FALSE)
 }
@@ -18,17 +16,23 @@ write.SFH(SFHlist, filename = 'temp.hdf5', overwrite = FALSE)
   \item{SED}{
 Numeric data.frame; output of \code{\link{genShark}} or \code{\link{genSting}}.
 }
-  \item{SFHlist}{
-List; output of \code{\link{getSFHfull}}.
+  \item{filters}{
+Character vector; filters to use for the photometry.
+}
+ \item{outdir}{
+Character scalar; output directory.
 }
   \item{filename}{
 Character scalar; the path name of the HDF5 file requested.
 }
+  \item{verbose}{
+Logical; should verbose output be provided?
+}
+  \item{SFHlist}{
+List; output of \code{\link{getSFHfull}}.
+}
   \item{overwrite}{
 Logical; should dataset/s be overwritten if already present?
-}
-  \item{filters}{
-Character vector; filters to use for the photometry.
 }
 }
 \details{
