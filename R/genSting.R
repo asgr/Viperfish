@@ -75,7 +75,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   data("Dale_Msol", envir = environment())
 
   if(filterlist==FALSE){
-    filtout=foreach(i = filters)%do%{getfilt(i)}
+    filtout=foreach(i = filters)%do%{approxfun(getfilt(i))}
     names(filtout)=filters
   }else{
     filtout=filters

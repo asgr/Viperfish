@@ -128,7 +128,7 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
 
   outSED=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
-  unlist(genSED(SFRbulge_d=SFRbulge_d[,i]/h, SFRbulge_m=SFRbulge_m[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time, speclib=BC03lr, Zbulge_d=Zbulge_d[,i], Zbulge_m=Zbulge_m[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, tau_birth=tau_clump[i,], tau_screen=tau_dust[i,], pow_birth=pow_clump[i,], pow_screen=pow_clump[i,], sparse=sparse, intSFR=intSFR))
+  unlist(genSED(SFRbulge_d=SFRbulge_d[,i]/h, SFRbulge_m=SFRbulge_m[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time-cosdistTravelTime(redshift[i], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d[,i], Zbulge_m=Zbulge_m[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, tau_birth=tau_clump[i,], tau_screen=tau_dust[i,], pow_birth=pow_clump[i,], pow_screen=pow_clump[i,], sparse=sparse, intSFR=intSFR))
   }
 
   stopCluster(cl)
