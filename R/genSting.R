@@ -1,4 +1,4 @@
-with_64bit_ints = function(x)
+.with_64bit_ints = function(x)
 {
     # When reading 64 bit integers let's make sure hdf5r reads them as such;
     # otherwise the default behavior is convert to int32 or double if they don't loose precision
@@ -56,7 +56,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
     rm(Shark_date)
 
     #Extract the original id_galaxy_sky for final re-ordering.
-    Sting_id_galaxy_sky = with_64bit_ints(h5file(file_sting, mode='r')[['galaxies/id_galaxy_sky']][])
+    Sting_id_galaxy_sky = .with_64bit_ints(h5file(file_sting, mode='r')[['galaxies/id_galaxy_sky']][])
   }else{
     if(! is.null(mockcone)){
       Sting_id_galaxy_sky=mockcone$id_galaxy_sky
@@ -108,7 +108,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   #Make mock subsets:
 
   if(is.null(mockcone)){
-    mockcone = with_64bit_ints(mockcone_extract(file_sting=file_sting, reorder=reorder))
+    mockcone = .with_64bit_ints(mockcone_extract(file_sting=file_sting, reorder=reorder))
   }else{
     assertDataTable(mockcone)
   }
