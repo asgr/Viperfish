@@ -61,7 +61,7 @@ write.custom.dataset = function(filename='temp.hdf5', # hd5 filename
   }
 }
 
-write.SED.hdf5=function(SED, filename='temp.hdf5', overwrite=FALSE, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500')){
+.write.SED.hdf5=function(SED, filename='temp.hdf5', overwrite=FALSE, filters=c('FUV', 'NUV', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1', 'W2', 'W3', 'W4', 'P100', 'P160', 'S250', 'S350', 'S500')){
 
   assertPathForOutput(filename, overwrite=TRUE)
   file.h5=h5file(filename=filename, mode='a')
@@ -117,7 +117,7 @@ write.SED.hdf5=function(SED, filename='temp.hdf5', overwrite=FALSE, filters=c('F
   write.custom.dataset(filename=filename, group="SED/ap_dust", object=SED[,1+colrun+Ncol*19], dataset.name='total', overwrite=overwrite)
 }
 
-write.SED.csv = function(SED, filters, filename)
+.write.SED.csv = function(SED, filters, filename)
 {
   colnames = c(
       'id_galaxy',
@@ -165,10 +165,10 @@ write.SED = function(SED, filters, outdir, filename, verbose=FALSE)
   filename = paste(outdir, filename, sep='/')
   message(paste('Writing SED to', filename))
   if (format == 'hdf5') {
-    write.SED.hdf5(SED, filename, overwrite=TRUE, filters=filters)
+    .write.SED.hdf5(SED, filename, overwrite=TRUE, filters=filters)
   }
   else if (format == 'csv') {
-    write.SED.csv(SED, filters, filename)
+    .write.SED.csv(SED, filters, filename)
   }
 }
 
