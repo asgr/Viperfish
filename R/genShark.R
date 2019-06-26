@@ -24,10 +24,10 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   assertFlag(verbose)
 
 
-  BC03lr=Dale_Msol=SFH=i=subsnapID=Nid=idlist=subsnapID=NULL
+  BC03lr=Dale_NormTot=SFH=i=subsnapID=Nid=idlist=subsnapID=NULL
 
   data("BC03lr", envir = environment())
-  data("Dale_Msol", envir = environment())
+  data("Dale_NormTot", envir = environment())
 
   if(filterlist==FALSE){
     filtout=foreach(i = filters)%do%{approxfun(getfilt(i))}
@@ -82,24 +82,23 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   pow_clump = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
 
   if(read_extinct){
-     #read in disks
-     tau_dust[,3] = Shark_Extinct[['galaxies/tau_diff_disk']][select]
-     tau_clump[,3] = Shark_Extinct[['galaxies/tau_clump_disk']][select]
-     pow_dust[,3] = Shark_Extinct[['galaxies/m_diff_disk']][select]
+    #read in disks
+    tau_dust[,3] = Shark_Extinct[['galaxies/tau_diff_disk']][select]
+    tau_clump[,3] = Shark_Extinct[['galaxies/tau_clump_disk']][select]
+    pow_dust[,3] = Shark_Extinct[['galaxies/m_diff_disk']][select]
 
-     tau_dust[,1] = Shark_Extinct[['galaxies/tau_diff_bulge']][select]
-     tau_clump[,1] = Shark_Extinct[['galaxies/tau_clump_bulge']][select]
-     pow_dust[,1] = Shark_Extinct[['galaxies/m_diff_bulge']][select]
+    tau_dust[,1] = Shark_Extinct[['galaxies/tau_diff_bulge']][select]
+    tau_clump[,1] = Shark_Extinct[['galaxies/tau_clump_bulge']][select]
+    pow_dust[,1] = Shark_Extinct[['galaxies/m_diff_bulge']][select]
 
-     #assume the same for bulges regardless of origin of star formation
-     tau_dust[,2] = tau_dust[,1]
-     tau_clump[,2] = tau_clump[,1]
-     pow_dust[,2] = pow_dust[,1]
+    #assume the same for bulges regardless of origin of star formation
+    tau_dust[,2] = tau_dust[,1]
+    tau_clump[,2] = tau_clump[,1]
+    pow_dust[,2] = pow_dust[,1]
 
-     #all clumps have the same power law index of the Charlot & Fall model
-     pow_clump[,] = pow_birth
-  }
-  else{
+    #all clumps have the same power law index of the Charlot & Fall model
+    pow_clump[,] = pow_birth
+  }else{
     tau_dust[,] = tau_screen
     tau_clump[,] = tau_birth
     pow_dust[,] = pow_screen
@@ -128,7 +127,7 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
 
   outSED=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
-  unlist(genSED(SFRbulge_d=SFRbulge_d[,i]/h, SFRbulge_m=SFRbulge_m[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time-cosdistTravelTime(redshift[i], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d[,i], Zbulge_m=Zbulge_m[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, tau_birth=tau_clump[i,], tau_screen=tau_dust[i,], pow_birth=pow_clump[i,], pow_screen=pow_clump[i,], sparse=sparse, intSFR=intSFR))
+  unlist(genSED(SFRbulge_d=SFRbulge_d[,i]/h, SFRbulge_m=SFRbulge_m[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time-cosdistTravelTime(redshift[i], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d[,i], Zbulge_m=Zbulge_m[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_NormTot, tau_birth=tau_clump[i,], tau_screen=tau_dust[i,], pow_birth=pow_clump[i,], pow_screen=pow_clump[i,], sparse=sparse, intSFR=intSFR))
   }
 
   stopCluster(cl)
