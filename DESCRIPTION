@@ -1,13 +1,13 @@
 Package: Viperfish
 Type: Package
 Title: SEDs with Shark or Stingray
-Version: 0.4.4
-Date: 2019-06-17
+Version: 0.5.0
+Date: 2019-06-27
 Author: Aaron Robotham, Claudia Lagos, Rodrigo Tobar
 Maintainer: Aaron Robotham <aaron.robotham@uwa.edu.au>
 Description: Makes SEDs with outputs from Shark and/or Stingray using ProSpect.
 License: LGPL-3
 Encoding: UTF-8
 LazyData: true
-Depends: ProSpect (>= 0.7.2), data.table, hdf5r
+Depends: ProSpect (>= 0.7.8), data.table, hdf5r
 Imports: celestial (>= 1.4.5), bit64, foreach, doSNOW, checkmate, snow, ini, bigmemory
