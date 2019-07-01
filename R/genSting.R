@@ -232,6 +232,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   #  file.remove(temp_file_output)
   #}
 
+  print("will sort ids")
   outSED=unique(outSED, by=1)
   outSED=as.data.frame(outSED)
   outSED=outSED[match(Sting_id_galaxy_sky, outSED[,1]),]
