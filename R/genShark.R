@@ -1,4 +1,4 @@
-genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get", h='get', cores=4, id_galaxy_sam='all', filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth=1.5, tau_screen=0.5, pow_birth=-0.7, pow_screen=-0.7, read_extinct=FALSE, sparse=5, final_file_output='Shark-SED.csv', extinction_file='extinction.hdf5', intSFR=TRUE, verbose=TRUE, write_final_file=FALSE){
+genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get", h='get', cores=4, id_galaxy_sam='all', filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), alpha_SF=3, tau_birth=1.5, tau_screen=0.5, pow_birth=-0.7, pow_screen=-0.7, read_extinct=FALSE, sparse=5, final_file_output='Shark-SED.csv', extinction_file='extinction.hdf5', intSFR=TRUE, verbose=TRUE, write_final_file=FALSE){
 
   timestart=proc.time()[3]
 
@@ -19,6 +19,8 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   }
   assertScalar(tau_birth)
   assertScalar(tau_screen)
+  assertScalar(alpha_SF)
+
   assertInt(sparse)
   assertFlag(intSFR)
   assertFlag(verbose)
@@ -128,7 +130,7 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
 
   outSED=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
-  unlist(genSED(SFRbulge_d=SFRbulge_d[,i]/h, SFRbulge_m=SFRbulge_m[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time-cosdistTravelTime(redshift[i], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d[,i], Zbulge_m=Zbulge_m[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, tau_birth=tau_clump[i,], tau_screen=tau_dust[i,], pow_birth=pow_clump[i,], pow_screen=pow_clump[i,], sparse=sparse, intSFR=intSFR))
+  unlist(genSED(SFRbulge_d=SFRbulge_d[,i]/h, SFRbulge_m=SFRbulge_m[,i]/h, SFRdisk=SFRdisk[,i]/h, redshift=redshift[i], time=time-cosdistTravelTime(redshift[i], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d[,i], Zbulge_m=Zbulge_m[,i], Zdisk=Zdisk[,i], filtout=filtout, Dale=Dale_Msol, alpha_SF=alpha_SF, tau_birth=tau_clump[i,], tau_screen=tau_dust[i,], pow_birth=pow_clump[i,], pow_screen=pow_clump[i,], sparse=sparse, intSFR=intSFR))
   }
 
   stopCluster(cl)

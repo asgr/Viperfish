@@ -1,4 +1,4 @@
-genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_birth=1, tau_screen=0.3, pow_birth=-0.7, pow_screen=-0.7, Zbulge_d=5, Zbulge_m=5, Zdisk=5, alpha_SF=1, AGNfrac=0, ab_nodust=TRUE, ap_nodust=TRUE, ab_dust=TRUE, ap_dust=TRUE, emitdust=TRUE, unimax=13.8e9, speclib=NULL, Dale=NULL, filtout=NULL, H0=67.8, sparse=1, intSFR=TRUE){
+genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_birth=1, tau_screen=0.3, pow_birth=-0.7, pow_screen=-0.7, Zbulge_d=5, Zbulge_m=5, Zdisk=5, alpha_SF=alpha_SF, AGNfrac=0, ab_nodust=TRUE, ap_nodust=TRUE, ab_dust=TRUE, ap_dust=TRUE, emitdust=TRUE, unimax=13.8e9, speclib=NULL, Dale=NULL, filtout=NULL, H0=67.8, sparse=1, intSFR=TRUE){
 
   if(is.null(time)){stop('Need time input!')}
   if(is.null(speclib)){stop('Need speclib (e.g. BC03lr)')}
