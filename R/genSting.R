@@ -9,7 +9,7 @@
     invisible(result)
 }
 
-genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199, filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth=1.5, tau_screen=0.5, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, final_file_output='Stingray-SED.csv', temp_file_output='temp.csv', reorder=TRUE, restart=FALSE, verbose=TRUE, write_final_file=FALSE){
+genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199, filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth=1.5, tau_screen=0.5, pow_birth=-0.7, pow_screen=-0.7, read_extinct=FALSE, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, final_file_output='Stingray-SED.csv', temp_file_output='temp.csv',  extinction_file='extinction.hdf5', reorder=TRUE, restart=FALSE, verbose=TRUE, write_final_file=FALSE){
 
   timestart=proc.time()[3]
 
@@ -106,11 +106,18 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   assertAccess(temp_file_output, access='w')
 
   #Make mock subsets:
-
+  print ("will make mock cones")
   if(is.null(mockcone)){
     mockcone = .with_64bit_ints(mockcone_extract(file_sting=file_sting, reorder=reorder))
+    print ("will make extinction cones")
+    if(read_extinct){
+      extinctioncone = .with_64bit_ints(extinction_extract(extinction_file=extinction_file, reorder=reorder))
+    }
   }else{
     assertDataTable(mockcone)
+    if(read_extinct){
+      assertDataTable(extinctioncone)
+    }
   }
   #mocksubsets=mocksubsets(mockcone=mockcone)
 
@@ -134,8 +141,13 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
     run_foreach = TRUE
   }
 
+  print ("will prepare mockpoint and extinctionpoint")
   mockcone=as.big.matrix(mockcone)
   mockpoint=describe(mockcone)
+  if(read_extinct){
+    extinctioncone=as.big.matrix(extinctioncone)
+    extinctionpoint=describe(extinctioncone)
+  }
 
   if (run_foreach) {
 
@@ -167,9 +179,41 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
       Zbulge_m_subsnap=SFHsing_subsnap$Zbulge_m
       Zdisk_subsnap=SFHsing_subsnap$Zdisk
 
+      #define tau in extinction laws
+      tau_dust = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+      tau_clump = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+    
+      pow_dust = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+      pow_clump = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+    
+      if(read_extinct){
+         #read in disks
+         extloop=attach.big.matrix(extinctionpoint)
+         select_ext=which(extloop[,'subsnapID']==use)
+         tau_dust[,3] = extloop[select_ext,'tau_diff_disk']
+         tau_clump[,3] = extloop[select_ext,'tau_clump_disk']
+         pow_dust[,3] = extloop[select_ext,'m_diff_disk']
+         #read in bulges
+         tau_dust[,1] = extloop[select_ext,'tau_diff_bulge']
+         tau_clump[,1] = extloop[select_ext,'tau_clump_bulge']
+         pow_dust[,1] = extloop[select_ext,'m_diff_bulge']
+         #assume the same for bulges regardless of origin of star formation
+         tau_dust[,2] = tau_dust[,1]
+         tau_clump[,2] = tau_clump[,1]
+         pow_dust[,2] = pow_dust[,1]
+         #all clumps have the same power law index of the Charlot & Fall model
+         pow_clump[,] = pow_birth
+      }
+      else{
+        tau_dust[,] = tau_screen
+        tau_clump[,] = tau_birth
+        pow_dust[,] = pow_screen
+        pow_clump[,] = pow_birth
+      }
+
       # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
       tempout=foreach(j=1:length(select), .combine='rbind')%do%{
-        tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,]/h, SFRbulge_m=SFRbulge_m_subsnap[j,]/h, SFRdisk=SFRdisk_subsnap[j,]/h, redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_NormTot, tau_birth=tau_birth, tau_screen=tau_screen, sparse=sparse, intSFR = intSFR))), error = function(e) NULL)
+        tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,]/h, SFRbulge_m=SFRbulge_m_subsnap[j,]/h, SFRdisk=SFRdisk_subsnap[j,]/h, redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_Msol, tau_birth=tau_clump[j,], tau_screen=tau_dust[j,], pow_birth=pow_clump[j,], pow_screen=pow_clump[j,], sparse=sparse, intSFR = intSFR))), error = function(e) NULL)
         tempSED
       }
       as.data.table(rbind(tempout))
@@ -188,6 +232,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   #  file.remove(temp_file_output)
   #}
 
+  print("will sort ids")
   outSED=unique(outSED, by=1)
   outSED=as.data.frame(outSED)
   outSED=outSED[match(Sting_id_galaxy_sky, outSED[,1]),]
@@ -219,6 +264,23 @@ mockcone_extract=function(file_sting="mocksurvey.hdf5", reorder=TRUE){
   }
   invisible(mockcone)
 }
+
+extinction_extract=function(extinction_file="extinction.hdf5", reorder=TRUE){
+  subsnapID=snapshot=subvolume=id_galaxy_sam=NULL
+  assertCharacter(extinction_file, max.len=1)
+  assertAccess(extinction_file, access='r')
+  extinction=h5file(extinction_file, mode='r')[['galaxies']]
+  extract_col=list.datasets(extinction, recursive = TRUE)
+  extinctioncone=as.data.table(lapply(extract_col, function(x) extinction[[x]][]))
+  colnames(extinctioncone)=extract_col
+  extinction$close()
+  extinctioncone[,subsnapID:=snapshot*100+subvolume]
+  if(reorder){
+    extinctioncone=extinctioncone[order(subsnapID,id_galaxy_sam),]
+  }
+  invisible(extinctioncone)
+}
+
 
 mocksubsets=function(mockcone){
   id_galaxy_sam=subsnapID=Nid=idlist=snapshot=subvolume=NULL

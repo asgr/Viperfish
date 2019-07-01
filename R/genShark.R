@@ -19,6 +19,8 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   }
   assertScalar(tau_birth)
   assertScalar(tau_screen)
+  assertScalar(alpha_SF)
+
   assertInt(sparse)
   assertFlag(intSFR)
   assertFlag(verbose)
