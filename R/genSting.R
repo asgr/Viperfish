@@ -210,15 +210,15 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
         pow_dust[,] = pow_screen
         pow_clump[,] = pow_birth
       }
-
       # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
       tempout=foreach(j=1:length(select), .combine='rbind')%do%{
-        tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,]/h, SFRbulge_m=SFRbulge_m_subsnap[j,]/h, SFRdisk=SFRdisk_subsnap[j,]/h, redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_Msol, tau_birth=tau_clump[j,], tau_screen=tau_dust[j,], pow_birth=pow_clump[j,], pow_screen=pow_clump[j,], alpha_SF_birth=alpha_SF_birth, alpha_SF_screen=alpha_SF_screen, alpha_SF_AGN=alpha_SF_GN, sparse=sparse, intSFR = intSFR))), error = function(e) NULL)
+        tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,]/h, SFRbulge_m=SFRbulge_m_subsnap[j,]/h, SFRdisk=SFRdisk_subsnap[j,]/h, redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_Msol, tau_birth=tau_clump[j,], tau_screen=tau_dust[j,], pow_birth=pow_clump[j,], pow_screen=pow_dust[j,], alpha_SF_birth=alpha_SF_birth, alpha_SF_screen=alpha_SF_screen, alpha_SF_AGN=alpha_SF_AGN, sparse=sparse, intSFR = intSFR))), error = function(e){e})
         tempSED
       }
       as.data.table(rbind(tempout))
     }
 
+    warnings() 
     if(verbose){
       close(pb)
     }
@@ -233,6 +233,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   #}
 
   print("will sort ids")
+  print(dim(outSED))
   outSED=unique(outSED, by=1)
   outSED=as.data.frame(outSED)
   outSED=outSED[match(Sting_id_galaxy_sky, outSED[,1]),]
@@ -273,6 +274,7 @@ extinction_extract=function(extinction_file="extinction.hdf5", reorder=TRUE){
   extract_col=list.datasets(extinction, recursive = TRUE)
   extinctioncone=as.data.table(lapply(extract_col, function(x) extinction[[x]][]))
   colnames(extinctioncone)=extract_col
+  print (extract_col)
   extinction$close()
   extinctioncone[,subsnapID:=snapshot*100+subvolume]
   if(reorder){
