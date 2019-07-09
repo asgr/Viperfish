@@ -23,7 +23,6 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   assertFlag(intSFR)
   assertFlag(verbose)
 
-
   BC03lr=Dale_NormTot=AGN_UnOb_Sparse=SFH=i=subsnapID=Nid=idlist=subsnapID=NULL
 
   data("BC03lr", envir = environment())
