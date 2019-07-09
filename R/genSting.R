@@ -180,39 +180,64 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
       Zdisk_subsnap=SFHsing_subsnap$Zdisk
 
       #define tau in extinction laws
-      tau_dust = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
-      tau_clump = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+      tau_screen_galaxies = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+      tau_birth_galaxies = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
     
-      pow_dust = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
-      pow_clump = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+      pow_screen_galaxies = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+      pow_birth_galaxies = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
     
       if(read_extinct){
          #read in disks
          extloop=attach.big.matrix(extinctionpoint)
          select_ext=which(extloop[,'subsnapID']==use)
-         tau_dust[,3] = extloop[select_ext,'tau_diff_disk']
-         tau_clump[,3] = extloop[select_ext,'tau_clump_disk']
-         pow_dust[,3] = extloop[select_ext,'m_diff_disk']
+         tau_screen_galaxies[,3] = extloop[select_ext,'tau_screen_disk']
+         tau_birth_galaxies[,3] = extloop[select_ext,'tau_birth_disk']
+         pow_screen_galaxies[,3] = extloop[select_ext,'pow_screen_disk']
          #read in bulges
-         tau_dust[,1] = extloop[select_ext,'tau_diff_bulge']
-         tau_clump[,1] = extloop[select_ext,'tau_clump_bulge']
-         pow_dust[,1] = extloop[select_ext,'m_diff_bulge']
+         tau_screen_galaxies[,1] = extloop[select_ext,'tau_screen_bulge']
+         tau_birth_galaxies[,1] = extloop[select_ext,'tau_birth_bulge']
+         pow_screen_galaxies[,1] = extloop[select_ext,'pow_screen_bulge']
          #assume the same for bulges regardless of origin of star formation
-         tau_dust[,2] = tau_dust[,1]
-         tau_clump[,2] = tau_clump[,1]
-         pow_dust[,2] = pow_dust[,1]
+         tau_screen_galaxies[,2] = tau_screen_galaxies[,1]
+         tau_birth_galaxies[,2] = tau_birth_galaxies[,1]
+         pow_screen_galaxies[,2] = pow_screen_galaxies[,1]
          #all clumps have the same power law index of the Charlot & Fall model
-         pow_clump[,] = pow_birth
+         pow_birth_galaxies[,] = pow_birth
       }
       else{
-        tau_dust[,] = tau_screen
-        tau_clump[,] = tau_birth
-        pow_dust[,] = pow_screen
-        pow_clump[,] = pow_birth
+        tau_screen_galaxies[,] = tau_screen
+        tau_birth_galaxies[,] = tau_birth
+        pow_screen_galaxies[,] = pow_screen
+        pow_birth_galaxies[,] = pow_birth
       }
       # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
       tempout=foreach(j=1:length(select), .combine='rbind')%do%{
-        tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,]/h, SFRbulge_m=SFRbulge_m_subsnap[j,]/h, SFRdisk=SFRdisk_subsnap[j,]/h, redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_NormTot, tau_birth=tau_clump[j,], tau_screen=tau_dust[j,], pow_birth=pow_clump[j,], pow_screen=pow_dust[j,], alpha_SF_birth=alpha_SF_birth, alpha_SF_screen=alpha_SF_screen, alpha_SF_AGN=alpha_SF_AGN, sparse=sparse, intSFR = intSFR))), error = function(e){e})
+         tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], 
+            unlist(genSED(
+	      SFRbulge_d=SFRbulge_d_subsnap[j,]/h, 
+              SFRbulge_m=SFRbulge_m_subsnap[j,]/h, 
+              SFRdisk=SFRdisk_subsnap[j,]/h, 
+              Zbulge_d=Zbulge_d_subsnap[j,], 
+              Zbulge_m=Zbulge_m_subsnap[j,], 
+              Zdisk=Zdisk_subsnap[j,], 
+
+              redshift=zobs[j],
+              time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, 
+
+              tau_birth=tau_birth_galaxies[j,], 
+              tau_screen=tau_screen_galaxies[j,], 
+              pow_birth=pow_birth_galaxies[j,], 
+              pow_screen=pow_screen_galaxies[j,], 
+              alpha_SF_birth=alpha_SF_birth, 
+              alpha_SF_screen=alpha_SF_screen, 
+              alpha_SF_AGN=alpha_SF_AGN, 
+
+              speclib=BC03lr, 
+              filtout=filtout, 
+              Dale=Dale_NormTot, 
+              sparse=sparse, 
+              intSFR = intSFR))), 
+            error = function(e){e})
         tempSED
       }
       as.data.table(rbind(tempout))
