@@ -19,6 +19,7 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   }
   assertScalar(tau_birth)
   assertScalar(tau_screen)
+
   assertInt(sparse)
   assertFlag(intSFR)
   assertFlag(verbose)
@@ -144,7 +145,7 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
       tau_AGN=1, #hard coded for now
 
       pow_birth=pow_clump[i,],
-      pow_screen=pow_clump[i,],
+      pow_screen=pow_dust[i,],
       pow_AGN=-0.7, #hard coded for now
 
       alpha_SF_birth=alpha_SF_birth, #hard coded for now
