@@ -182,10 +182,10 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
       #define tau in extinction laws
       tau_dust = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
       tau_clump = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
-    
+
       pow_dust = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
       pow_clump = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
-    
+
       if(read_extinct){
          #read in disks
          extloop=attach.big.matrix(extinctionpoint)
@@ -212,13 +212,14 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
       }
       # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
       tempout=foreach(j=1:length(select), .combine='rbind')%do%{
-        tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,]/h, SFRbulge_m=SFRbulge_m_subsnap[j,]/h, SFRdisk=SFRdisk_subsnap[j,]/h, redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_NormTot, tau_birth=tau_clump[j,], tau_screen=tau_dust[j,], pow_birth=pow_clump[j,], pow_screen=pow_dust[j,], alpha_SF_birth=alpha_SF_birth, alpha_SF_screen=alpha_SF_screen, alpha_SF_AGN=alpha_SF_AGN, sparse=sparse, intSFR = intSFR))), error = function(e){e})
+        tempSED=try(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,]/h, SFRbulge_m=SFRbulge_m_subsnap[j,]/h, SFRdisk=SFRdisk_subsnap[j,]/h, redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_NormTot, tau_birth=tau_clump[j,], tau_screen=tau_dust[j,], pow_birth=pow_clump[j,], pow_screen=pow_dust[j,], alpha_SF_birth=alpha_SF_birth, alpha_SF_screen=alpha_SF_screen, alpha_SF_AGN=alpha_SF_AGN, sparse=sparse, intSFR = intSFR))))
+        if(class(tempSED)=="try-error"){tempSED=NA}
         tempSED
       }
       as.data.table(rbind(tempout))
     }
 
-    warnings() 
+    warnings()
     if(verbose){
       close(pb)
     }
