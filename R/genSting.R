@@ -236,14 +236,14 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
               filtout=filtout, 
               Dale=Dale_NormTot, 
               sparse=sparse, 
-              intSFR = intSFR))), 
-            error = function(e){e})
+              intSFR = intSFR))))
+        if(class(tempSED)=="try-error"){tempSED=NA}
         tempSED
       }
       as.data.table(rbind(tempout))
     }
 
-    warnings() 
+    warnings()
     if(verbose){
       close(pb)
     }
