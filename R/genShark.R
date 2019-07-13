@@ -37,6 +37,11 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
     filtout=filters
   }
 
+  FUV_Nathan=approxfun(cbind(wave=c(1450,1550), response=c(0.01,0.01))) #This is what Claudia sent me- very easy to define any tophat like this
+  filtout=c(filtout, FUV_Nathan=FUV_Nathan)
+  filters = names(filtout)
+
+  print (filters)
   sfh_fname = paste(path_shark, snapshot, subvolume, 'star_formation_histories.hdf5',sep='/')
   assertAccess(sfh_fname, access='r')
   Shark_SFH=h5file(sfh_fname, mode='r')
