@@ -236,8 +236,8 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
               filtout=filtout, 
               Dale=Dale_NormTot, 
               sparse=sparse, 
-              intSFR = intSFR))))
-        if(class(tempSED)=="try-error"){tempSED=NA}
+              intSFR = intSFR))), error = function(e) NULL)
+        #if(class(tempSED)=="try-error"){tempSED=NA}
         tempSED
       }
       as.data.table(rbind(tempout))
@@ -258,7 +258,6 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   #}
 
   print("will sort ids")
-  print(dim(outSED))
   outSED=unique(outSED, by=1)
   outSED=as.data.frame(outSED)
   outSED=outSED[match(Sting_id_galaxy_sky, outSED[,1]),]
@@ -299,7 +298,6 @@ extinction_extract=function(extinction_file="extinction.hdf5", reorder=TRUE){
   extract_col=list.datasets(extinction, recursive = TRUE)
   extinctioncone=as.data.table(lapply(extract_col, function(x) extinction[[x]][]))
   colnames(extinctioncone)=extract_col
-  print (extract_col)
   extinction$close()
   extinctioncone[,subsnapID:=snapshot*100+subvolume]
   if(reorder){
