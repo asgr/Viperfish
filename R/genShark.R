@@ -37,6 +37,11 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
     filtout=filters
   }
 
+  FUV_Nathan=approxfun(cbind(wave=c(1450,1550), response=c(0.01,0.01))) #This is what Claudia sent me- very easy to define any tophat like this
+  filtout=c(filtout, FUV_Nathan=FUV_Nathan)
+  filters = names(filtout)
+
+  print (filters)
   sfh_fname = paste(path_shark, snapshot, subvolume, 'star_formation_histories.hdf5',sep='/')
   assertAccess(sfh_fname, access='r')
   Shark_SFH=h5file(sfh_fname, mode='r')
@@ -76,34 +81,34 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   Zdisk=Shark_SFH[['disks/metallicity_histories']][,select,drop=FALSE]
 
   #define tau in extinction laws
-  tau_dust = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
-  tau_clump = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+  tau_screen_galaxies = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+  tau_birth_galaxies = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
 
-  pow_dust = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
-  pow_clump = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+  pow_screen_galaxies = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+  pow_birth_galaxies = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
 
   if(read_extinct){
     #read in disks
-    tau_dust[,3] = Shark_Extinct[['galaxies/tau_diff_disk']][select]
-    tau_clump[,3] = Shark_Extinct[['galaxies/tau_clump_disk']][select]
-    pow_dust[,3] = Shark_Extinct[['galaxies/m_diff_disk']][select]
+    tau_screen_galaxies[,3] = Shark_Extinct[['galaxies/tau_screen_disk']][select]
+    tau_birth_galaxies[,3] = Shark_Extinct[['galaxies/tau_birth_disk']][select]
+    pow_screen_galaxies[,3] = Shark_Extinct[['galaxies/pow_screen_disk']][select]
 
-    tau_dust[,1] = Shark_Extinct[['galaxies/tau_diff_bulge']][select]
-    tau_clump[,1] = Shark_Extinct[['galaxies/tau_clump_bulge']][select]
-    pow_dust[,1] = Shark_Extinct[['galaxies/m_diff_bulge']][select]
+    tau_screen_galaxies[,1] = Shark_Extinct[['galaxies/tau_screen_bulge']][select]
+    tau_birth_galaxies[,1] = Shark_Extinct[['galaxies/tau_birth_bulge']][select]
+    pow_screen_galaxies[,1] = Shark_Extinct[['galaxies/pow_screen_bulge']][select]
 
     #assume the same for bulges regardless of origin of star formation
-    tau_dust[,2] = tau_dust[,1]
-    tau_clump[,2] = tau_clump[,1]
-    pow_dust[,2] = pow_dust[,1]
+    tau_screen_galaxies[,2] = tau_screen_galaxies[,1]
+    tau_birth_galaxies[,2] = tau_birth_galaxies[,1]
+    pow_screen_galaxies[,2] = pow_screen_galaxies[,1]
 
     #all clumps have the same power law index of the Charlot & Fall model
-    pow_clump[,] = pow_birth
+    pow_birth_galaxies[,] = pow_birth
   }else{
-    tau_dust[,] = tau_screen
-    tau_clump[,] = tau_birth
-    pow_dust[,] = pow_screen
-    pow_clump[,] = pow_birth
+    tau_screen_galaxies[,] = tau_screen
+    tau_birth_galaxies[,] = tau_birth
+    pow_screen_galaxies[,] = pow_screen
+    pow_birth_galaxies[,] = pow_birth
   }
 
   if(length(redshift)==1){
@@ -140,12 +145,12 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
       redshift=redshift[i],
       time=time-cosdistTravelTime(redshift[i], ref='planck')*1e9,
 
-      tau_birth=tau_clump[i,],
-      tau_screen=tau_dust[i,],
+      tau_birth=tau_birth_galaxies[i,],
+      tau_screen=tau_screen_galaxies[i,],
       tau_AGN=1, #hard coded for now
 
-      pow_birth=pow_clump[i,],
-      pow_screen=pow_dust[i,],
+      pow_birth=pow_birth_galaxies[i,],
+      pow_screen=pow_screen_galaxies[i,],
       pow_AGN=-0.7, #hard coded for now
 
       alpha_SF_birth=alpha_SF_birth, #hard coded for now
