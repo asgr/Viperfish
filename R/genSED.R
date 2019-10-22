@@ -57,17 +57,20 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
   if(length(Zbulge_d)>1){
     if(length(Zbulge_d)!=length(time)){stop('Zbulge_d does not have the same length as time!')}
     Zbulge_d[Zbulge_d<0]=0
-    Zbulge_d=approxfun(time, Zbulge_d, rule=2, yleft=Zbulge_d[which.min(time)], yright=Zbulge_d[which.max(time)])
+    Zbulge_d_approx=approxfun(time, Zbulge_d, rule=2, yleft=Zbulge_d[which.min(time)], yright=Zbulge_d[which.max(time)])
+    Zbulge_d=function(age, ...){Zbulge_d_approx(age)}
   }
   if(length(Zbulge_m)>1){
     if(length(Zbulge_m)!=length(time)){stop('Zbulge_m does not have the same length as time!')}
     Zbulge_m[Zbulge_m<0]=0
-    Zbulge_m=approxfun(time, Zbulge_m, rule=2, yleft=Zbulge_m[which.min(time)], yright=Zbulge_m[which.max(time)])
+    Zbulge_m_approx=approxfun(time, Zbulge_m, rule=2, yleft=Zbulge_m[which.min(time)], yright=Zbulge_m[which.max(time)])
+    Zbulge_m=function(age, ...){Zbulge_m_approx(age)}
   }
   if(length(Zdisk)>1){
     if(length(Zdisk)!=length(time)){stop('Zdisk does not have the same length as time!')}
     Zdisk[Zdisk<0]=0
-    Zdisk=approxfun(time, Zdisk, rule=2, yleft=Zdisk[which.min(time)], yright=Zdisk[which.max(time)])
+    Zdisk_approx=approxfun(time, Zdisk, rule=2, yleft=Zdisk[which.min(time)], yright=Zdisk[which.max(time)])
+    Zdisk=function(age, ...){Zdisk_approx(age)}
   }
 
   Z=c(Zbulge_d, Zbulge_m, Zdisk)
