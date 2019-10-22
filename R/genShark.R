@@ -38,10 +38,20 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   }
 
   FUV_Nathan=approxfun(cbind(wave=c(1450,1550), response=c(0.01,0.01))) #This is what Claudia sent me- very easy to define any tophat like this
+  Band9_ALMA=approxfun(cbind(wave=c(4000000.0,5000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  Band8_ALMA=approxfun(cbind(wave=c(6000000.0,8000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  Band7_ALMA=approxfun(cbind(wave=c(8000000.0,11000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  Band6_ALMA=approxfun(cbind(wave=c(11000000.0,14000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  Band4_ALMA=approxfun(cbind(wave=c(18000000.0,24000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+
   filtout=c(filtout, FUV_Nathan=FUV_Nathan)
+  filtout=c(filtout, Band9_ALMA=Band9_ALMA)
+  filtout=c(filtout, Band8_ALMA=Band8_ALMA)
+  filtout=c(filtout, Band7_ALMA=Band7_ALMA)
+  filtout=c(filtout, Band6_ALMA=Band6_ALMA)
+  filtout=c(filtout, Band4_ALMA=Band4_ALMA)
   filters = names(filtout)
 
-  print (filters)
   sfh_fname = paste(path_shark, snapshot, subvolume, 'star_formation_histories.hdf5',sep='/')
   assertAccess(sfh_fname, access='r')
   Shark_SFH=h5file(sfh_fname, mode='r')

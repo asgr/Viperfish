@@ -115,6 +115,18 @@ write.custom.dataset = function(filename='temp.hdf5', # hd5 filename
   write.custom.dataset(filename=filename, group="SED/ap_dust", object=SED[,1+colrun+Ncol*17], dataset.name='bulge_t', overwrite=overwrite)
   write.custom.dataset(filename=filename, group="SED/ap_dust", object=SED[,1+colrun+Ncol*18], dataset.name='disk', overwrite=overwrite)
   write.custom.dataset(filename=filename, group="SED/ap_dust", object=SED[,1+colrun+Ncol*19], dataset.name='total', overwrite=overwrite)
+
+  write.custom.dataset(filename=filename, group="SED/lir_dust", object=SED[,1+Ncol*20+1, drop=FALSE], dataset.name='bulge_d', overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/lir_dust", object=SED[,1+Ncol*21+1, drop=FALSE], dataset.name='bulge_m', overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/lir_dust", object=SED[,1+Ncol*22+1, drop=FALSE], dataset.name='bulge_t', overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/lir_dust", object=SED[,1+Ncol*23+1, drop=FALSE], dataset.name='disk', overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/lir_dust", object=SED[,1+Ncol*24+1, drop=FALSE], dataset.name='total', overwrite=overwrite)
+
+  write.custom.dataset(filename=filename, group="SED/lir_dust_contribution_bc", object=SED[,1+Ncol*25+1, drop=FALSE], dataset.name='bulge_d', overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/lir_dust_contribution_bc", object=SED[,1+Ncol*26+1, drop=FALSE], dataset.name='bulge_m', overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/lir_dust_contribution_bc", object=SED[,1+Ncol*27+1, drop=FALSE], dataset.name='bulge_t', overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/lir_dust_contribution_bc", object=SED[,1+Ncol*28+1, drop=FALSE], dataset.name='disk', overwrite=overwrite)
+  write.custom.dataset(filename=filename, group="SED/lir_dust_contribution_bc", object=SED[,1+Ncol*29+1, drop=FALSE], dataset.name='total', overwrite=overwrite)
 }
 
 .write.SED.csv = function(SED, filters, filename)
@@ -140,7 +152,17 @@ write.custom.dataset = function(filename='temp.hdf5', # hd5 filename
       paste0('ap_mag_dust_b_m_',filters),
       paste0('ap_mag_dust_b_',filters),
       paste0('ap_mag_dust_d_',filters),
-      paste0('ap_mag_dust_t_',filters)
+      paste0('ap_mag_dust_t_',filters),
+      paste0('lir_dust_b_d_',filters),
+      paste0('lir_dust_b_m_',filters),
+      paste0('lir_dust_b_',filters),
+      paste0('lir_dust_d_',filters),
+      paste0('lir_dust_t_',filters),
+      paste0('lir_dust_contribution_bc_b_d_',filters),
+      paste0('lir_dust_contribution_bc_b_m_',filters),
+      paste0('lir_dust_contribution_bc_b_',filters),
+      paste0('lir_dust_contribution_bc_d_',filters),
+      paste0('lir_dust_contribution_bc_t_',filters)
   )
   colnames(SED) = colnames
   fwrite(SED, file=filename)
