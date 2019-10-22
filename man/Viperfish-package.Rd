@@ -18,7 +18,7 @@ Type: \tab Package\cr
 Version: \tab 0.4.5\cr
 Date: \tab 2019-10-22\cr
 License: \tab LGPL-3\cr
-Depends: \tab ProSpect (>= 0.7.2), data.table, hdf5r\cr
+Depends: \tab ProSpect (>= 0.8.2), data.table, hdf5r\cr
 Imports: \tab celestial, bit64, foreach, doSNOW, checkmate, snow, ini\cr
 }
 }
