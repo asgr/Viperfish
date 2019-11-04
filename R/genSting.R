@@ -81,6 +81,21 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
     filtout=filters
   }
 
+  Band9_ALMA=approxfun(cbind(wave=c(4000000.0,5000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  Band8_ALMA=approxfun(cbind(wave=c(6000000.0,8000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  Band7_ALMA=approxfun(cbind(wave=c(8000000.0,11000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  Band6_ALMA=approxfun(cbind(wave=c(11000000.0,14000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  Band5_ALMA=approxfun(cbind(wave=c(14000000.0,18000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  Band4_ALMA=approxfun(cbind(wave=c(18000000.0,24000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+
+  filtout=c(filtout, Band9_ALMA=Band9_ALMA)
+  filtout=c(filtout, Band8_ALMA=Band8_ALMA)
+  filtout=c(filtout, Band7_ALMA=Band7_ALMA)
+  filtout=c(filtout, Band6_ALMA=Band6_ALMA)
+  filtout=c(filtout, Band5_ALMA=Band5_ALMA)
+  filtout=c(filtout, Band4_ALMA=Band4_ALMA)
+  filters = names(filtout)
+
   # if(!is.null(SFHfull) & doSFHbatch==TRUE){
   #   stop('You should not provide an input to SFHfull and have doSFHbatch=TRUE set, since the requested behaviour is ambiguous!')
   # }

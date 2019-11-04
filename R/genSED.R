@@ -62,17 +62,20 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
   if(length(Zbulge_d)>1){
     if(length(Zbulge_d)!=length(time)){stop('Zbulge_d does not have the same length as time!')}
     Zbulge_d[Zbulge_d<0]=0
-    Zbulge_d=approxfun(time, Zbulge_d, rule=2, yleft=Zbulge_d[which.min(time)], yright=Zbulge_d[which.max(time)])
+    Zbulge_d_approx=approxfun(time, Zbulge_d, rule=2, yleft=Zbulge_d[which.min(time)], yright=Zbulge_d[which.max(time)])
+    Zbulge_d=function(age, ...){Zbulge_d_approx(age)}
   }
   if(length(Zbulge_m)>1){
     if(length(Zbulge_m)!=length(time)){stop('Zbulge_m does not have the same length as time!')}
     Zbulge_m[Zbulge_m<0]=0
-    Zbulge_m=approxfun(time, Zbulge_m, rule=2, yleft=Zbulge_m[which.min(time)], yright=Zbulge_m[which.max(time)])
+    Zbulge_m_approx=approxfun(time, Zbulge_m, rule=2, yleft=Zbulge_m[which.min(time)], yright=Zbulge_m[which.max(time)])
+    Zbulge_m=function(age, ...){Zbulge_m_approx(age)}
   }
   if(length(Zdisk)>1){
     if(length(Zdisk)!=length(time)){stop('Zdisk does not have the same length as time!')}
     Zdisk[Zdisk<0]=0
-    Zdisk=approxfun(time, Zdisk, rule=2, yleft=Zdisk[which.min(time)], yright=Zdisk[which.max(time)])
+    Zdisk_approx=approxfun(time, Zdisk, rule=2, yleft=Zdisk[which.min(time)], yright=Zdisk[which.max(time)])
+    Zdisk=function(age, ...){Zdisk_approx(age)}
   }
 
   Z=c(Zbulge_d, Zbulge_m, Zdisk)
@@ -86,6 +89,17 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
   bulge_m=ProSpectSED(massfunc=SFRbulge_mfunc, tau_birth=tau_birth[2], tau_screen=tau_screen[2], pow_birth=pow_birth[2], pow_screen=pow_screen[2], pow_AGN=pow_AGN[2], alpha_SF_birth=alpha_SF_birth[2], alpha_SF_screen=alpha_SF_screen[2], alpha_SF_AGN=alpha_SF_AGN[2], AGNlum=AGNlum[2], speclib=speclib, Dale=Dale, AGN=AGN, filtout=NULL, z=redshift, Z=Z[[2]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
 
   disk=ProSpectSED(massfunc=SFRdiskfunc, tau_birth=tau_birth[3], tau_screen=tau_screen[3], pow_birth=pow_birth[3], pow_screen=pow_screen[3], pow_AGN=pow_AGN[3], alpha_SF_birth=alpha_SF_birth[3], alpha_SF_screen=alpha_SF_screen[3], alpha_SF_AGN=alpha_SF_AGN[3], AGNlum=AGNlum[3], speclib=speclib, Dale=Dale, AGN=AGN, filtout=NULL, z=redshift, Z=Z[[3]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
+
+  lir_dust_b_d=bulge_d$Stars$lumtot_atten
+  lir_dust_b_m=bulge_m$Stars$lumtot_atten
+  lir_dust_b=lir_dust_b_d + lir_dust_b_m
+  lir_dust_d=disk$Stars$lumtot_atten
+  lir_dust_t=lir_dust_b + lir_dust_d
+  flux_ratio_ir_b_d=bulge_d$Stars$lumtot_birth / lir_dust_b_d
+  flux_ratio_ir_b_m=bulge_m$Stars$lumtot_birth / lir_dust_b_m
+  flux_ratio_ir_b_b=(bulge_d$Stars$lumtot_birth + bulge_m$Stars$lumtot_birth) / lir_dust_b
+  flux_ratio_ir_d=disk$Stars$lumtot_birth / lir_dust_d
+  flux_ratio_ir_t=(bulge_d$Stars$lumtot_birth + bulge_m$Stars$lumtot_birth + disk$Stars$lumtot_birth) / lir_dust_t
 
   if(ab_nodust){
     ab_mag_nodust_b_d=photom_flux(bulge_d$StarsUnAtten$wave, bulge_d$StarsUnAtten$lum*3e-7, filters = filtout)
@@ -166,7 +180,21 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
     ap_mag_dust_b_m=ap_mag_dust_b_m,
     ap_mag_dust_b=ap_mag_dust_b,
     ap_mag_dust_d=ap_mag_dust_d,
-    ap_mag_dust_t=ap_mag_dust_t)
+    ap_mag_dust_t=ap_mag_dust_t,
+
+    lir_dust_b_d=lir_dust_b_d * (H0/67.8)**2.0,
+    lir_dust_b_m=lir_dust_b_m * (H0/67.8)**2.0,
+    lir_dust_b=lir_dust_b * (H0/67.8)**2.0,
+    lir_dust_d=lir_dust_d * (H0/67.8)**2.0,
+    lir_dust_t=lir_dust_t * (H0/67.8)**2.0,
+
+    flux_ratio_ir_b_d=flux_ratio_ir_b_d,
+    flux_ratio_ir_b_m=flux_ratio_ir_b_m,
+    flux_ratio_ir_b_b=flux_ratio_ir_b_b,
+    flux_ratio_ir_d=flux_ratio_ir_d,
+    flux_ratio_ir_t=flux_ratio_ir_t)
+
+  #cbind(output, lir_dust_b_d, lir_dust_b_m, lir_dust_b, lir_dust_d)
   rownames(output)=names(filtout)
   invisible(output)
 }
