@@ -153,16 +153,16 @@ write.custom.dataset = function(filename='temp.hdf5', # hd5 filename
       paste0('ap_mag_dust_b_',filters),
       paste0('ap_mag_dust_d_',filters),
       paste0('ap_mag_dust_t_',filters),
-      paste0('lir_dust_b_d_',filters),
-      paste0('lir_dust_b_m_',filters),
-      paste0('lir_dust_b_',filters),
-      paste0('lir_dust_d_',filters),
-      paste0('lir_dust_t_',filters),
-      paste0('lir_dust_contribution_bc_b_d_',filters),
-      paste0('lir_dust_contribution_bc_b_m_',filters),
-      paste0('lir_dust_contribution_bc_b_',filters),
-      paste0('lir_dust_contribution_bc_d_',filters),
-      paste0('lir_dust_contribution_bc_t_',filters)
+      paste0('lir_dust_b_d_',),
+      paste0('lir_dust_b_m_',),
+      paste0('lir_dust_b_',),
+      paste0('lir_dust_d_',),
+      paste0('lir_dust_t_',),
+      paste0('lir_dust_contribution_bc_b_d_',),
+      paste0('lir_dust_contribution_bc_b_m_',),
+      paste0('lir_dust_contribution_bc_b_',),
+      paste0('lir_dust_contribution_bc_d_',),
+      paste0('lir_dust_contribution_bc_t_',)
   )
   colnames(SED) = colnames
   fwrite(SED, file=filename)
