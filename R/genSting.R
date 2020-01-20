@@ -9,7 +9,13 @@
     invisible(result)
 }
 
-genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199, filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth=1.5, tau_screen=0.5, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, final_file_output='Stingray-SED.csv', temp_file_output='temp.csv', reorder=TRUE, restart=FALSE, verbose=TRUE, write_final_file=FALSE){
+genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199,
+                  filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS',
+                  'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE',
+                  'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel',
+                  'S350_Herschel', 'S500_Herschel'), tau_birth=1.5, tau_screen=0.5, sparse=5,
+                  time=NULL, mockcone=NULL, intSFR=TRUE, final_file_output='Stingray-SED.csv',
+                  temp_file_output='temp.csv', reorder=TRUE, restart=FALSE, verbose=TRUE, write_final_file=FALSE){
 
   timestart=proc.time()[3]
 
@@ -80,21 +86,6 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   }else{
     filtout=filters
   }
-
-  # if(!is.null(SFHfull) & doSFHbatch==TRUE){
-  #   stop('You should not provide an input to SFHfull and have doSFHbatch=TRUE set, since the requested behaviour is ambiguous!')
-  # }
-  #
-  # if(is.null(SFHfull) & doSFHbatch==FALSE){
-  #   SFHfull=getSFHfull(file_sting=file_sting, path_shark=path_shark, snapmax=snapmax, cores=cores, verbose=verbose)
-  # }
-  #
-  # if(!is.null(SFHfull)){
-  #   SFRbulge=SFHfull$SFRbulge
-  #   SFRdisk=SFHfull$SFRdisk
-  #   Zbulge=SFHfull$Zbulge
-  #   Zdisk=SFHfull$Zdisk
-  # }
 
   if(file.exists(temp_file_output) & restart==FALSE){
     stop(paste(temp_file_output,'already exists! Use another temporary temp_file_output file name, or set restart=TRUE to continue from where genSting finished.'))
@@ -169,7 +160,13 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
 
       # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
       tempout=foreach(j=1:length(select), .combine='rbind')%do%{
-        tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,]/h, SFRbulge_m=SFRbulge_m_subsnap[j,]/h, SFRdisk=SFRdisk_subsnap[j,]/h, redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,], Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout, Dale=Dale_Msol, tau_birth=tau_birth, tau_screen=tau_screen, sparse=sparse, intSFR = intSFR))), error = function(e) NULL)
+        tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]],
+                unlist(genSED(SFRbulge_d=SFRbulge_d_subsnap[j,]/h, SFRbulge_m=SFRbulge_m_subsnap[j,]/h,
+                  SFRdisk=SFRdisk_subsnap[j,]/h, redshift=zobs[j], time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j],
+                  ref='planck')*1e9, speclib=BC03lr, Zbulge_d=Zbulge_d_subsnap[j,],
+                  Zbulge_m=Zbulge_m_subsnap[j,], Zdisk=Zdisk_subsnap[j,], filtout=filtout,
+                  Dale=Dale_Msol, tau_birth=tau_birth, tau_screen=tau_screen, sparse=sparse,
+                  intSFR = intSFR))), error = function(e) NULL)
         tempSED
       }
       as.data.table(rbind(tempout))
@@ -237,7 +234,7 @@ mocksubsets=function(mockcone){
 }
 
 .dumpin = function(temp_file_output='temp.csv'){
-  fread(temp_file_output)
+  fread(temp_file_output, integer64 = "integer64")
 }
 
 
