@@ -1,3 +1,7 @@
+.lsol_to_erg= 3.828e33
+.mpc_to_cm = 3.08568e+24
+.lsol_to_absolute = .lsol_to_erg/(4*pi*(.mpc_to_cm*1e-5)^2)
+
 genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_birth=1, tau_screen=0.3, pow_birth=-0.7, pow_screen=-0.7, Zbulge_d=5, Zbulge_m=5, Zdisk=5, alpha_SF=1, AGNfrac=0, ab_nodust=TRUE, ap_nodust=TRUE, ab_dust=TRUE, ap_dust=TRUE, emitdust=TRUE, unimax=13.8e9, speclib=NULL, Dale=NULL, filtout=NULL, H0=67.8, sparse=1, intSFR=TRUE){
 
   if(is.null(time)){stop('Need time input!')}
@@ -184,9 +188,9 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
   #To get to absolute magnitude
 
   if(ab_nodust){
-    ab_fluxnu_nodust_b_d=convert_wave2freq(bulge_d_nodust_lum*3e-07, speclib$Wave) #3e-07 factor to get to absolute magnitude
-    ab_fluxnu_nodust_b_m=convert_wave2freq(bulge_m_nodust_lum*3e-07, speclib$Wave)
-    ab_fluxnu_nodust_d=convert_wave2freq(disk_nodust_lum*3e-07, speclib$Wave)
+    ab_fluxnu_nodust_b_d=convert_wave2freq(bulge_d_nodust_lum*.lsol_to_absolute, speclib$Wave) #.lsol_to_absolute factor to get to absolute magnitude
+    ab_fluxnu_nodust_b_m=convert_wave2freq(bulge_m_nodust_lum*.lsol_to_absolute, speclib$Wave)
+    ab_fluxnu_nodust_d=convert_wave2freq(disk_nodust_lum*.lsol_to_absolute, speclib$Wave)
   }else{
     ab_fluxnu_nodust_b_d=NA
     ab_fluxnu_nodust_b_m=NA
@@ -204,9 +208,9 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
   }
 
   if(ab_dust){
-    ab_fluxnu_dust_b_d=convert_wave2freq(bulge_d_dust_lum*3e-07, lumwave)
-    ab_fluxnu_dust_b_m=convert_wave2freq(bulge_m_dust_lum*3e-07, lumwave)
-    ab_fluxnu_dust_d=convert_wave2freq(disk_dust_lum*3e-07, lumwave)
+    ab_fluxnu_dust_b_d=convert_wave2freq(bulge_d_dust_lum*.lsol_to_absolute, lumwave)
+    ab_fluxnu_dust_b_m=convert_wave2freq(bulge_m_dust_lum*.lsol_to_absolute, lumwave)
+    ab_fluxnu_dust_d=convert_wave2freq(disk_dust_lum*.lsol_to_absolute, lumwave)
   }else{
     ab_fluxnu_dust_b_d=NA
     ab_fluxnu_dust_b_m=NA
