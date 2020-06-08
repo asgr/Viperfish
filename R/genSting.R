@@ -139,7 +139,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
       opts = list(progress=progress)
     }
 
-    outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts}, .packages=c('Viperfish','bigmemory'))%dopar%{
+    outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output, .final=.dumpin, .inorder=FALSE, .multicombine=TRUE, .maxcombine=1000, .options.snow = if(verbose){opts}, .packages=c('Viperfish','bigmemory'))%dopar%{
       use=subsnapIDs[i]
       mockloop=attach.big.matrix(mockpoint)
       select=which(mockloop[,'subsnapID']==use)
@@ -228,8 +228,10 @@ mocksubsets=function(mockcone){
 
 .dumpout = function(temp_file_output='temp.csv', ...){
   # Writing like this prevents race conditions between threads. All results from a batch of N-cores are written to the file sequentially, so no chance of over-write etc.
-  for(r in list(...))
-    fwrite(x=r, file=temp_file_output, append=TRUE)
+  #for(r in list(...))
+  #  fwrite(x=r, file=temp_file_output, append=TRUE)
+  #temp_file_output
+  fwrite(x=list(...), file=temp_file_output, append=TRUE)
   temp_file_output
 }
 
