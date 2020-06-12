@@ -84,11 +84,26 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
     redshift=0
   }
 
-  bulge_d=ProSpectSED(massfunc=SFRbulge_dfunc, tau_birth=tau_birth[1], tau_screen=tau_screen[1], pow_birth=pow_birth[1], pow_screen=pow_screen[1], pow_AGN=pow_AGN[1], alpha_SF_birth=alpha_SF_birth[1], alpha_SF_screen=alpha_SF_screen[1], alpha_SF_AGN=alpha_SF_AGN[1], AGNlum=AGNlum[1], speclib=speclib, Dale=Dale, AGN=AGN, filtout=NULL, z=redshift, Z=Z[[1]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
+  bulge_d=ProSpectSED(massfunc=SFRbulge_dfunc, tau_birth=tau_birth[1], tau_screen=tau_screen[1], 
+                      pow_birth=pow_birth[1], pow_screen=pow_screen[1], pow_AGN=pow_AGN[1], 
+                      alpha_SF_birth=alpha_SF_birth[1], alpha_SF_screen=alpha_SF_screen[1], 
+                      alpha_SF_AGN=alpha_SF_AGN[1], AGNlum=AGNlum[1], speclib=speclib, 
+                      Dale=Dale, AGN=AGN, filters=NULL, filtout=NULL, z=redshift, Z=Z[[1]], outtype=NULL, 
+                      unimax=unimax, intSFR=intSFR, sparse=sparse)
 
-  bulge_m=ProSpectSED(massfunc=SFRbulge_mfunc, tau_birth=tau_birth[2], tau_screen=tau_screen[2], pow_birth=pow_birth[2], pow_screen=pow_screen[2], pow_AGN=pow_AGN[2], alpha_SF_birth=alpha_SF_birth[2], alpha_SF_screen=alpha_SF_screen[2], alpha_SF_AGN=alpha_SF_AGN[2], AGNlum=AGNlum[2], speclib=speclib, Dale=Dale, AGN=AGN, filtout=NULL, z=redshift, Z=Z[[2]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
+  bulge_m=ProSpectSED(massfunc=SFRbulge_mfunc, tau_birth=tau_birth[2], tau_screen=tau_screen[2], 
+                      pow_birth=pow_birth[2], pow_screen=pow_screen[2], pow_AGN=pow_AGN[2], 
+                      alpha_SF_birth=alpha_SF_birth[2], alpha_SF_screen=alpha_SF_screen[2], 
+                      alpha_SF_AGN=alpha_SF_AGN[2], AGNlum=AGNlum[2], speclib=speclib, 
+                      Dale=Dale, AGN=AGN, filters=NULL, filtout=NULL, z=redshift, Z=Z[[2]], outtype=NULL, 
+                      unimax=unimax, intSFR=intSFR, sparse=sparse)
 
-  disk=ProSpectSED(massfunc=SFRdiskfunc, tau_birth=tau_birth[3], tau_screen=tau_screen[3], pow_birth=pow_birth[3], pow_screen=pow_screen[3], pow_AGN=pow_AGN[3], alpha_SF_birth=alpha_SF_birth[3], alpha_SF_screen=alpha_SF_screen[3], alpha_SF_AGN=alpha_SF_AGN[3], AGNlum=AGNlum[3], speclib=speclib, Dale=Dale, AGN=AGN, filtout=NULL, z=redshift, Z=Z[[3]], outtype=NULL, unimax=unimax, intSFR=intSFR, sparse=sparse)
+  disk=ProSpectSED(massfunc=SFRdiskfunc, tau_birth=tau_birth[3], tau_screen=tau_screen[3], 
+                   pow_birth=pow_birth[3], pow_screen=pow_screen[3], pow_AGN=pow_AGN[3], 
+                   alpha_SF_birth=alpha_SF_birth[3], alpha_SF_screen=alpha_SF_screen[3], 
+                   alpha_SF_AGN=alpha_SF_AGN[3], AGNlum=AGNlum[3], speclib=speclib, 
+                   Dale=Dale, AGN=AGN, filters=NULL, filtout=NULL, z=redshift, Z=Z[[3]], outtype=NULL, 
+                   unimax=unimax, intSFR=intSFR, sparse=sparse)
 
   lir_dust_b_d=bulge_d$Stars$lumtot_atten
   lir_dust_b_m=bulge_m$Stars$lumtot_atten
