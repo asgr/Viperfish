@@ -1,11 +1,4 @@
-genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get", h='get',
-                  cores=4, id_galaxy_sam='all', filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS',
-                  'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA',
-                  'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel',
-                  'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'),
-                  tau_birth=1.5, tau_screen=0.5, pow_birth=-0.7, pow_screen=-0.7, read_extinct=FALSE,
-                  sparse=5, final_file_output='Shark-SED.csv', extinction_file='extinction.hdf5',
-                  intSFR=TRUE, verbose=TRUE, write_final_file=FALSE){
+genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get", h='get', cores=4, id_galaxy_sam='all', filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth=1, tau_screen=0.3, tau_AGN=1, pow_birth=-0.7, pow_screen=-0.7, pow_AGN=-0.7, alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, read_extinct=FALSE, sparse=5, final_file_output='Shark-SED.csv', extinction_file='extinction.hdf5', intSFR=TRUE, verbose=TRUE, write_final_file=FALSE){
 
   timestart=proc.time()[3]
 
@@ -26,15 +19,16 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   }
   assertScalar(tau_birth)
   assertScalar(tau_screen)
+
   assertInt(sparse)
   assertFlag(intSFR)
   assertFlag(verbose)
 
-
-  BC03lr=Dale_Msol=SFH=i=subsnapID=Nid=idlist=subsnapID=NULL
+  BC03lr=Dale_NormTot=AGN_UnOb_Sparse=SFH=i=subsnapID=Nid=idlist=subsnapID=NULL
 
   data("BC03lr", envir = environment())
-  data("Dale_Msol", envir = environment())
+  data("Dale_NormTot", envir = environment())
+  data("AGN_UnOb_Sparse", envir = environment())
 
   if(filterlist==FALSE){
     filtout=foreach(i = filters)%do%{approxfun(getfilt(i))}
@@ -42,6 +36,21 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   }else{
     filtout=filters
   }
+
+  FUV_Nathan=approxfun(cbind(wave=c(1450,1550), response=c(0.01,0.01))) #This is what Claudia sent me- very easy to define any tophat like this
+  Band9_ALMA=approxfun(cbind(wave=c(4000000.0,5000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  Band8_ALMA=approxfun(cbind(wave=c(6000000.0,8000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  Band7_ALMA=approxfun(cbind(wave=c(8000000.0,11000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  Band6_ALMA=approxfun(cbind(wave=c(11000000.0,14000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  Band4_ALMA=approxfun(cbind(wave=c(18000000.0,24000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+
+  filtout=c(filtout, FUV_Nathan=FUV_Nathan)
+  filtout=c(filtout, Band9_ALMA=Band9_ALMA)
+  filtout=c(filtout, Band8_ALMA=Band8_ALMA)
+  filtout=c(filtout, Band7_ALMA=Band7_ALMA)
+  filtout=c(filtout, Band6_ALMA=Band6_ALMA)
+  filtout=c(filtout, Band4_ALMA=Band4_ALMA)
+  filters = names(filtout)
 
   sfh_fname = paste(path_shark, snapshot, subvolume, 'star_formation_histories.hdf5',sep='/')
   assertAccess(sfh_fname, access='r')
@@ -82,35 +91,34 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   Zdisk=Shark_SFH[['disks/metallicity_histories']][,select,drop=FALSE]
 
   #define tau in extinction laws
-  tau_dust = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
-  tau_clump = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+  tau_screen_galaxies = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+  tau_birth_galaxies = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
 
-  pow_dust = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
-  pow_clump = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+  pow_screen_galaxies = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
+  pow_birth_galaxies = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
 
   if(read_extinct){
-     #read in disks
-     tau_dust[,3] = Shark_Extinct[['galaxies/tau_diff_disk']][select]
-     tau_clump[,3] = Shark_Extinct[['galaxies/tau_clump_disk']][select]
-     pow_dust[,3] = Shark_Extinct[['galaxies/m_diff_disk']][select]
+    #read in disks
+    tau_screen_galaxies[,3] = Shark_Extinct[['galaxies/tau_screen_disk']][select]
+    tau_birth_galaxies[,3] = Shark_Extinct[['galaxies/tau_birth_disk']][select]
+    pow_screen_galaxies[,3] = Shark_Extinct[['galaxies/pow_screen_disk']][select]
 
-     tau_dust[,1] = Shark_Extinct[['galaxies/tau_diff_bulge']][select]
-     tau_clump[,1] = Shark_Extinct[['galaxies/tau_clump_bulge']][select]
-     pow_dust[,1] = Shark_Extinct[['galaxies/m_diff_bulge']][select]
+    tau_screen_galaxies[,1] = Shark_Extinct[['galaxies/tau_screen_bulge']][select]
+    tau_birth_galaxies[,1] = Shark_Extinct[['galaxies/tau_birth_bulge']][select]
+    pow_screen_galaxies[,1] = Shark_Extinct[['galaxies/pow_screen_bulge']][select]
 
-     #assume the same for bulges regardless of origin of star formation
-     tau_dust[,2] = tau_dust[,1]
-     tau_clump[,2] = tau_clump[,1]
-     pow_dust[,2] = pow_dust[,1]
+    #assume the same for bulges regardless of origin of star formation
+    tau_screen_galaxies[,2] = tau_screen_galaxies[,1]
+    tau_birth_galaxies[,2] = tau_birth_galaxies[,1]
+    pow_screen_galaxies[,2] = pow_screen_galaxies[,1]
 
-     #all clumps have the same power law index of the Charlot & Fall model
-     pow_clump[,] = pow_birth
-  }
-  else{
-    tau_dust[,] = tau_screen
-    tau_clump[,] = tau_birth
-    pow_dust[,] = pow_screen
-    pow_clump[,] = pow_birth
+    #all clumps have the same power law index of the Charlot & Fall model
+    pow_birth_galaxies[,] = pow_birth
+  }else{
+    tau_screen_galaxies[,] = tau_screen
+    tau_birth_galaxies[,] = tau_birth
+    pow_screen_galaxies[,] = pow_screen
+    pow_birth_galaxies[,] = pow_birth
   }
 
   if(length(redshift)==1){
@@ -135,11 +143,41 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
 
   outSED=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
-  unlist(genSED(SFRbulge_d=SFRbulge_d[,i]/h, SFRbulge_m=SFRbulge_m[,i]/h, SFRdisk=SFRdisk[,i]/h,
-                redshift=redshift[i], time=time-cosdistTravelTime(redshift[i], ref='planck')*1e9,
-                speclib=BC03lr, Zbulge_d=Zbulge_d[,i], Zbulge_m=Zbulge_m[,i], Zdisk=Zdisk[,i],
-                filtout=filtout, Dale=Dale_Msol, tau_birth=tau_clump[i,], tau_screen=tau_dust[i,],
-                pow_birth=pow_clump[i,], pow_screen=pow_clump[i,], sparse=sparse, intSFR=intSFR))
+    
+    unlist(genSED(
+      SFRbulge_d=SFRbulge_d[,i]/h,
+      SFRbulge_m=SFRbulge_m[,i]/h,
+      SFRdisk=SFRdisk[,i]/h,
+
+      Zbulge_d=Zbulge_d[,i],
+      Zbulge_m=Zbulge_m[,i],
+      Zdisk=Zdisk[,i],
+
+      redshift=redshift[i],
+      time=time-cosdistTravelTime(redshift[i], ref='planck')*1e9,
+
+      tau_birth=tau_birth_galaxies[i,],
+      tau_screen=tau_screen_galaxies[i,],
+      tau_AGN=1, #hard coded for now
+
+      pow_birth=pow_birth_galaxies[i,],
+      pow_screen=pow_screen_galaxies[i,],
+      pow_AGN=-0.7, #hard coded for now
+
+      alpha_SF_birth=alpha_SF_birth, #hard coded for now
+      alpha_SF_screen=alpha_SF_screen, #hard coded for now
+      alpha_SF_AGN=alpha_SF_AGN, #hard coded for now
+
+      AGNlum=0, #hard coded for now
+
+      speclib=BC03lr,
+      filtout=filtout,
+      AGN=AGN_UnOb_Sparse,
+      Dale=Dale_NormTot,
+
+      sparse=sparse,
+      intSFR=intSFR
+    ))
   }
 
   stopCluster(cl)
