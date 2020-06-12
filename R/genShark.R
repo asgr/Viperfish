@@ -143,6 +143,7 @@ genShark=function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get",
   # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
 
   outSED=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
+    
     unlist(genSED(
       SFRbulge_d=SFRbulge_d[,i]/h,
       SFRbulge_m=SFRbulge_m[,i]/h,

@@ -227,6 +227,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
       }
       # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
       tempout=foreach(j=1:length(select), .combine='rbind')%do%{
+        
          tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], 
             unlist(genSED(
 	      SFRbulge_d=SFRbulge_d_subsnap[j,]/h, 
@@ -339,7 +340,7 @@ mocksubsets=function(mockcone){
 }
 
 .dumpin = function(temp_file_output='temp.csv'){
-  fread(temp_file_output)
+  fread(temp_file_output, integer64 = "integer64")
 }
 
 

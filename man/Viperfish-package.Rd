@@ -15,8 +15,8 @@ The basic flow is usually that SURFS makes an N-body suite, this is processed by
 \tabular{ll}{
 Package: \tab Viperfish\cr
 Type: \tab Package\cr
-Version: \tab 0.5.0\cr
-Date: \tab 2019-06-27\cr
+Version: \tab 0.5.1\cr
+Date: \tab 2020-06-12\cr
 License: \tab LGPL-3\cr
 Depends: \tab ProSpect (>= 0.7.8), data.table, hdf5r\cr
 Imports: \tab celestial, bit64, foreach, doSNOW, checkmate, snow, ini\cr
