@@ -80,7 +80,7 @@ Numeric scalar; amount of sparse sampling of the spectra to make. Higher values 
 Boolean scalar; should the \option{massfunc} be intergrated between ages? This might be necessary if the SFH is quite bursty, but it is more expensive to compute and not required if the SFH is quite smooth.
 }
   \item{final_file_output}{
-Character scalar;  name for the final output file to write to. This should not be an existing file and end ".csv".
+Character scalar;  name for the final output file to write to. This should not be an existing file and end ".csv" or ".hdf5".
 }
   \item{temp_file_output}{
 Character scalar; name for the temporary file to write to. This should not be an existing file and end ".csv".
