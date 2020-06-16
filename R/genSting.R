@@ -176,6 +176,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', children_outfile="/d
     }
 
     outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts}, .packages=c('Viperfish','bigmemory'))%dopar%{
+      cat(format(Sys.time(), "%X"), "Processing snapshot", i, "of", length(subsnapIDs), "\n")
       use=subsnapIDs[i]
       mockloop=attach.big.matrix(mockpoint)
       select=which(mockloop[,'subsnapID']==use)
@@ -185,7 +186,11 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', children_outfile="/d
       id_galaxy_sam=mockloop[select,'id_galaxy_sam']
       zcos=mockloop[select,'zcos']
       zobs=mockloop[select,'zobs']
+      read_start = Sys.time()
+      cat(format(read_start, "%X"), "Reading SFH for snapshot", i, "\n")
       SFHsing_subsnap=getSFHsing(id_galaxy_sam=id_galaxy_sam, snapshot=snapshot, subvolume=subvolume, path_shark=path_shark)
+      read_end = Sys.time()
+      cat(format(read_end, "%X"), "Read SFH for snapshot", i, "in", as.numeric(read_end - read_start, units="secs"),"\n")
 
       SFRbulge_d_subsnap=SFHsing_subsnap$SFRbulge_d
       SFRbulge_m_subsnap=SFHsing_subsnap$SFRbulge_m
@@ -225,9 +230,11 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', children_outfile="/d
         pow_screen_galaxies[,] = pow_screen
         pow_birth_galaxies[,] = pow_birth
       }
+
+      cat(format(Sys.time(), "%X"), "Going into inner loop with", length(select), "elements\n")
       # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
       tempout=foreach(j=1:length(select), .combine='rbind')%do%{
-        
+         cat(format(Sys.time(), "%X"), "Calculating SED for galaxy", j, "of", length(select), "in snapshot", i, "\n")
          tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], 
             unlist(genSED(
 	      SFRbulge_d=SFRbulge_d_subsnap[j,]/h, 
