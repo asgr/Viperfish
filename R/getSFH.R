@@ -1,4 +1,4 @@
-getSFHfull=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores=4, verbose=TRUE){
+getSFHfull=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores_per_subvolume=4, verbose=TRUE){
 
   timestart=proc.time()[3]
 
@@ -11,7 +11,7 @@ getSFHfull=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, c
   assertCharacter(path_shark, max.len=1)
   assertAccess(path_shark, access='r')
   assertInt(snapmax)
-  assertInt(cores)
+  assertInt(cores_per_subvolume)
   assertFlag(verbose)
 
   BC03lr=Dale_Msol=Nid=id_galaxy_sam=idlist=snapshot=subsnapID=subvolume=z=i=mocksubsets=mockcone=Ntime=time=NULL
@@ -36,7 +36,7 @@ getSFHfull=function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, c
   Zbulge_m=matrix(0,Nunique,Ntime)
   Zdisk=matrix(0,Nunique,Ntime)
 
-  cl=makeCluster(cores)
+  cl=makeCluster(cores_per_subvolume)
   registerDoSNOW(cl)
 
   Nstart=1

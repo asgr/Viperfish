@@ -13,16 +13,18 @@ Convert Stingray Outputs to SEDs
 Takes Stingray light cones and converts to apparent and absolute SEDs.
 }
 \usage{
-genSting(file_sting = NULL, path_shark = ".", h = 'get', cores = 4, snapmax = 199,
-filters = c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA',
-'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE',
-'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'),
+genSting(file_sting = NULL, path_shark = ".", h = 'get', cores_per_subvolume=1,
+cores_per_snapshot=4, children_outfile = '/dev/null', snapmax = 199,
+filters = c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS',
+'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE',
+'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel',
+'S500_Herschel'),
 tau_birth = 1.5, tau_screen = 0.5, sparse = 5, time = NULL, mockcone = NULL,
 intSFR = TRUE, final_file_output = 'Stingray-SED.csv', temp_file_output = 'temp.csv',
 reorder = TRUE, restart = FALSE, verbose = TRUE, write_final_file = FALSE)
 
-getSFHfull(file_sting = "mocksurvey.hdf5", path_shark = ".", snapmax = 199, cores = 4,
-verbose = TRUE)
+getSFHfull(file_sting = "mocksurvey.hdf5", path_shark = ".", snapmax = 199,
+cores_per_subvolume = 4, verbose = TRUE)
 
 getSFHsing(id_galaxy_sam, snapshot = NULL, subvolume = NULL, path_shark = ".")
 
@@ -47,8 +49,14 @@ Integer vector; a list of Shark SAM galaxies to be extracted from a given snapsh
   \item{h}{
 Numeric scalar; little-h assumed in Shark (needed to convert SFRs to actual SFR since they use Msun/yr/h). If set to "get" (default) it will inherit the redshift from the target Stingray HDF5 file, which is probably what you want most of the time.
 }
-  \item{cores}{
-Integer scalar; number of cores to process on.
+  \item{cores_per_subvolume}{
+Integer scalar; number of cores to process a subvolume's snapshot on. This multiplied by \code{cores_per_snapshot} yields the total number of processes that will work in parallel.
+}
+  \item{cores_per_snapshot}{
+Integer scalar; number of cores to process a snapshot's galaxies on. This multiplied by \code{cores_per_subvolume} yields the total number of processes that will work in parallel.
+}
+  \item{children_output}{
+Character scalar; file where parallel worker's outputs will be dumped to. It is given as-is to SNOW's \code{makeCluster}.
 }
   \item{snapmax}{
 Integer scalar; maximum snapshot output by Shark.
@@ -72,7 +80,7 @@ Numeric scalar; amount of sparse sampling of the spectra to make. Higher values 
 Boolean scalar; should the \option{massfunc} be intergrated between ages? This might be necessary if the SFH is quite bursty, but it is more expensive to compute and not required if the SFH is quite smooth.
 }
   \item{final_file_output}{
-Character scalar;  name for the final output file to write to. This should not be an existing file and end ".csv".
+Character scalar;  name for the final output file to write to. This should not be an existing file and end ".csv" or ".hdf5".
 }
   \item{temp_file_output}{
 Character scalar; name for the temporary file to write to. This should not be an existing file and end ".csv".
