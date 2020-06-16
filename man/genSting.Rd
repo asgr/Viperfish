@@ -13,9 +13,9 @@ Convert Stingray Outputs to SEDs
 Takes Stingray light cones and converts to apparent and absolute SEDs.
 }
 \usage{
-genSting(file_sting = NULL, path_shark = ".", h = 'get', cores = 4, snapmax = 199,
-filters = c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA',
-'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE',
+genSting(file_sting = NULL, path_shark = ".", h = 'get', cores = 4, children_outfile = '/dev/null',
+snapmax = 199, filters = c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS',
+'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE',
 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'),
 tau_birth = 1.5, tau_screen = 0.5, sparse = 5, time = NULL, mockcone = NULL,
 intSFR = TRUE, final_file_output = 'Stingray-SED.csv', temp_file_output = 'temp.csv',
@@ -49,6 +49,9 @@ Numeric scalar; little-h assumed in Shark (needed to convert SFRs to actual SFR 
 }
   \item{cores}{
 Integer scalar; number of cores to process on.
+}
+  \item{children_output}{
+Character scalar; file where parallel worker's outputs will be dumped to. It is given as-is to SNOW's \code{makeCluster}.
 }
   \item{snapmax}{
 Integer scalar; maximum snapshot output by Shark.
