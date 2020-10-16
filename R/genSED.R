@@ -117,10 +117,10 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
   flux_ratio_ir_t=(bulge_d$Stars$lumtot_birth + bulge_m$Stars$lumtot_birth + disk$Stars$lumtot_birth) / lir_dust_t
 
   if(ab_nodust){
-    ab_mag_nodust_b_d=photom_flux(bulge_d$StarsUnAtten$wave, bulge_d$StarsUnAtten$lum*3e-7, filters = filtout)
-    ab_mag_nodust_b_m=photom_flux(bulge_m$StarsUnAtten$wave, bulge_m$StarsUnAtten$lum*3e-7, filters = filtout)
+    ab_mag_nodust_b_d=photom_flux(bulge_d$StarsUnAtten$wave, bulge_d$StarsUnAtten$lum*.lsol_to_absolute, filters = filtout)
+    ab_mag_nodust_b_m=photom_flux(bulge_m$StarsUnAtten$wave, bulge_m$StarsUnAtten$lum*.lsol_to_absolute, filters = filtout)
     ab_mag_nodust_b=-2.5*log10(10^(-0.4*ab_mag_nodust_b_d)+10^(-0.4*ab_mag_nodust_b_m))
-    ab_mag_nodust_d=photom_flux(disk$StarsUnAtten$wave, disk$StarsUnAtten$lum*3e-7, filters = filtout)
+    ab_mag_nodust_d=photom_flux(disk$StarsUnAtten$wave, disk$StarsUnAtten$lum*.lsol_to_absolute, filters = filtout)
     ab_mag_nodust_t=-2.5*log10(10^(-0.4*ab_mag_nodust_b)+10^(-0.4*ab_mag_nodust_d))
   }else{
     ab_mag_nodust_b_d=NA
@@ -131,10 +131,10 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
   }
 
   if(ab_dust){
-    ab_mag_dust_b_d=photom_flux(bulge_d$FinalLum$wave, bulge_d$FinalLum$lum*3e-7, filters = filtout)
-    ab_mag_dust_b_m=photom_flux(bulge_m$FinalLum$wave, bulge_m$FinalLum$lum*3e-7, filters = filtout)
+    ab_mag_dust_b_d=photom_flux(bulge_d$FinalLum$wave, bulge_d$FinalLum$lum*.lsol_to_absolute, filters = filtout)
+    ab_mag_dust_b_m=photom_flux(bulge_m$FinalLum$wave, bulge_m$FinalLum$lum*.lsol_to_absolute, filters = filtout)
     ab_mag_dust_b=-2.5*log10(10^(-0.4*ab_mag_dust_b_d)+10^(-0.4*ab_mag_dust_b_m))
-    ab_mag_dust_d=photom_flux(disk$FinalLum$wave, disk$FinalLum$lum*3e-7, filters = filtout)
+    ab_mag_dust_d=photom_flux(disk$FinalLum$wave, disk$FinalLum$lum*.lsol_to_absolute, filters = filtout)
     ab_mag_dust_t=-2.5*log10(10^(-0.4*ab_mag_dust_b)+10^(-0.4*ab_mag_dust_d))
   }else{
     ab_mag_dust_b_d=NA
