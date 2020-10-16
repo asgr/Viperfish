@@ -9,7 +9,7 @@
     invisible(result)
 }
 
-genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199, filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth=1.5, tau_screen=0.5, pow_birth=-0.7, pow_screen=-0.7,  alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, read_extinct=FALSE, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, final_file_output='Stingray-SED.csv', temp_file_output='temp.csv',  extinction_file='extinction.hdf5', reorder=TRUE, restart=FALSE, verbose=TRUE, write_final_file=FALSE){
+genSting=function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolume=1, cores_per_snapshot=4, children_outfile="/dev/null", snapmax=199, filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth=1.5, tau_screen=0.5, pow_birth=-0.7, pow_screen=-0.7,  alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, read_extinct=FALSE, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, final_file_output='Stingray-SED.csv', temp_file_output='temp.csv',  extinction_file='extinction.hdf5', reorder=TRUE, restart=FALSE, verbose=TRUE, write_final_file=FALSE){
 
   timestart=proc.time()[3]
 
@@ -19,7 +19,8 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
 
   assertCharacter(path_shark, max.len=1)
   assertAccess(path_shark, access='r')
-  assertInt(cores)
+  assertInt(cores_per_subvolume)
+  assertInt(cores_per_snapshot)
   assertInt(snapmax)
   if(is.list(filters)){
     filterlist=TRUE
@@ -101,7 +102,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
   # }
   #
   # if(is.null(SFHfull) & doSFHbatch==FALSE){
-  #   SFHfull=getSFHfull(file_sting=file_sting, path_shark=path_shark, snapmax=snapmax, cores=cores, verbose=verbose)
+  #   SFHfull=getSFHfull(file_sting=file_sting, path_shark=path_shark, snapmax=snapmax, cores_per_subvolume=cores_per_subvolume, verbose=verbose)
   # }
   #
   # if(!is.null(SFHfull)){
@@ -166,7 +167,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
 
   if (run_foreach) {
 
-    cl=makeCluster(cores)
+    cl=makeCluster(cores_per_subvolume, outfile=children_outfile)
     registerDoSNOW(cl)
 
     if(verbose){
@@ -175,7 +176,8 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
       opts = list(progress=progress)
     }
 
-    outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts}, .packages=c('Viperfish','bigmemory'))%dopar%{
+    outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts}, .packages=c('Viperfish','bigmemory','doSNOW'))%dopar%{
+      cat(format(Sys.time(), "%X"), "Processing snapshot", i, "of", length(subsnapIDs), "\n")
       use=subsnapIDs[i]
       mockloop=attach.big.matrix(mockpoint)
       select=which(mockloop[,'subsnapID']==use)
@@ -185,7 +187,11 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
       id_galaxy_sam=mockloop[select,'id_galaxy_sam']
       zcos=mockloop[select,'zcos']
       zobs=mockloop[select,'zobs']
+      read_start = Sys.time()
+      cat(format(read_start, "%X"), "Reading SFH for snapshot", i, "\n")
       SFHsing_subsnap=getSFHsing(id_galaxy_sam=id_galaxy_sam, snapshot=snapshot, subvolume=subvolume, path_shark=path_shark)
+      read_end = Sys.time()
+      cat(format(read_end, "%X"), "Read SFH for snapshot", i, "in", as.numeric(read_end - read_start, units="secs"),"\n")
 
       SFRbulge_d_subsnap=SFHsing_subsnap$SFRbulge_d
       SFRbulge_m_subsnap=SFHsing_subsnap$SFRbulge_m
@@ -225,9 +231,13 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
         pow_screen_galaxies[,] = pow_screen
         pow_birth_galaxies[,] = pow_birth
       }
+
+      cl = makeCluster(cores_per_snapshot, outfile=children_outfile)
+      registerDoSNOW(cl)
+      cat(format(Sys.time(), "%X"), "Going into inner loop with", length(select), "elements\n")
       # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
-      tempout=foreach(j=1:length(select), .combine='rbind')%do%{
-        
+      tempout=foreach(j=1:length(select), .combine='rbind') %dopar% {
+         cat(format(Sys.time(), "%X"), "Calculating SED for galaxy", j, "of", length(select), "in snapshot", i, "\n")
          tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], 
             unlist(genSED(
 	      SFRbulge_d=SFRbulge_d_subsnap[j,]/h, 
@@ -256,6 +266,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores=4, snapmax=199
         #if(class(tempSED)=="try-error"){tempSED=NA}
         tempSED
       }
+      stopCluster(cl)
       as.data.table(rbind(tempout))
     }
 
