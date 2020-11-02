@@ -4,6 +4,7 @@
 \alias{getSFHsing}
 \alias{mockcone}
 \alias{mockcone_extract}
+\alias{extinction_extract}
 \alias{mocksubsets}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
@@ -13,15 +14,19 @@ Convert Stingray Outputs to SEDs
 Takes Stingray light cones and converts to apparent and absolute SEDs.
 }
 \usage{
-genSting(file_sting = NULL, path_shark = ".", h = 'get', cores_per_subvolume=1,
-cores_per_snapshot=4, children_outfile = '/dev/null', snapmax = 199,
-filters = c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS',
-'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE',
-'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel',
-'S500_Herschel'),
-tau_birth = 1.5, tau_screen = 0.5, sparse = 5, time = NULL, mockcone = NULL,
-intSFR = TRUE, final_file_output = 'Stingray-SED.csv', temp_file_output = 'temp.csv',
-reorder = TRUE, restart = FALSE, verbose = TRUE, write_final_file = FALSE)
+genSting(file_sting = NULL, path_shark = ".", h = "get", cores_per_subvolume = 1, 
+    cores_per_snapshot = 4, children_outfile = "/dev/null", snapmax = 199, 
+    filters = c("FUV_GALEX", "NUV_GALEX", "u_SDSS", "g_SDSS", 
+        "r_SDSS", "i_SDSS", "Z_VISTA", "Y_VISTA", "J_VISTA", 
+        "H_VISTA", "K_VISTA", "W1_WISE", "W2_WISE", "W3_WISE", 
+        "W4_WISE", "P100_Herschel", "P160_Herschel", "S250_Herschel", 
+        "S350_Herschel", "S500_Herschel"), tau_birth = 1, tau_screen = 0.3, tau_AGN = 1, 
+    pow_birth = -0.7, pow_screen = -0.7, pow_AGN = -0.7, alpha_SF_birth = 1, 
+    alpha_SF_screen = 3, alpha_SF_AGN = 0, emission = FALSE, 
+    read_extinct = FALSE, sparse = 5, time = NULL, mockcone = NULL, 
+    intSFR = TRUE, final_file_output = "Stingray-SED.csv", temp_file_output = "temp.csv", 
+    extinction_file = "extinction.hdf5", reorder = TRUE, restart = FALSE, 
+    verbose = TRUE, write_final_file = FALSE)
 
 getSFHfull(file_sting = "mocksurvey.hdf5", path_shark = ".", snapmax = 199,
 cores_per_subvolume = 4, verbose = TRUE)
@@ -29,6 +34,8 @@ cores_per_subvolume = 4, verbose = TRUE)
 getSFHsing(id_galaxy_sam, snapshot = NULL, subvolume = NULL, path_shark = ".")
 
 mockcone_extract(file_sting = "mocksurvey.hdf5", reorder = TRUE)
+
+extinction_extract(extinction_file = "extinction.hdf5", reorder = TRUE)
 
 mocksubsets(mockcone)
 }
@@ -55,7 +62,7 @@ Integer scalar; number of cores to process a subvolume's snapshot on. This multi
   \item{cores_per_snapshot}{
 Integer scalar; number of cores to process a snapshot's galaxies on. This multiplied by \code{cores_per_subvolume} yields the total number of processes that will work in parallel.
 }
-  \item{children_output}{
+  \item{children_outfile}{
 Character scalar; file where parallel worker's outputs will be dumped to. It is given as-is to SNOW's \code{makeCluster}.
 }
   \item{snapmax}{
@@ -65,10 +72,37 @@ Integer scalar; maximum snapshot output by Shark.
 Character vector; filters to use for the photometry.
 }
   \item{tau_birth}{
-Numeric scalar; dust tau for birth clouds. Associated with sub 10 Myr star formation. See \code{\link{SFH}}.
+Numeric scalar; dust tau of birth clouds. Associated with sub 10 Myr star formation. See \code{\link{CF_birth}}.
 }
   \item{tau_screen}{
-Numeric scalar; dust tau for screen. See \code{\link{SFH}}.
+Numeric scalar; dust tau of the dust screen. See \code{\link{CF_screen}}.
+}
+  \item{tau_AGN}{
+Numeric scalar; dust tau of the AGN. See \code{\link{CF}}.
+}
+  \item{pow_birth}{
+Numeric scalar; power to further raise the dust attenuation of birth clouds. See \code{\link{CF_birth}}.
+}
+  \item{pow_screen}{
+Numeric scalar; power to further raise the dust attenuation of the dust screen. See \code{\link{CF_screen}}.
+}
+  \item{pow_AGN}{
+Numeric scalar; power to further raise the dust attenuation of the AGN torus. See \code{\link{CF_screen}}.
+}
+  \item{alpha_SF_birth}{
+Numeric scalar; alpha slope of the birth cloud dust. Lower values mean hotter dust. See \code{\link{Dale}}.
+}
+  \item{alpha_SF_screen}{
+Numeric scalar; alpha slope of the screen dust. Lower values mean hotter dust. See \code{\link{Dale}}.
+}
+  \item{alpha_SF_AGN}{
+Numeric scalar; alpha slope of the AGN torus dust. Lower values mean hotter dust. See \code{\link{Dale}}.
+}
+  \item{read_extinct}{
+Logical; should a target extinction HDF5 be read in for dust parameters (see \option{extinction_file}).  
+}
+  \item{emission}{
+Logical; should emission features be added to the spectrum? This will be done using \code{\link{emissionLines}}. 
 }
   \item{time}{
 Numeric vector; if provided this should be the full vector of lookback time corresponding to the time outputs in \option{SFHlist}. It should have the same length as the matrices in \option{SFHlist} have columns.
@@ -87,6 +121,9 @@ Character scalar; name for the temporary file to write to. This should not be an
 }
   \item{write_final_file}{
 Logical; whether to write the output of this function into a csv file (with name specified by \option{final_file_output}) within the same directory as \option{file_sting}.
+}
+  \item{extinction_file}{
+Character string; optional. Location of the HDF5 extinction file, if relevant (\option{read_extinct} must also be TRUE). These values will over-ride the default dust parameters listed above.  
 }
   \item{reorder}{
 Logical; Should the output mock cone be re-ordered so to enforce that it is first ascending in subsnapID, followed by id_galaxy_sam within groups of subsnapID? It might improve speed for this to be TRUE (meaning subsets are contiguous), but it means the ordering will be different compared to the target mockcone.

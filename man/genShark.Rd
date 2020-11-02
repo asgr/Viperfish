@@ -7,14 +7,18 @@ Convert Shark Outputs to SEDs
 Takes Shark boxes and converts to apparent and absolute SEDs.
 }
 \usage{
-genShark(path_shark = ".", snapshot = NULL, subvolume = NULL, redshift = "get", h = 'get',
-cores = 4, id_galaxy_sam = "all", filters = c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS',
-'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA',
-'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel',
-'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth = 1.5, tau_screen = 0.5,
-pow_birth = -0.7, pow_screen = -0.7, read_extinct = FALSE, sparse = 5,
-final_file_output = 'Shark-SED.csv', extinction_file = "extinction.hdf5", intSFR = TRUE,
-verbose = TRUE, write_final_file = FALSE)
+genShark(path_shark = ".", snapshot = NULL, subvolume = NULL, 
+    redshift = "get", h = "get", cores = 4, id_galaxy_sam = "all", 
+    filters = c("FUV_GALEX", "NUV_GALEX", "u_SDSS", "g_SDSS", 
+        "r_SDSS", "i_SDSS", "Z_VISTA", "Y_VISTA", "J_VISTA", 
+        "H_VISTA", "K_VISTA", "W1_WISE", "W2_WISE", "W3_WISE", 
+        "W4_WISE", "P100_Herschel", "P160_Herschel", "S250_Herschel", 
+        "S350_Herschel", "S500_Herschel"), tau_birth = 1, tau_screen = 0.3, 
+    tau_AGN = 1, pow_birth = -0.7, pow_screen = -0.7, pow_AGN = -0.7, 
+    alpha_SF_birth = 1, alpha_SF_screen = 3, alpha_SF_AGN = 0, 
+    emission = FALSE, read_extinct = FALSE, sparse = 5,
+    final_file_output = "Shark-SED.csv", extinction_file = "extinction.hdf5",
+    intSFR = TRUE, verbose = TRUE, write_final_file = FALSE)
 }
 \arguments{
   \item{path_shark}{
@@ -47,11 +51,29 @@ Numeric scalar; dust tau for birth clouds. Associated with sub 10 Myr star forma
   \item{tau_screen}{
 Numeric scalar; dust tau for screen. See \code{\link{SFH}}.
 }
+  \item{tau_AGN}{
+Numeric scalar; dust tau for AGN. See \code{\link{SFH}}.
+}
   \item{pow_birth}{
 Numeric scalar; power to further raise the dust attenuation of birth clouds. See \code{\link{CF_birth}}.
 }
   \item{pow_screen}{
 Numeric scalar; power to further raise the dust attenuation of the dust screen. See \code{\link{CF_screen}}.
+}
+  \item{pow_AGN}{
+Numeric scalar; power to further raise the dust attenuation of the AGN. See \code{\link{CF_screen}}.
+}
+  \item{alpha_SF_birth}{
+Numeric scalar; alpha slope of the birth cloud dust. Lower values mean hotter dust. See \code{\link{Dale}}.
+}
+  \item{alpha_SF_screen}{
+Numeric scalar; alpha slope of the screen dust. Lower values mean hotter dust. See \code{\link{Dale}}.
+}
+  \item{alpha_SF_AGN}{
+Numeric scalar; alpha slope of the AGN torus dust. Lower values mean hotter dust. See \code{\link{Dale}}.
+}
+  \item{emission}{
+Logical; should emission features be added to the spectrum? This will be done using \code{\link{emissionLines}}. 
 }
   \item{read_extinct}{
 Logical; should an HDF5 be read in to vary extinction values per galaxy?

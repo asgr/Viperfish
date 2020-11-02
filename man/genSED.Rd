@@ -7,11 +7,14 @@ Generate SED
 Convert target bulge and disk SFHs to SEDs.
 }
 \usage{
-genSED(SFRbulge_d, SFRbulge_m, SFRdisk, redshift = 0.1, time = NULL, tau_birth = 1,
-tau_screen = 0.3, pow_birth = -0.7, pow_screen = -0.7, Zbulge_d = 5, Zbulge_m = 5,
-Zdisk = 5, alpha_SF = 1, AGNfrac = 0, ab_nodust = TRUE, ap_nodust = TRUE, ab_dust = TRUE,
-ap_dust = TRUE, emitdust = TRUE, unimax = 1.38e+10, speclib = NULL, Dale = NULL,
-filtout = NULL, H0 = 67.8, sparse = 5, intSFR = TRUE)
+genSED(SFRbulge_d, SFRbulge_m, SFRdisk, redshift = 0.1, time = NULL, 
+    tau_birth = 1, tau_screen = 0.3, tau_AGN = 1, pow_birth = -0.7, 
+    pow_screen = -0.7, pow_AGN = -0.7, alpha_SF_birth = 1, alpha_SF_screen = 3, 
+    alpha_SF_AGN = 0, emission = FALSE, Zbulge_d = 5, Zbulge_m = 5, 
+    Zdisk = 5, AGNlum = 0, ab_nodust = TRUE, ap_nodust = TRUE, 
+    ab_dust = TRUE, ap_dust = TRUE, emitdust = TRUE, unimax = 1.38e+10, 
+    speclib = NULL, Dale = NULL, AGN = NULL, filtout = NULL, 
+    H0 = 67.8, sparse = 5, intSFR = TRUE)
 }
 \arguments{
   \item{SFRbulge_d}{
@@ -30,16 +33,22 @@ Numeric scalar; redshift of the galaxy for computing apparent magnitudes. Must b
 Numeric vector; lookback time in years. Must be same length as \option{SFRbulge} and \option{SFRdisk}.
 }
   \item{tau_birth}{
-Numeric scalar; dust tau for birth clouds. Associated with sub 10 Myr star formation. See \code{\link{SFH}}.
+Numeric scalar; dust tau of birth clouds. Associated with sub 10 Myr star formation. See \code{\link{CF_birth}}.
 }
   \item{tau_screen}{
-Numeric scalar; dust tau for screen. See \code{\link{SFH}}.
+Numeric scalar; dust tau of the dust screen. See \code{\link{CF_screen}}.
+}
+  \item{tau_AGN}{
+Numeric scalar; dust tau of the AGN. See \code{\link{CF}}.
 }
   \item{pow_birth}{
 Numeric scalar; power to further raise the dust attenuation of birth clouds. See \code{\link{CF_birth}}.
 }
   \item{pow_screen}{
 Numeric scalar; power to further raise the dust attenuation of the dust screen. See \code{\link{CF_screen}}.
+}
+  \item{pow_AGN}{
+Numeric scalar; power to further raise the dust attenuation of the AGN torus. See \code{\link{CF_screen}}.
 }
   \item{Zbulge_d}{
 Numeric vector; metallicity of star formation in the bulge (formed via disk instabilities). Can be a single value or a vector that matches the history, in which case it must be same length as \option{SFRbulge}.
@@ -50,11 +59,20 @@ Numeric vector; metallicity of star formation in the bulge (formed via mergers).
   \item{Zdisk}{
 Numeric vector; metallicity of star formation in the disk. Can be a single value or a vector that matches the history, in which case it must be same length as \option{SFRdisk}.
 }
-  \item{alpha_SF}{
-Numeric scalar; desired interpolated alpha slope of the star forming population. See \code{\link{Dale_interp}}.
+  \item{AGNlum}{
+Numeric scalar; AGN bolometric luminosity in erg/s.
 }
-  \item{AGNfrac}{
-Numeric scalar; desired interpolated AGN fraction. See \code{\link{Dale_interp}}.
+  \item{alpha_SF_birth}{
+Numeric scalar; alpha slope of the birth cloud dust. Lower values mean hotter dust. See \code{\link{Dale}}.
+}
+  \item{alpha_SF_screen}{
+Numeric scalar; alpha slope of the screen dust. Lower values mean hotter dust. See \code{\link{Dale}}.
+}
+  \item{alpha_SF_AGN}{
+Numeric scalar; alpha slope of the AGN torus dust. Lower values mean hotter dust. See \code{\link{Dale}}.
+}
+  \item{emission}{
+Logical; should emission features be added to the spectrum? This will be done using \code{\link{emissionLines}}. 
 }
   \item{ab_nodust}{
 Logical; should absolute magnitudes for intrinsic SEDs be conmputed?
@@ -79,6 +97,9 @@ Pass in the spectral library directly. Must be one of \code{\link{BC03lr}}, \cod
 }
   \item{Dale}{
 Pass in the Dale dust library directly. Must be one of \code{\link{Dale_Orig}}, \code{\link{Dale_Msol}}, \code{\link{Dale_NormTot}}, \code{\link{Dale_NormAGN}}, \code{\link{Dale_NormSFR}}. Doing this speeds up the compute time, since there is no need to lazy load from the package.
+}
+  \item{AGN}{
+Object; optional. Pass in the AGN template to use. Must be one of \code{\link{AGN_UnOb}} or \code{\link{AGN_UnOb_Sparse}}.
 }
   \item{filtout}{
 Pass in the photometric filters directly. If \code{filters} is a vector of filter names, this can be achieved efficiently with a command like: filtout=foreach(i = filters)\%do\%{getfilt(i)} (see \code{\link{getfilt}}).
