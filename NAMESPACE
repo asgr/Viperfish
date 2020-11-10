@@ -9,7 +9,7 @@ import("foreach")
 import("checkmate")
 import("bigmemory")
 
-importFrom("stats", "approxfun")
+importFrom("stats", "approxfun", "pnorm")
 importFrom("utils", "data", "txtProgressBar", "setTxtProgressBar")
 importFrom("snow", "makeCluster", "stopCluster")
 importFrom("doSNOW", "registerDoSNOW")

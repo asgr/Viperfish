@@ -10,10 +10,10 @@ Convert target bulge and disk SFHs to SEDs.
 genSED(SFRbulge_d, SFRbulge_m, SFRdisk, redshift = 0.1, time = NULL, 
     tau_birth = 1, tau_screen = 0.3, tau_AGN = 1, pow_birth = -0.7, 
     pow_screen = -0.7, pow_AGN = -0.7, alpha_SF_birth = 1, alpha_SF_screen = 3, 
-    alpha_SF_AGN = 0, emission = FALSE, Zbulge_d = 5, Zbulge_m = 5, 
-    Zdisk = 5, AGNlum = 0, ab_nodust = TRUE, ap_nodust = TRUE, 
+    alpha_SF_AGN = 0, emission = FALSE, IGMabsorb = FALSE, Zbulge_d = 5,
+    Zbulge_m = 5, Zdisk = 5, AGNlum = 0, ab_nodust = TRUE, ap_nodust = TRUE, 
     ab_dust = TRUE, ap_dust = TRUE, emitdust = TRUE, unimax = 1.38e+10, 
-    speclib = NULL, Dale = NULL, AGN = NULL, filtout = NULL, 
+    speclib = NULL, Dale = NULL, AGN = NULL, LKL10 = NULL, filtout = NULL, 
     H0 = 67.8, sparse = 5, intSFR = TRUE)
 }
 \arguments{
@@ -72,7 +72,10 @@ Numeric scalar; alpha slope of the screen dust. Lower values mean hotter dust. S
 Numeric scalar; alpha slope of the AGN torus dust. Lower values mean hotter dust. See \code{\link{Dale}}.
 }
   \item{emission}{
-Logical; should emission features be added to the spectrum? This will be done using \code{\link{emissionLines}}. 
+Logical; should emission features be added to the spectrum? This will be done using \code{\link{emissionLines}} via the complete absorption of all light short of 911.8 Angstroms (the Lyman limit). 
+}
+  \item{IGMabsorb}{
+Logical, should the spectrum between the Lyman limit (911.8 Angstroms) and Lyman alpha (1215.7 Angstroms) be further absorbed by intervening IGM. Based on Songaila (2004) a resonable approximation for this is given by \option{IGMabsorb} = pnorm(z, mean=3.8, sd=1.2), meaning it is almost 0 (complete transmission) at low redshift and almost 1 (complete absorption) by redshift 8. This error function value for the absorption is passed onto the \code{\link{ProSpectSED}} argument \option{IGMabsorb}.
 }
   \item{ab_nodust}{
 Logical; should absolute magnitudes for intrinsic SEDs be conmputed?
@@ -100,6 +103,9 @@ Pass in the Dale dust library directly. Must be one of \code{\link{Dale_Orig}}, 
 }
   \item{AGN}{
 Object; optional. Pass in the AGN template to use. Must be one of \code{\link{AGN_UnOb}} or \code{\link{AGN_UnOb_Sparse}}.
+}
+  \item{LKL10}{
+List; LKL template to use. If \option{LKL10}=NULL then the appropriate template is loaded internally (this is the safest option). To speed things up the user can pass in the appropriate \code{\link{LKL10}} template, but care must be taken to ensure the scaling used makes use of the correct dataset, which should be \code{\link{LKL10_NormAll}} for \code{genSED}. See \code{\link{emissionLines}}.
 }
   \item{filtout}{
 Pass in the photometric filters directly. If \code{filters} is a vector of filter names, this can be achieved efficiently with a command like: filtout=foreach(i = filters)\%do\%{getfilt(i)} (see \code{\link{getfilt}}).

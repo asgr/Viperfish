@@ -22,7 +22,7 @@ genSting(file_sting = NULL, path_shark = ".", h = "get", cores_per_subvolume = 1
         "W4_WISE", "P100_Herschel", "P160_Herschel", "S250_Herschel", 
         "S350_Herschel", "S500_Herschel"), tau_birth = 1, tau_screen = 0.3, tau_AGN = 1, 
     pow_birth = -0.7, pow_screen = -0.7, pow_AGN = -0.7, alpha_SF_birth = 1, 
-    alpha_SF_screen = 3, alpha_SF_AGN = 0, emission = FALSE, 
+    alpha_SF_screen = 3, alpha_SF_AGN = 0, emission = FALSE, IGMabsorb = FALSE, 
     read_extinct = FALSE, sparse = 5, time = NULL, mockcone = NULL, 
     intSFR = TRUE, final_file_output = "Stingray-SED.csv", temp_file_output = "temp.csv", 
     extinction_file = "extinction.hdf5", reorder = TRUE, restart = FALSE, 
@@ -102,7 +102,10 @@ Numeric scalar; alpha slope of the AGN torus dust. Lower values mean hotter dust
 Logical; should a target extinction HDF5 be read in for dust parameters (see \option{extinction_file}).  
 }
   \item{emission}{
-Logical; should emission features be added to the spectrum? This will be done using \code{\link{emissionLines}}. 
+Logical; should emission features be added to the spectrum? This will be done using \code{\link{emissionLines}} via the complete absorption of all light short of 911.8 Angstroms (the Lyman limit). 
+}
+  \item{IGMabsorb}{
+Logical, should the spectrum between the Lyman limit (911.8 Angstroms) and Lyman alpha (1215.7 Angstroms) be further absorbed by intervening IGM. Based on Songaila (2004) a resonable approximation for this is given by \option{IGMabsorb} = pnorm(z, mean=3.8, sd=1.2), meaning it is almost 0 (complete transmission) at low redshift and almost 1 (complete absorption) by redshift 8. This error function value for the absorption is passed onto the \code{\link{ProSpectSED}} argument \option{IGMabsorb}.
 }
   \item{time}{
 Numeric vector; if provided this should be the full vector of lookback time corresponding to the time outputs in \option{SFHlist}. It should have the same length as the matrices in \option{SFHlist} have columns.

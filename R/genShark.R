@@ -5,7 +5,7 @@ genShark = function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get
                   'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel',
                   'S500_Herschel'), tau_birth=1, tau_screen=0.3, tau_AGN=1, pow_birth=-0.7,
                   pow_screen=-0.7, pow_AGN=-0.7, alpha_SF_birth=1, alpha_SF_screen=3,
-                  alpha_SF_AGN=0, emission=FALSE, read_extinct=FALSE, sparse=5, final_file_output='Shark-SED.csv',
+                  alpha_SF_AGN=0, emission=FALSE, IGMabsorb=FALSE, read_extinct=FALSE, sparse=5, final_file_output='Shark-SED.csv',
                   extinction_file='extinction.hdf5', intSFR=TRUE, verbose=TRUE, write_final_file=FALSE){
 
   timestart = proc.time()[3]
@@ -32,11 +32,17 @@ genShark = function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get
   assertFlag(intSFR)
   assertFlag(verbose)
 
-  BC03lr = Dale_NormTot = AGN_UnOb_Sparse = SFH = i = subsnapID = Nid = idlist = subsnapID = NULL
+  BC03lr = Dale_NormTot = AGN_UnOb_Sparse = LKL10_NormAll = SFH = i = subsnapID = NULL
+  Nid = idlist = subsnapID = NULL
 
   data("BC03lr", envir = environment())
   data("Dale_NormTot", envir = environment())
   data("AGN_UnOb_Sparse", envir = environment())
+  if(emission){
+    data("LKL10_NormAll", envir = environment())
+  }else{
+    LKL10_NormAll = NULL
+  }
 
   if(filterlist==FALSE){
     filtout=foreach(i = filters)%do%{approxfun(getfilt(i))}
@@ -177,13 +183,16 @@ genShark = function(path_shark='.', snapshot=NULL, subvolume=NULL, redshift="get
       alpha_SF_AGN = alpha_SF_AGN, #hard coded for now
       
       emission = emission,
+      IGMabsorb = IGMabsorb,
       
       AGNlum = 0, #hard coded for now
 
       speclib = BC03lr,
-      filtout = filtout,
-      AGN = AGN_UnOb_Sparse,
       Dale = Dale_NormTot,
+      AGN = AGN_UnOb_Sparse,
+      LKL10 = LKL10_NormAll,
+      
+      filtout = filtout,
 
       sparse = sparse,
       intSFR = intSFR

@@ -16,10 +16,11 @@ genSting = function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolum
                   'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel',
                   'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'),
                   tau_birth=1, tau_screen=0.3, tau_AGN = 1, pow_birth=-0.7, pow_screen=-0.7, pow_AGN=-0.7, 
-                  alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, emission=FALSE, read_extinct=FALSE,
-                  sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, final_file_output='Stingray-SED.csv',
-                  temp_file_output='temp.csv',  extinction_file='extinction.hdf5',
-                  reorder=TRUE, restart=FALSE, verbose=TRUE, write_final_file=FALSE){
+                  alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, emission=FALSE,
+                  IGMabsorb = FALSE, read_extinct=FALSE, sparse=5, time=NULL, mockcone=NULL,
+                  intSFR=TRUE, final_file_output='Stingray-SED.csv', temp_file_output='temp.csv',
+                  extinction_file='extinction.hdf5', reorder=TRUE, restart=FALSE,
+                  verbose=TRUE, write_final_file=FALSE){
 
   timestart = proc.time()[3]
 
@@ -80,10 +81,17 @@ genSting = function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolum
                  ', type/class: ', typeof(Sting_id_galaxy_sky), '/', class(Sting_id_galaxy_sky)))
   assertScalar(h)
 
-  BC03lr = Dale_NormTot = Nid = id_galaxy_sky = id_galaxy_sam = idlist = snapshot = subsnapID = subvolume = z = i = j = Ntime = zobs = NULL
+  BC03lr = Dale_NormTot = AGN_UnOb_Sparse = Nid = id_galaxy_sky = id_galaxy_sam = idlist = NULL
+  snapshot = LKL10_NormAll = subsnapID = subvolume = z = i = j = Ntime = zobs = NULL
 
   data("BC03lr", envir = environment())
   data("Dale_NormTot", envir = environment())
+  data("AGN_UnOb_Sparse", envir = environment())
+  if(emission){
+    data("LKL10_NormAll", envir = environment())
+  }else{
+    LKL10_NormAll = NULL
+  }
 
   if(filterlist==FALSE){
     filtout = foreach(i = filters)%do%{approxfun(getfilt(i))}
@@ -276,14 +284,21 @@ genSting = function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolum
               alpha_SF_AGN = alpha_SF_AGN,
 	            
 	            emission = emission,
+	            IGMabsorb = IGMabsorb,
 	            
 	            AGNlum = 0, #hard coded for now
 	            
-              speclib = BC03lr, 
-              filtout = filtout, 
-              Dale = Dale_NormTot, 
+	            speclib = BC03lr,
+	            Dale = Dale_NormTot,
+	            AGN = AGN_UnOb_Sparse,
+	            LKL10 = LKL10_NormAll,
+	            
+	            filtout = filtout,
+	            
               sparse = sparse, 
-              intSFR = intSFR))), error = function(e) NULL)
+              intSFR = intSFR
+	            ))
+            ), error = function(e) NULL)
         #if(class(tempSED)=="try-error"){tempSED=NA}
         tempSED
       }

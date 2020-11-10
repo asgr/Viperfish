@@ -16,7 +16,7 @@ genShark(path_shark = ".", snapshot = NULL, subvolume = NULL,
         "S350_Herschel", "S500_Herschel"), tau_birth = 1, tau_screen = 0.3, 
     tau_AGN = 1, pow_birth = -0.7, pow_screen = -0.7, pow_AGN = -0.7, 
     alpha_SF_birth = 1, alpha_SF_screen = 3, alpha_SF_AGN = 0, 
-    emission = FALSE, read_extinct = FALSE, sparse = 5,
+    emission = FALSE, IGMabsorb = FALSE, read_extinct = FALSE, sparse = 5,
     final_file_output = "Shark-SED.csv", extinction_file = "extinction.hdf5",
     intSFR = TRUE, verbose = TRUE, write_final_file = FALSE)
 }
@@ -73,7 +73,10 @@ Numeric scalar; alpha slope of the screen dust. Lower values mean hotter dust. S
 Numeric scalar; alpha slope of the AGN torus dust. Lower values mean hotter dust. See \code{\link{Dale}}.
 }
   \item{emission}{
-Logical; should emission features be added to the spectrum? This will be done using \code{\link{emissionLines}}. 
+Logical; should emission features be added to the spectrum? This will be done using \code{\link{emissionLines}} via the complete absorption of all light short of 911.8 Angstroms (the Lyman limit). 
+}
+  \item{IGMabsorb}{
+Logical, should the spectrum between the Lyman limit (911.8 Angstroms) and Lyman alpha (1215.7 Angstroms) be further absorbed by intervening IGM. Based on Songaila (2004) a resonable approximation for this is given by \option{IGMabsorb} = pnorm(z, mean=3.8, sd=1.2), meaning it is almost 0 (complete transmission) at low redshift and almost 1 (complete absorption) by redshift 8. This error function value for the absorption is passed onto the \code{\link{ProSpectSED}} argument \option{IGMabsorb}.
 }
   \item{read_extinct}{
 Logical; should an HDF5 be read in to vary extinction values per galaxy?
