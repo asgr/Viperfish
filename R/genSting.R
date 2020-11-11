@@ -10,7 +10,7 @@
 }
 
 genSting = function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolume=1,
-                  cores_per_snapshot=4, children_outfile="/dev/null", snapmax=199,
+                  cores_per_snapshot=4, children_outfile="/dev/null",
                   filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS',
                   'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA',
                   'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel',
@@ -32,7 +32,6 @@ genSting = function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolum
   assertAccess(path_shark, access='r')
   assertInt(cores_per_subvolume)
   assertInt(cores_per_snapshot)
-  assertInt(snapmax)
   if(is.list(filters)){
     filterlist = TRUE
   }else{
@@ -46,22 +45,27 @@ genSting = function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolum
   assertDataTable(mockcone, null.ok=TRUE)
   assertFlag(intSFR)
   assertFlag(verbose)
-
-  assertAccess(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), access='r')
-
+  
+  suppressWarnings({
+    snapmax = max(as.integer(list.files(path_shark)), na.rm=TRUE)
+    assertAccess(paste(path_shark,snapmax, sep='/'), access='r')
+    submin = min(as.integer(list.files(paste(path_shark,snapmax, sep='/'))), na.rm=TRUE)
+    assertAccess(paste(path_shark,snapmax,submin,'star_formation_histories.hdf5', sep='/'), access='r')
+  })
+  
   if(h=='get'){
-    h = h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')[['cosmology/h']][]
+    h = h5file(paste(path_shark,snapmax,submin,'star_formation_histories.hdf5', sep='/'), mode='r')[['cosmology/h']][]
   }
 
   if(! is.null(file_sting)){
     assertCharacter(file_sting, max.len=1, null.ok=TRUE)
     assertAccess(file_sting, access='r')
-    Sting_date=h5file(file_sting, mode='r')[['run_info/shark_timestamp']][]
-    Shark_date=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')[['run_info/timestamp']][]
+    Sting_date = h5file(file_sting, mode='r')[['run_info/shark_timestamp']][]
+    Shark_date = h5file(paste(path_shark,snapmax,submin,'star_formation_histories.hdf5', sep='/'), mode='r')[['run_info/timestamp']][]
     check = (Shark_date==Sting_date)
 
     if(check==FALSE){
-      stop(paste('Date stamps do not match! Shark',Shark_date,'compared to Sting',Sting_date))
+      message('Date stamps do not match! Shark ',Shark_date,' compared to Sting ',Sting_date)
     }
 
     rm(Sting_date)
@@ -156,8 +160,8 @@ genSting = function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolum
   #mocksubsets=mocksubsets(mockcone=mockcone)
 
   if(is.null(time)){
-    assertAccess(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), access='r')
-    Shark_SFH = h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')
+    assertAccess(paste(path_shark,snapmax,submin,'star_formation_histories.hdf5', sep='/'), access='r')
+    Shark_SFH = h5file(paste(path_shark,snapmax,submin,'star_formation_histories.hdf5', sep='/'), mode='r')
     time = Shark_SFH[['lbt_mean']][]*1e9
     Shark_SFH$close()
   }
@@ -176,7 +180,7 @@ genSting = function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolum
   }
 
   print ("will prepare mockpoint and extinctionpoint")
-  mockcone = as.big.matrix(mockcone)
+  mockcone = suppressWarnings(as.big.matrix(mockcone))
   mockpoint = describe(mockcone)
   if(read_extinct){
     extinctioncone = as.big.matrix(extinctioncone)
@@ -194,7 +198,9 @@ genSting = function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolum
       opts = list(progress=progress)
     }
 
-    outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts}, .packages=c('Viperfish','bigmemory','doSNOW'))%dopar%{
+    outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output,
+                   .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts},
+                   .packages=c('Viperfish','bigmemory','doSNOW'))%dopar%{
       cat(format(Sys.time(), "%X"), "Processing snapshot", i, "of", length(subsnapIDs), "\n")
       use = subsnapIDs[i]
       mockloop = attach.big.matrix(mockpoint)
@@ -246,10 +252,10 @@ genSting = function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolum
       else{
         tau_screen_galaxies[,] = tau_screen
         tau_birth_galaxies[,] = tau_birth
-        tau_AGN_galaxies[,] = tau_AGN
+        #tau_AGN_galaxies[,] = tau_AGN
         pow_screen_galaxies[,] = pow_screen
         pow_birth_galaxies[,] = pow_birth
-        pow_AGN_galaxies[,] = pow_AGN
+        #pow_AGN_galaxies[,] = pow_AGN
       }
 
       cl = makeCluster(cores_per_snapshot, outfile=children_outfile)

@@ -1,4 +1,4 @@
-getSFHfull = function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199, cores_per_subvolume=4, verbose=TRUE){
+getSFHfull = function(file_sting='mocksurvey.hdf5', path_shark='.', cores_per_subvolume=4, verbose=TRUE){
 
   timestart = proc.time()[3]
 
@@ -10,13 +10,19 @@ getSFHfull = function(file_sting='mocksurvey.hdf5', path_shark='.', snapmax=199,
   assertAccess(file_sting, access='r')
   assertCharacter(path_shark, max.len=1)
   assertAccess(path_shark, access='r')
-  assertInt(snapmax)
   assertInt(cores_per_subvolume)
   assertFlag(verbose)
 
   BC03lr = Dale_Msol = Nid = id_galaxy_sam = idlist = snapshot = subsnapID = subvolume = z = i = mocksubsets = mockcone = Ntime = time = NULL
-
-  sfh_fname = paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/')
+  
+  suppressWarnings({
+    snapmax = max(as.integer(list.files(path_shark)), na.rm=TRUE)
+    assertAccess(paste(path_shark,snapmax, sep='/'), access='r')
+    submin = min(as.integer(list.files(paste(path_shark,snapmax, sep='/'))), na.rm=TRUE)
+    assertAccess(paste(path_shark,snapmax,submin,'star_formation_histories.hdf5', sep='/'), access='r')
+  })
+  
+  sfh_fname = paste(path_shark,snapmax,submin,'star_formation_histories.hdf5', sep='/')
   assertAccess(sfh_fname, access='r')
   Shark_SFH = h5file(sfh_fname, mode='r')
   Ntime = Shark_SFH[['lbt_mean']]$dims

@@ -15,7 +15,7 @@ Takes Stingray light cones and converts to apparent and absolute SEDs.
 }
 \usage{
 genSting(file_sting = NULL, path_shark = ".", h = "get", cores_per_subvolume = 1, 
-    cores_per_snapshot = 4, children_outfile = "/dev/null", snapmax = 199, 
+    cores_per_snapshot = 4, children_outfile = "/dev/null", 
     filters = c("FUV_GALEX", "NUV_GALEX", "u_SDSS", "g_SDSS", 
         "r_SDSS", "i_SDSS", "Z_VISTA", "Y_VISTA", "J_VISTA", 
         "H_VISTA", "K_VISTA", "W1_WISE", "W2_WISE", "W3_WISE", 
@@ -28,8 +28,8 @@ genSting(file_sting = NULL, path_shark = ".", h = "get", cores_per_subvolume = 1
     extinction_file = "extinction.hdf5", reorder = TRUE, restart = FALSE, 
     verbose = TRUE, write_final_file = FALSE)
 
-getSFHfull(file_sting = "mocksurvey.hdf5", path_shark = ".", snapmax = 199,
-cores_per_subvolume = 4, verbose = TRUE)
+getSFHfull(file_sting = "mocksurvey.hdf5", path_shark = ".", cores_per_subvolume = 4,
+    verbose = TRUE)
 
 getSFHsing(id_galaxy_sam, snapshot = NULL, subvolume = NULL, path_shark = ".")
 
@@ -64,9 +64,6 @@ Integer scalar; number of cores to process a snapshot's galaxies on. This multip
 }
   \item{children_outfile}{
 Character scalar; file where parallel worker's outputs will be dumped to. It is given as-is to SNOW's \code{makeCluster}.
-}
-  \item{snapmax}{
-Integer scalar; maximum snapshot output by Shark.
 }
   \item{filters}{
 Character vector; filters to use for the photometry.
