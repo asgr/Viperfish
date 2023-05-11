@@ -9,7 +9,7 @@
     invisible(result)
 }
 
-genSting=function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolume=1, cores_per_snapshot=4, children_outfile="/dev/null", snapmax=199, filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth=1.5, tau_screen=0.5, pow_birth=-0.7, pow_screen=-0.7,  alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, read_extinct=FALSE, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, final_file_output='Stingray-SED.csv', temp_file_output='temp.csv',  extinction_file='extinction.hdf5', reorder=TRUE, restart=FALSE, verbose=TRUE, write_final_file=FALSE){
+genSting=function(file_sting=NULL, path_shark='.', path_out=',', h='get', cores_per_subvolume=1, cores_per_snapshot=4, children_outfile="/dev/null", snapmax=199, filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth=1.5, tau_screen=0.5, pow_birth=-0.7, pow_screen=-0.7,  alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, stellarpop='BC03lr', read_extinct=FALSE, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, final_file_output='Stingray-SED.csv', temp_file_output='temp.csv',  extinction_file='extinction.hdf5', addradio_SF=FALSE, waveout=seq(2,30,by=0.01), ff_frac_SF=0.1, ff_power_SF=-0.1, sy_power_SF=-0.8, reorder=TRUE, restart=FALSE, verbose=TRUE, write_final_file=FALSE){
 
   timestart=proc.time()[3]
 
@@ -70,9 +70,34 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolume=
                  ', type/class: ', typeof(Sting_id_galaxy_sky), '/', class(Sting_id_galaxy_sky)))
   assertScalar(h)
 
-  BC03lr=Dale_NormTot=Nid=id_galaxy_sky=id_galaxy_sam=idlist=snapshot=subsnapID=subvolume=z=i=j=Ntime=zobs=NULL
+  speclib=Dale_NormTot=Nid=id_galaxy_sky=id_galaxy_sam=idlist=snapshot=subsnapID=subvolume=z=i=j=Ntime=zobs=NULL
 
-  data("BC03lr", envir = environment())
+  if (stellarpop == 'BC03lr') {
+    if (is.null(speclib)) {
+      BC03lr = NULL
+      data('BC03lr', envir = environment())
+      speclib = BC03lr
+    }
+  }else if (stellarpop == 'BC03hr') {
+    if (is.null(speclib)) {
+      BC03hr = NULL
+      data('BC03hr', envir = environment())
+      speclib = BC03hr
+    }
+  }else if (stellarpop == 'EMILES') {
+    if (is.null(speclib)) {
+      EMILES = NULL
+      data('EMILES', envir = environment())
+      speclib = EMILES
+    }
+  }else if (stellarpop == 'BPASS') {
+    if (is.null(speclib)) {
+      BPASS = NULL
+      data('BPASS', envir = environment())
+      speclib = BPASS
+    }
+  }
+
   data("Dale_NormTot", envir = environment())
 
   if(filterlist==FALSE){
@@ -82,19 +107,41 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolume=
     filtout=filters
   }
 
+
+  Band_ionising_photons=approxfun(cbind(wave=c(0,912), response=c(0.01,0.01))) #Band to compute the luminosity left to the 912Angs wavelength.
   Band9_ALMA=approxfun(cbind(wave=c(4000000.0,5000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
   Band8_ALMA=approxfun(cbind(wave=c(6000000.0,8000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
   Band7_ALMA=approxfun(cbind(wave=c(8000000.0,11000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
   Band6_ALMA=approxfun(cbind(wave=c(11000000.0,14000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
   Band5_ALMA=approxfun(cbind(wave=c(14000000.0,18000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
   Band4_ALMA=approxfun(cbind(wave=c(18000000.0,24000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  Band3_ALMA=approxfun(cbind(wave=c(26000000.0,36000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
 
+  BandX_VLA=approxfun(cbind(wave=c(249827050.0,374740570.0), response=c(1000.0,1000.0)))
+  BandC_VLA=approxfun(cbind(wave=c(374740570.0,749481150.0), response=c(1000.0,1000.0)))
+  BandS_VLA=approxfun(cbind(wave=c(749481150.0,1498962290.0), response=c(1000.0,1000.0)))
+  BandL_VLA=approxfun(cbind(wave=c(1498962290.0,2997924580.0), response=c(1000.0,1000.0)))
+  Band_610MHz=approxfun(cbind(wave=c(4542309970.0,5353436750.0), response=c(10000.0,10000.0)))
+  Band_325MHz=approxfun(cbind(wave=c(7994465550.0,10901543930.0), response=c(10000.0,10000.0)))
+  Band_150MHz=approxfun(cbind(wave=c(14989622900.0,29979245800.0), response=c(10000.0,10000.0)))
+
+  filtout=c(filtout, Band_ionising_photons=Band_ionising_photons)
   filtout=c(filtout, Band9_ALMA=Band9_ALMA)
   filtout=c(filtout, Band8_ALMA=Band8_ALMA)
   filtout=c(filtout, Band7_ALMA=Band7_ALMA)
   filtout=c(filtout, Band6_ALMA=Band6_ALMA)
   filtout=c(filtout, Band5_ALMA=Band5_ALMA)
   filtout=c(filtout, Band4_ALMA=Band4_ALMA)
+  filtout=c(filtout, Band3_ALMA=Band3_ALMA)
+  filtout=c(filtout, BandX_VLA=BandX_VLA)
+  filtout=c(filtout, BandC_VLA=BandC_VLA)
+  filtout=c(filtout, BandS_VLA=BandS_VLA)
+  filtout=c(filtout, BandL_VLA=BandL_VLA)
+  filtout=c(filtout, Band_610MHz=Band_610MHz)
+  filtout=c(filtout, Band_325MHz=Band_325MHz)
+  filtout=c(filtout, Band_150MHz=Band_150MHz)
+
+
   filters = names(filtout)
 
   # if(!is.null(SFHfull) & doSFHbatch==TRUE){
@@ -258,11 +305,17 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolume=
               alpha_SF_screen=alpha_SF_screen, 
               alpha_SF_AGN=alpha_SF_AGN, 
 
-              speclib=BC03lr, 
+              speclib=speclib, 
               filtout=filtout, 
               Dale=Dale_NormTot, 
               sparse=sparse, 
-              intSFR = intSFR))), error = function(e) NULL)
+              intSFR = intSFR,
+
+              addradio_SF=addradio_SF,
+              waveout=waveout,
+              ff_frac_SF=ff_frac_SF,
+              ff_power_SF=ff_power_SF,
+              sy_power_SF=sy_power_SF))), error = function(e) NULL)
         #if(class(tempSED)=="try-error"){tempSED=NA}
         tempSED
       }
@@ -290,7 +343,7 @@ genSting=function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolume=
   outSED=outSED[match(Sting_id_galaxy_sky, outSED[,1]),]
 
   if (write_final_file) {
-    write.SED(outSED, filters, dirname(file_sting), final_file_output)
+    write.SED(outSED, filters, path_out, final_file_output)
   }
 
   if(verbose){
