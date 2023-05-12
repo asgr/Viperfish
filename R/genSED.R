@@ -3,7 +3,7 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
                 alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, emission=FALSE, IGMabsorb=FALSE, Zbulge_d=5, Zbulge_m=5,
                 Zdisk=5, AGNlum=0, ab_nodust=TRUE, ap_nodust=TRUE, ab_dust=TRUE, ap_dust=TRUE,
                 emitdust=TRUE, unimax=13.8e9, speclib=NULL, Dale=NULL, AGN=NULL, LKL10=NULL,
-                filtout=NULL, H0=67.8, sparse=5, intSFR=TRUE){
+                filtout=NULL, H0=67.8, sparse=5, intSFR=TRUE, mode='photom'){
 
   if(is.null(time)){stop('Need time input!')}
   if(is.null(speclib)){stop('Need speclib (e.g. BC03lr)')}
@@ -117,6 +117,13 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
                    Dale=Dale, AGN=AGN, filters=NULL, filtout=NULL, z=redshift, Z=Z[[3]], outtype=NULL, 
                    unimax=unimax, intSFR=intSFR, sparse=sparse, emission=emission, LKL10=LKL10, IGMabsorb=IGMabsorb)
 
+  if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec'){
+    total = bulge_d$FinalFlux
+    total$flux = total$flux + bulge_m$FinalFlux$flux
+    total$flux = total$flux + disk$FinalFlux$flux
+    return(total)
+  }
+  
   lir_dust_b_d = bulge_d$Stars$lumtot_atten
   lir_dust_b_m = bulge_m$Stars$lumtot_atten
   lir_dust_b = lir_dust_b_d + lir_dust_b_m
