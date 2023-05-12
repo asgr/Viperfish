@@ -1,4 +1,10 @@
-genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_birth=1, tau_screen=0.3, tau_AGN=1, pow_birth=-0.7, pow_screen=-0.7, pow_AGN=-0.7, alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, Zbulge_d=5, Zbulge_m=5, Zdisk=5, AGNlum=0, ab_nodust=TRUE, ap_nodust=TRUE, ab_dust=TRUE, ap_dust=TRUE, emitdust=TRUE, unimax=13.8e9, speclib=NULL, Dale=NULL, AGN=NULL, filtout=NULL, H0=67.8, sparse=5, emission=FALSE, intSFR=TRUE, addradio_SF=FALSE, waveout=seq(2,10,by=0.01), ff_frac_SF=0.1, ff_power_SF=-0.1, sy_power_SF=-0.8, mode='photom'){
+genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_birth=1, 
+                tau_screen=0.3, tau_AGN=1, pow_birth=-0.7, pow_screen=-0.7, pow_AGN=-0.7, 
+                alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, Zbulge_d=5, Zbulge_m=5, 
+                Zdisk=5, AGNlum=0, ab_nodust=TRUE, ap_nodust=TRUE, ab_dust=TRUE, ap_dust=TRUE, 
+                emitdust=TRUE, unimax=13.8e9, speclib=NULL, Dale=NULL, AGN=NULL, filtout=NULL, 
+                H0=67.8, sparse=5, emission=FALSE, intSFR=TRUE, addradio_SF=FALSE, waveout=seq(2,10,by=0.01), 
+                ff_frac_SF=0.1, ff_power_SF=-0.1, sy_power_SF=-0.8, mode='photom'){
 
   if(is.null(time)){stop('Need time input!')}
   if(is.null(speclib)){stop('Need speclib (e.g. BC03lr)')}
@@ -113,6 +119,13 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
                    unimax=unimax, intSFR=intSFR, sparse=sparse, emission=emission, addradio_SF=addradio_SF, waveout=waveout,
                    ff_frac_SF=ff_frac_SF, ff_power_SF=ff_power_SF, sy_power_SF=sy_power_SF)
 
+  if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec'){
+    total = bulge_d$FinalFlux
+    total$flux = total$flux + bulge_m$FinalFlux$flux
+    total$flux = total$flux + disk$FinalFlux$flux
+    return(total)
+  }
+  
   lir_dust_b_d=bulge_d$Stars$lumtot_atten
   lir_dust_b_m=bulge_m$Stars$lumtot_atten
   lir_dust_b=lir_dust_b_d + lir_dust_b_m
