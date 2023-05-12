@@ -1,4 +1,4 @@
-genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_birth=1, tau_screen=0.3, tau_AGN=1, pow_birth=-0.7, pow_screen=-0.7, pow_AGN=-0.7, alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, Zbulge_d=5, Zbulge_m=5, Zdisk=5, AGNlum=0, ab_nodust=TRUE, ap_nodust=TRUE, ab_dust=TRUE, ap_dust=TRUE, emitdust=TRUE, unimax=13.8e9, speclib=NULL, Dale=NULL, AGN=NULL, filtout=NULL, H0=67.8, sparse=5, intSFR=TRUE){
+genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_birth=1, tau_screen=0.3, tau_AGN=1, pow_birth=-0.7, pow_screen=-0.7, pow_AGN=-0.7, alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, Zbulge_d=5, Zbulge_m=5, Zdisk=5, AGNlum=0, ab_nodust=TRUE, ap_nodust=TRUE, ab_dust=TRUE, ap_dust=TRUE, emitdust=TRUE, unimax=13.8e9, speclib=NULL, Dale=NULL, AGN=NULL, filtout=NULL, H0=67.8, sparse=5, intSFR=TRUE, addradio_SF=FALSE, waveout=seq(2,10,by=0.01), ff_frac_SF=0.1, ff_power_SF=-0.1, sy_power_SF=-0.8){
 
   if(is.null(time)){stop('Need time input!')}
   if(is.null(speclib)){stop('Need speclib (e.g. BC03lr)')}
@@ -50,6 +50,11 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
   assertScalar(H0)
   assertInt(sparse)
   assertFlag(intSFR)
+  assertFlag(addradio_SF)
+  assertNumeric(ff_frac_SF)
+  assertNumeric(ff_power_SF)
+  assertNumeric(sy_power_SF)
+
 
   SFRbulge_d[SFRbulge_d<0]=0
   SFRbulge_m[SFRbulge_m<0]=0
@@ -89,21 +94,24 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
                       alpha_SF_birth=alpha_SF_birth[1], alpha_SF_screen=alpha_SF_screen[1], 
                       alpha_SF_AGN=alpha_SF_AGN[1], AGNlum=AGNlum[1], speclib=speclib, 
                       Dale=Dale, AGN=AGN, filters=NULL, filtout=NULL, z=redshift, Z=Z[[1]], outtype=NULL, 
-                      unimax=unimax, intSFR=intSFR, sparse=sparse)
+                      unimax=unimax, intSFR=intSFR, sparse=sparse, addradio_SF=addradio_SF, waveout=waveout,
+                      ff_frac_SF=ff_frac_SF, ff_power_SF=ff_power_SF, sy_power_SF=sy_power_SF)
 
   bulge_m=ProSpectSED(massfunc=SFRbulge_mfunc, tau_birth=tau_birth[2], tau_screen=tau_screen[2], 
                       pow_birth=pow_birth[2], pow_screen=pow_screen[2], pow_AGN=pow_AGN[2], 
                       alpha_SF_birth=alpha_SF_birth[2], alpha_SF_screen=alpha_SF_screen[2], 
                       alpha_SF_AGN=alpha_SF_AGN[2], AGNlum=AGNlum[2], speclib=speclib, 
                       Dale=Dale, AGN=AGN, filters=NULL, filtout=NULL, z=redshift, Z=Z[[2]], outtype=NULL, 
-                      unimax=unimax, intSFR=intSFR, sparse=sparse)
+                      unimax=unimax, intSFR=intSFR, sparse=sparse, addradio_SF=addradio_SF, waveout=waveout,
+                      ff_frac_SF=ff_frac_SF, ff_power_SF=ff_power_SF, sy_power_SF=sy_power_SF)
 
   disk=ProSpectSED(massfunc=SFRdiskfunc, tau_birth=tau_birth[3], tau_screen=tau_screen[3], 
                    pow_birth=pow_birth[3], pow_screen=pow_screen[3], pow_AGN=pow_AGN[3], 
                    alpha_SF_birth=alpha_SF_birth[3], alpha_SF_screen=alpha_SF_screen[3], 
                    alpha_SF_AGN=alpha_SF_AGN[3], AGNlum=AGNlum[3], speclib=speclib, 
                    Dale=Dale, AGN=AGN, filters=NULL, filtout=NULL, z=redshift, Z=Z[[3]], outtype=NULL, 
-                   unimax=unimax, intSFR=intSFR, sparse=sparse)
+                   unimax=unimax, intSFR=intSFR, sparse=sparse, addradio_SF=addradio_SF, waveout=waveout,
+                   ff_frac_SF=ff_frac_SF, ff_power_SF=ff_power_SF, sy_power_SF=sy_power_SF)
 
   lir_dust_b_d=bulge_d$Stars$lumtot_atten
   lir_dust_b_m=bulge_m$Stars$lumtot_atten
