@@ -189,8 +189,8 @@ genSting = function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolum
 
   if (run_foreach) {
 
-    cl=makeCluster(cores_per_subvolume, outfile=children_outfile)
-    registerDoSNOW(cl)
+    cl_sub = makeCluster(cores_per_subvolume, outfile=children_outfile)
+    registerDoSNOW(cl_sub)
 
     if(verbose){
       pb = txtProgressBar(max = length(subsnapIDs), style = 3)
@@ -200,7 +200,7 @@ genSting = function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolum
 
     outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output,
                    .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts},
-                   .packages=c('Viperfish','bigmemory','doSNOW'))%dopar%{
+                   .packages=c('Viperfish','bigmemory','doSNOW'))%do%{
       cat(format(Sys.time(), "%X"), "Processing snapshot", i, "of", length(subsnapIDs), "\n")
       use = subsnapIDs[i]
       mockloop = attach.big.matrix(mockpoint)
@@ -258,11 +258,11 @@ genSting = function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolum
         #pow_AGN_galaxies[,] = pow_AGN
       }
 
-      cl = makeCluster(cores_per_snapshot, outfile=children_outfile)
-      registerDoSNOW(cl)
+      cl_snap = makeCluster(cores_per_snapshot, outfile=children_outfile)
+      registerDoSNOW(cl_snap)
       cat(format(Sys.time(), "%X"), "Going into inner loop with", length(select), "elements\n")
       # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
-      tempout=foreach(j=1:length(select), .combine='rbind') %dopar% {
+      tempout=foreach(j=1:length(select), .combine='rbind') %do% {
          cat(format(Sys.time(), "%X"), "Calculating SED for galaxy", j, "of", length(select), "in snapshot", i, "\n")
          tempSED = tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], 
             unlist(genSED(
@@ -308,7 +308,7 @@ genSting = function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolum
         #if(class(tempSED)=="try-error"){tempSED=NA}
         tempSED
       }
-      stopCluster(cl)
+      stopCluster(cl_snap)
       as.data.table(rbind(tempout))
     }
 
@@ -317,7 +317,7 @@ genSting = function(file_sting=NULL, path_shark='.', h='get', cores_per_subvolum
       close(pb)
     }
 
-    stopCluster(cl)
+    stopCluster(cl_sub)
   }
 
 
