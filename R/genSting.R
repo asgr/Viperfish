@@ -9,7 +9,18 @@
     invisible(result)
 }
 
-genSting=function(file_sting=NULL, path_shark='.', path_out=',', h='get', cores_per_subvolume=1, cores_per_snapshot=4, children_outfile="/dev/null", snapmax=199, filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth=1.5, tau_screen=0.5, pow_birth=-0.7, pow_screen=-0.7,  alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, stellarpop='BC03lr', read_extinct=FALSE, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE, final_file_output='Stingray-SED.csv', temp_file_output='temp.csv',  extinction_file='extinction.hdf5', addradio_SF=FALSE, waveout=seq(2,30,by=0.01), ff_frac_SF=0.1, ff_power_SF=-0.1, sy_power_SF=-0.8, reorder=TRUE, restart=FALSE, verbose=TRUE, write_final_file=FALSE){
+genSting = function(file_sting=NULL, path_shark='.', path_out=',', h='get', cores_per_subvolume=1,
+                  cores_per_snapshot=4, children_outfile="/dev/null", snapmax=199,
+                  filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS',
+                  'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE',
+                  'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel',
+                  'S350_Herschel', 'S500_Herschel'), tau_birth=1.5, tau_screen=0.5, pow_birth=-0.7,
+                  pow_screen=-0.7,  alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, stellarpop='BC03lr',
+                  read_extinct=FALSE, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE,
+                  final_file_output='Stingray-SED.csv', temp_file_output='temp.csv',
+                  extinction_file='extinction.hdf5', addradio_SF=FALSE, waveout=seq(2,30,by=0.01),
+                  ff_frac_SF=0.1, ff_power_SF=-0.1, sy_power_SF=-0.8, reorder=TRUE, restart=FALSE,
+                  verbose=TRUE, write_final_file=FALSE, mode='photom'){
 
   timestart=proc.time()[3]
 
@@ -287,37 +298,40 @@ genSting=function(file_sting=NULL, path_shark='.', path_out=',', h='get', cores_
          cat(format(Sys.time(), "%X"), "Calculating SED for galaxy", j, "of", length(select), "in snapshot", i, "\n")
          tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], 
             unlist(genSED(
-	      SFRbulge_d=SFRbulge_d_subsnap[j,]/h, 
-              SFRbulge_m=SFRbulge_m_subsnap[j,]/h, 
-              SFRdisk=SFRdisk_subsnap[j,]/h, 
-              Zbulge_d=Zbulge_d_subsnap[j,], 
-              Zbulge_m=Zbulge_m_subsnap[j,], 
-              Zdisk=Zdisk_subsnap[j,], 
+	            SFRbulge_d = SFRbulge_d_subsnap[j,]/h, 
+              SFRbulge_m = SFRbulge_m_subsnap[j,]/h, 
+              SFRdisk = SFRdisk_subsnap[j,]/h, 
+              Zbulge_d = Zbulge_d_subsnap[j,], 
+              Zbulge_m = Zbulge_m_subsnap[j,], 
+              Zdisk = Zdisk_subsnap[j,], 
 
-              redshift=zobs[j],
-              time=time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, 
+              redshift = zobs[j],
+              time = time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, 
 
-              tau_birth=tau_birth_galaxies[j,], 
-              tau_screen=tau_screen_galaxies[j,], 
-              pow_birth=pow_birth_galaxies[j,], 
-              pow_screen=pow_screen_galaxies[j,], 
-              alpha_SF_birth=alpha_SF_birth, 
-              alpha_SF_screen=alpha_SF_screen, 
-              alpha_SF_AGN=alpha_SF_AGN, 
+              tau_birth = tau_birth_galaxies[j,], 
+              tau_screen = tau_screen_galaxies[j,], 
+              pow_birth = pow_birth_galaxies[j,], 
+              pow_screen = pow_screen_galaxies[j,], 
+              alpha_SF_birth = alpha_SF_birth, 
+              alpha_SF_screen = alpha_SF_screen, 
+              alpha_SF_AGN = alpha_SF_AGN, 
 
-              speclib=speclib, 
-              filtout=filtout, 
-              Dale=Dale_NormTot, 
-              sparse=sparse, 
+              speclib = speclib, 
+              filtout = filtout, 
+              Dale = Dale_NormTot, 
+              sparse = sparse, 
               intSFR = intSFR,
 
-              addradio_SF=addradio_SF,
-              waveout=waveout,
-              ff_frac_SF=ff_frac_SF,
-              ff_power_SF=ff_power_SF,
-              sy_power_SF=sy_power_SF))), error = function(e) NULL)
+              addradio_SF = addradio_SF,
+              waveout = waveout,
+              ff_frac_SF = ff_frac_SF,
+              ff_power_SF = ff_power_SF,
+              sy_power_SF = sy_power_SF,
+	      
+	            mode = mode)
+	      )), error = function(e) NULL)
         #if(class(tempSED)=="try-error"){tempSED=NA}
-        tempSED
+        return(tempSED)
       }
       stopCluster(cl)
       as.data.table(rbind(tempout))
@@ -337,24 +351,28 @@ genSting=function(file_sting=NULL, path_shark='.', path_out=',', h='get', cores_
   #  file.remove(temp_file_output)
   #}
 
-  print("will sort ids")
-  outSED=unique(outSED, by=1)
-  outSED=as.data.frame(outSED)
-  outSED=outSED[match(Sting_id_galaxy_sky, outSED[,1]),]
-
-  if (write_final_file) {
-    write.SED(outSED, filters, path_out, final_file_output)
+  if(mode == 'photom'){
+    print("will sort ids")
+    outSED = unique(outSED, by=1)
+    outSED = as.data.frame(outSED)
+    outSED = outSED[match(Sting_id_galaxy_sky, outSED[,1]),]
+  
+    if (write_final_file) {
+      write.SED(outSED, filters, path_out, final_file_output)
+    }
+  
+    if(verbose){
+      message(paste('Finished Viperfish on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
+    }
+  
+    class(outSED)=c(class(outSED),'Viperfish-Sting')
+    return(invisible(outSED))
+  }else if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec'){
+    return(invisible(outSED))
   }
-
-  if(verbose){
-    message(paste('Finished Viperfish on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
-  }
-
-  class(outSED)=c(class(outSED),'Viperfish-Shark')
-  invisible(outSED)
 }
 
-mockcone_extract=function(file_sting="mocksurvey.hdf5", reorder=TRUE){
+mockcone_extract = function(file_sting="mocksurvey.hdf5", reorder=TRUE){
   subsnapID=snapshot=subvolume=id_galaxy_sam=NULL
   assertCharacter(file_sting, max.len=1)
   assertAccess(file_sting, access='r')
@@ -370,7 +388,7 @@ mockcone_extract=function(file_sting="mocksurvey.hdf5", reorder=TRUE){
   invisible(mockcone)
 }
 
-extinction_extract=function(extinction_file="extinction.hdf5", reorder=TRUE){
+extinction_extract = function(extinction_file="extinction.hdf5", reorder=TRUE){
   subsnapID=snapshot=subvolume=id_galaxy_sam=NULL
   assertCharacter(extinction_file, max.len=1)
   assertAccess(extinction_file, access='r')
@@ -387,7 +405,7 @@ extinction_extract=function(extinction_file="extinction.hdf5", reorder=TRUE){
 }
 
 
-mocksubsets=function(mockcone){
+mocksubsets = function(mockcone){
   id_galaxy_sam=subsnapID=Nid=idlist=snapshot=subvolume=NULL
   mocksubsets=mockcone[,list(idlist=list(unique(id_galaxy_sam))),by=subsnapID]
   mocksubsets[,Nid:=length(unlist(idlist)),by=subsnapID]

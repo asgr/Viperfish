@@ -7,11 +7,16 @@ Generate SED
 Convert target bulge and disk SFHs to SEDs.
 }
 \usage{
-genSED(SFRbulge_d, SFRbulge_m, SFRdisk, redshift = 0.1, time = NULL, tau_birth = 1,
-tau_screen = 0.3, pow_birth = -0.7, pow_screen = -0.7, Zbulge_d = 5, Zbulge_m = 5,
-Zdisk = 5, alpha_SF = 1, AGNfrac = 0, ab_nodust = TRUE, ap_nodust = TRUE, ab_dust = TRUE,
-ap_dust = TRUE, emitdust = TRUE, unimax = 1.38e+10, speclib = NULL, Dale = NULL,
-filtout = NULL, H0 = 67.8, sparse = 5, intSFR = TRUE)
+genSED(SFRbulge_d, SFRbulge_m, SFRdisk, redshift = 0.1, time = NULL, 
+    tau_birth = 1, tau_screen = 0.3, tau_AGN = 1, pow_birth = -0.7, 
+    pow_screen = -0.7, pow_AGN = -0.7, alpha_SF_birth = 1, alpha_SF_screen = 3, 
+    alpha_SF_AGN = 0, emission = FALSE, IGMabsorb = FALSE, Zbulge_d = 5, 
+    Zbulge_m = 5, Zdisk = 5, AGNlum = 0, ab_nodust = TRUE, ap_nodust = TRUE, 
+    ab_dust = TRUE, ap_dust = TRUE, emitdust = TRUE, unimax = 1.38e+10, 
+    speclib = NULL, Dale = NULL, AGN = NULL, LKL10 = NULL, filtout = NULL, 
+    H0 = 67.8, sparse = 5, intSFR = TRUE, addradio_SF = FALSE, 
+    waveout = seq(2, 10, by = 0.01), ff_frac_SF = 0.1, ff_power_SF = -0.1, 
+    sy_power_SF = -0.8, mode = "photom")
 }
 \arguments{
   \item{SFRbulge_d}{
@@ -91,6 +96,24 @@ Numeric scalar; amount of sparse sampling of the spectra to make. Higher values 
 }
   \item{intSFR}{
 Logical; should the \option{massfunc} be intergrated between ages? This might be necessary if the SFH is quite bursty, but it is more expensive to compute and not required if the SFH is quite smooth.
+}
+  \item{addradio_SF}{
+Logical; should radio flux from star formation be included in the output?  
+}
+  \item{waveout}{
+Numeric vector; desired output log10 wavelength grid to use in Ang. See \code{\link{ProSpectSED}}.
+}
+  \item{ff_frac_SF}{
+Numeric scalar; free-free HII nebular plasma thermal radio emission contribution fraction at 1.4 GHz used in \code{\link{radiocont}} (should be between 0.05 and 0.2 typically). By definition the fraction of radio synchrotron emission associated with star-formation at 1.4 GHz will be 1 - \option{ff_frac_SF}.
+}
+  \item{ff_power_SF}{
+Numeric scalar; power-law slope of the free-free nebular plasma thermal radio emission associated with star-formation used in \code{\link{radiocont}}. Leave as the default (-0.1), unless you know what you are doing.
+}
+  \item{sy_power_SF}{
+Numeric scalar; power-law slope of the synchrotron radio emission associated with star-formation used in \code{\link{radiocont}} (should be between -0.8 and -0.6 typically).
+}
+  \item{mode}{
+Character scalar; should the output be photometry in filters (photom) or the full resolution spectrum (spectrum).
 }
 }
 \details{

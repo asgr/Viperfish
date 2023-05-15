@@ -1,4 +1,14 @@
-genShark=function(path_shark='.', path_out='.', snapshot=NULL, subvolume=NULL, redshift="get", h='get', cores=4, id_galaxy_sam='all', filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth=1, tau_screen=0.3, tau_AGN=1, pow_birth=-0.7, pow_screen=-0.7, pow_AGN=-0.7, alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, stellarpop='BC03lr', speclib = NULL, read_extinct=FALSE, sparse=5, final_file_output='Shark-SED.csv', extinction_file='extinction.hdf5', intSFR=TRUE, addradio_SF=FALSE, waveout=seq(2,30,by=0.01), ff_frac_SF=0.1, ff_power_SF=-0.1, sy_power_SF=-0.8, verbose=TRUE, write_final_file=FALSE){
+genShark=function(path_shark='.', path_out='.', snapshot=NULL, subvolume=NULL, redshift="get",
+                  h='get', cores=4, id_galaxy_sam='all', filters=c('FUV_GALEX', 'NUV_GALEX',
+                  'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS', 'Z_VISTA', 'Y_VISTA', 'J_VISTA',
+                  'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel',
+                  'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth=1,
+                  tau_screen=0.3, tau_AGN=1, pow_birth=-0.7, pow_screen=-0.7, pow_AGN=-0.7,
+                  alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, stellarpop='BC03lr',
+                  speclib = NULL, read_extinct=FALSE, sparse=5, final_file_output='Shark-SED.csv',
+                  extinction_file='extinction.hdf5', intSFR=TRUE, addradio_SF=FALSE,
+                  waveout=seq(2,30,by=0.01), ff_frac_SF=0.1, ff_power_SF=-0.1, sy_power_SF=-0.8,
+                  verbose=TRUE, write_final_file=FALSE, mode='photom'){
 
   timestart=proc.time()[3]
 
@@ -189,47 +199,49 @@ genShark=function(path_shark='.', path_out='.', snapshot=NULL, subvolume=NULL, r
 
   # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
 
-  outSED=foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
+  outSED = foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
     
     unlist(genSED(
-      SFRbulge_d=SFRbulge_d[,i]/h,
-      SFRbulge_m=SFRbulge_m[,i]/h,
-      SFRdisk=SFRdisk[,i]/h,
+      SFRbulge_d = SFRbulge_d[,i]/h,
+      SFRbulge_m = SFRbulge_m[,i]/h,
+      SFRdisk = SFRdisk[,i]/h,
 
-      Zbulge_d=Zbulge_d[,i],
-      Zbulge_m=Zbulge_m[,i],
-      Zdisk=Zdisk[,i],
+      Zbulge_d = Zbulge_d[,i],
+      Zbulge_m = Zbulge_m[,i],
+      Zdisk = Zdisk[,i],
 
-      redshift=redshift[i],
-      time=time-cosdistTravelTime(redshift[i], ref='planck')*1e9,
+      redshift = redshift[i],
+      time = time-cosdistTravelTime(redshift[i], ref='planck')*1e9,
 
-      tau_birth=tau_birth_galaxies[i,],
-      tau_screen=tau_screen_galaxies[i,],
-      tau_AGN=1, #hard coded for now
+      tau_birth = tau_birth_galaxies[i,],
+      tau_screen = tau_screen_galaxies[i,],
+      tau_AGN = 1, #hard coded for now
 
-      pow_birth=pow_birth_galaxies[i,],
-      pow_screen=pow_screen_galaxies[i,],
-      pow_AGN=-0.7, #hard coded for now
+      pow_birth = pow_birth_galaxies[i,],
+      pow_screen = pow_screen_galaxies[i,],
+      pow_AGN = -0.7, #hard coded for now
 
-      alpha_SF_birth=alpha_SF_birth, 
-      alpha_SF_screen=alpha_SF_screen, 
-      alpha_SF_AGN=alpha_SF_AGN, 
+      alpha_SF_birth = alpha_SF_birth, 
+      alpha_SF_screen = alpha_SF_screen, 
+      alpha_SF_AGN = alpha_SF_AGN, 
 
-      AGNlum=0, #hard coded for now
+      AGNlum = 0, #hard coded for now
 
-      speclib=speclib,
-      filtout=filtout,
-      AGN=AGN_UnOb_Sparse,
-      Dale=Dale_NormTot,
+      speclib = speclib,
+      filtout = filtout,
+      #AGN = AGN_UnOb_Sparse,
+      Dale = Dale_NormTot,
 
-      sparse=sparse,
-      intSFR=intSFR,
+      sparse = sparse,
+      intSFR = intSFR,
 
-      addradio_SF=addradio_SF, 
-      waveout=waveout,
-      ff_frac_SF=ff_frac_SF,
-      ff_power_SF=ff_power_SF,
-      sy_power_SF=sy_power_SF
+      addradio_SF = addradio_SF, 
+      waveout = waveout,
+      ff_frac_SF = ff_frac_SF,
+      ff_power_SF = ff_power_SF,
+      sy_power_SF = sy_power_SF,
+      
+      mode = mode
     ))
   }
 
@@ -239,20 +251,24 @@ genShark=function(path_shark='.', path_out='.', snapshot=NULL, subvolume=NULL, r
     close(pb)
   }
 
-  outSED=as.data.table(rbind(outSED))
-  outSED=cbind(id_galaxy=Shark_SFH[['galaxies/id_galaxy']][select], outSED)
-
-  Shark_SFH$close()
-
-  if(verbose){
-    message(paste('Finished Viperfish on Shark -',round(proc.time()[3]-timestart,3),'sec'))
+  if(mode == 'photom'){
+    outSED = as.data.table(rbind(outSED))
+    outSED = cbind(id_galaxy = Shark_SFH[['galaxies/id_galaxy']][select], outSED)
+  
+    Shark_SFH$close()
+  
+    if(verbose){
+      message(paste('Finished Viperfish on Shark -',round(proc.time()[3]-timestart,3),'sec'))
+    }
+  
+    if (write_final_file) {
+      outdir = paste(path_out, 'Photometry', snapshot, subvolume, sep='/')
+      write.SED(outSED, filters, outdir, final_file_output, verbose=TRUE)
+    }
+  
+    class(outSED)=c(class(outSED),'Viperfish-Shark')
+    return(invisible(outSED))
+  }else if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec'){
+    return(invisible(outSED))
   }
-
-  if (write_final_file) {
-    outdir = paste(path_out, 'Photometry', snapshot, subvolume, sep='/')
-    write.SED(outSED, filters, outdir, final_file_output, verbose=TRUE)
-  }
-
-  class(outSED)=c(class(outSED),'Viperfish-Shark')
-  invisible(outSED)
 }
