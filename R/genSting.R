@@ -10,14 +10,14 @@
 }
 
 genSting = function(file_sting=NULL, path_shark='.', path_out=',', h='get', cores_per_subvolume=1,
-                  cores_per_snapshot=4, children_outfile="/dev/null", snapmax=199,
+                  cores_per_snapshot=4, children_outfile="/dev/null",
                   filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS',
                   'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE',
                   'W3_WISE', 'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel',
                   'S350_Herschel', 'S500_Herschel'), tau_birth=1.5, tau_screen=0.5, pow_birth=-0.7,
-                  pow_screen=-0.7,  alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, stellarpop='BC03lr',
-                  read_extinct=FALSE, sparse=5, time=NULL, mockcone=NULL, intSFR=TRUE,
-                  final_file_output='Stingray-SED.csv', temp_file_output='temp.csv',
+                  pow_screen=-0.7,  alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, emission=FALSE,
+                  stellarpop='BC03lr', read_extinct=FALSE, sparse=5, time=NULL, mockcone=NULL,
+                  intSFR=TRUE, final_file_output='Stingray-SED.csv', temp_file_output='temp.csv',
                   extinction_file='extinction.hdf5', addradio_SF=FALSE, waveout=seq(2,30,by=0.01),
                   ff_frac_SF=0.1, ff_power_SF=-0.1, sy_power_SF=-0.8, reorder=TRUE, restart=FALSE,
                   verbose=TRUE, write_final_file=FALSE, mode='photom'){
@@ -32,7 +32,6 @@ genSting = function(file_sting=NULL, path_shark='.', path_out=',', h='get', core
   assertAccess(path_shark, access='r')
   assertInt(cores_per_subvolume)
   assertInt(cores_per_snapshot)
-  assertInt(snapmax)
   if(is.list(filters)){
     filterlist=TRUE
   }else{
@@ -47,7 +46,12 @@ genSting = function(file_sting=NULL, path_shark='.', path_out=',', h='get', core
   assertFlag(intSFR)
   assertFlag(verbose)
 
-  assertAccess(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), access='r')
+  suppressWarnings({
+    snapmax = max(as.integer(list.files(path_shark)), na.rm=TRUE)
+    assertAccess(paste(path_shark,snapmax, sep='/'), access='r')
+    submin = min(as.integer(list.files(paste(path_shark,snapmax, sep='/'))), na.rm=TRUE)
+    assertAccess(paste(path_shark,snapmax,submin,'star_formation_histories.hdf5', sep='/'), access='r')
+  })
 
   if(h=='get'){
     h=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')[['cosmology/h']][]
@@ -316,6 +320,8 @@ genSting = function(file_sting=NULL, path_shark='.', path_out=',', h='get', core
               alpha_SF_screen = alpha_SF_screen, 
               alpha_SF_AGN = alpha_SF_AGN, 
 
+	            emission = emission,
+	            
               speclib = speclib, 
               filtout = filtout, 
               Dale = Dale_NormTot, 

@@ -4,7 +4,7 @@ genShark=function(path_shark='.', path_out='.', snapshot=NULL, subvolume=NULL, r
                   'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE', 'W4_WISE', 'P100_Herschel',
                   'P160_Herschel', 'S250_Herschel', 'S350_Herschel', 'S500_Herschel'), tau_birth=1,
                   tau_screen=0.3, tau_AGN=1, pow_birth=-0.7, pow_screen=-0.7, pow_AGN=-0.7,
-                  alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, stellarpop='BC03lr',
+                  alpha_SF_birth=1, alpha_SF_screen=3, alpha_SF_AGN=0, emission=FALSE, stellarpop='BC03lr',
                   speclib = NULL, read_extinct=FALSE, sparse=5, final_file_output='Shark-SED.csv',
                   extinction_file='extinction.hdf5', intSFR=TRUE, addradio_SF=FALSE,
                   waveout=seq(2,30,by=0.01), ff_frac_SF=0.1, ff_power_SF=-0.1, sy_power_SF=-0.8,
@@ -226,6 +226,8 @@ genShark=function(path_shark='.', path_out='.', snapshot=NULL, subvolume=NULL, r
       alpha_SF_AGN = alpha_SF_AGN, 
 
       AGNlum = 0, #hard coded for now
+      
+      emission = emission,
 
       speclib = speclib,
       filtout = filtout,

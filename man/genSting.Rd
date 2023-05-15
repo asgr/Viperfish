@@ -14,7 +14,7 @@ Takes Stingray light cones and converts to apparent and absolute SEDs.
 }
 \usage{
 genSting(file_sting = NULL, path_shark = ".", h = 'get', cores_per_subvolume=1,
-  cores_per_snapshot=4, children_outfile = '/dev/null', snapmax = 199,
+  cores_per_snapshot=4, children_outfile = '/dev/null',
   filters = c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS',
   'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE',
   'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel',
