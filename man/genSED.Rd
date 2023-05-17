@@ -16,7 +16,7 @@ genSED(SFRbulge_d, SFRbulge_m, SFRdisk, redshift = 0.1, time = NULL,
     speclib = NULL, Dale = NULL, AGN = NULL, LKL10 = NULL, filtout = NULL, 
     H0 = 67.8, sparse = 5, intSFR = TRUE, addradio_SF = FALSE, 
     waveout = seq(2, 10, by = 0.01), ff_frac_SF = 0.1, ff_power_SF = -0.1, 
-    sy_power_SF = -0.8, mode = "photom")
+    sy_power_SF = -0.8, mode = "photom", spec_range = c(3600, 9600))
 }
 \arguments{
   \item{SFRbulge_d}{
@@ -114,6 +114,9 @@ Numeric scalar; power-law slope of the synchrotron radio emission associated wit
 }
   \item{mode}{
 Character scalar; should the output be photometry in filters (photom) or the full resolution spectrum (spectrum).
+}
+  \item{spec_range}{
+Numeric vector; the spectral wavelength range to limit the \option{mode} = 'spectrum' output to in Angstrom.
 }
 }
 \details{

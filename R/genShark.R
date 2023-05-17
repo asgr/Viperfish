@@ -238,7 +238,7 @@ genShark=function(path_shark='.', path_out='.', snapshot=NULL, subvolume=NULL, r
       intSFR = intSFR,
 
       addradio_SF = addradio_SF, 
-      waveout = waveout,
+      waveout = switch(mode, photom=waveout, spectrum=NULL, spectra=NULL, spec=NULL, spectral=NULL),
       ff_frac_SF = ff_frac_SF,
       ff_power_SF = ff_power_SF,
       sy_power_SF = sy_power_SF,
@@ -270,7 +270,7 @@ genShark=function(path_shark='.', path_out='.', snapshot=NULL, subvolume=NULL, r
   
     class(outSED)=c(class(outSED),'Viperfish-Shark')
     return(invisible(outSED))
-  }else if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec'){
+  }else if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec' | mode == 'spectral'){
     return(invisible(outSED))
   }
 }

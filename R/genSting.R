@@ -9,7 +9,7 @@
     invisible(result)
 }
 
-genSting = function(file_sting=NULL, path_shark='.', path_out=',', h='get', cores_per_subvolume=1,
+genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', cores_per_subvolume=1,
                   cores_per_snapshot=4, children_outfile="/dev/null",
                   filters=c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS',
                   'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE',
@@ -20,7 +20,7 @@ genSting = function(file_sting=NULL, path_shark='.', path_out=',', h='get', core
                   intSFR=TRUE, final_file_output='Stingray-SED.csv', temp_file_output='temp.csv',
                   extinction_file='extinction.hdf5', addradio_SF=FALSE, waveout=seq(2,30,by=0.01),
                   ff_frac_SF=0.1, ff_power_SF=-0.1, sy_power_SF=-0.8, reorder=TRUE, restart=FALSE,
-                  verbose=TRUE, write_final_file=FALSE, mode='photom'){
+                  verbose=TRUE, write_final_file=FALSE, mode='photom', spec_range=c(3600,9600), spec_bin=1){
 
   timestart=proc.time()[3]
 
@@ -54,18 +54,18 @@ genSting = function(file_sting=NULL, path_shark='.', path_out=',', h='get', core
   })
 
   if(h=='get'){
-    h=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')[['cosmology/h']][]
+    h = h5file(paste(path_shark,snapmax,submin,'star_formation_histories.hdf5', sep='/'), mode='r')[['cosmology/h']][]
   }
 
   if(! is.null(file_sting)){
     assertCharacter(file_sting, max.len=1, null.ok=TRUE)
     assertAccess(file_sting, access='r')
     Sting_date=h5file(file_sting, mode='r')[['run_info/shark_timestamp']][]
-    Shark_date=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')[['run_info/timestamp']][]
+    Shark_date=h5file(paste(path_shark,snapmax,submin,'star_formation_histories.hdf5', sep='/'), mode='r')[['run_info/timestamp']][]
     check = (Shark_date==Sting_date)
 
     if(check==FALSE){
-      stop(paste('Date stamps do not match! Shark',Shark_date,'compared to Sting',Sting_date))
+      message('Date stamps do not match! Shark: ',Shark_date,' compared to Sting: ',Sting_date)
     }
 
     rm(Sting_date)
@@ -75,7 +75,7 @@ genSting = function(file_sting=NULL, path_shark='.', path_out=',', h='get', core
     Sting_id_galaxy_sky = .with_64bit_ints(h5file(file_sting, mode='r')[['galaxies/id_galaxy_sky']][])
   }else{
     if(! is.null(mockcone)){
-      Sting_id_galaxy_sky=mockcone$id_galaxy_sky
+      Sting_id_galaxy_sky = mockcone$id_galaxy_sky
     }else{
       stop('Need either file_sting or mockcone to be input!')
     }
@@ -200,8 +200,8 @@ genSting = function(file_sting=NULL, path_shark='.', path_out=',', h='get', core
   #mocksubsets=mocksubsets(mockcone=mockcone)
 
   if(is.null(time)){
-    assertAccess(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), access='r')
-    Shark_SFH=h5file(paste(path_shark,snapmax,'0/star_formation_histories.hdf5', sep='/'), mode='r')
+    assertAccess(paste(path_shark,snapmax,submin,'star_formation_histories.hdf5', sep='/'), access='r')
+    Shark_SFH=h5file(paste(path_shark,snapmax,submin,'star_formation_histories.hdf5', sep='/'), mode='r')
     time=Shark_SFH[['lbt_mean']][]*1e9
     Shark_SFH$close()
   }
@@ -227,10 +227,10 @@ genSting = function(file_sting=NULL, path_shark='.', path_out=',', h='get', core
     extinctionpoint=describe(extinctioncone)
   }
 
-  if (run_foreach) {
+  if(run_foreach){
 
-    cl=makeCluster(cores_per_subvolume, outfile=children_outfile)
-    registerDoSNOW(cl)
+    cl_sub = makeCluster(cores_per_subvolume, outfile=children_outfile)
+    registerDoSNOW(cl_sub)
 
     if(verbose){
       pb = txtProgressBar(max = length(subsnapIDs), style = 3)
@@ -238,7 +238,8 @@ genSting = function(file_sting=NULL, path_shark='.', path_out=',', h='get', core
       opts = list(progress=progress)
     }
 
-    outSED=foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output, .final=.dumpin, .inorder=FALSE, .options.snow = if(verbose){opts}, .packages=c('Viperfish','bigmemory','doSNOW'))%dopar%{
+    outSED = foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output, .final=.dumpin,
+                   .inorder=FALSE, .options.snow = if(verbose){opts}, .packages=c('Viperfish','bigmemory','doSNOW'))%dopar%{
       cat(format(Sys.time(), "%X"), "Processing snapshot", i, "of", length(subsnapIDs), "\n")
       use=subsnapIDs[i]
       mockloop=attach.big.matrix(mockpoint)
@@ -294,53 +295,96 @@ genSting = function(file_sting=NULL, path_shark='.', path_out=',', h='get', core
         pow_birth_galaxies[,] = pow_birth
       }
 
-      cl = makeCluster(cores_per_snapshot, outfile=children_outfile)
-      registerDoSNOW(cl)
+      cl_snap = makeCluster(cores_per_snapshot, outfile=children_outfile)
+      registerDoSNOW(cl_snap)
       cat(format(Sys.time(), "%X"), "Going into inner loop with", length(select), "elements\n")
       # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
-      tempout=foreach(j=1:length(select), .combine='rbind') %dopar% {
+      tempout = foreach(j=1:length(select), .combine='rbind') %dopar% {
          cat(format(Sys.time(), "%X"), "Calculating SED for galaxy", j, "of", length(select), "in snapshot", i, "\n")
-         tempSED=tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], 
-            unlist(genSED(
-	            SFRbulge_d = SFRbulge_d_subsnap[j,]/h, 
-              SFRbulge_m = SFRbulge_m_subsnap[j,]/h, 
-              SFRdisk = SFRdisk_subsnap[j,]/h, 
-              Zbulge_d = Zbulge_d_subsnap[j,], 
-              Zbulge_m = Zbulge_m_subsnap[j,], 
-              Zdisk = Zdisk_subsnap[j,], 
-
-              redshift = zobs[j],
-              time = time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, 
-
-              tau_birth = tau_birth_galaxies[j,], 
-              tau_screen = tau_screen_galaxies[j,], 
-              pow_birth = pow_birth_galaxies[j,], 
-              pow_screen = pow_screen_galaxies[j,], 
-              alpha_SF_birth = alpha_SF_birth, 
-              alpha_SF_screen = alpha_SF_screen, 
-              alpha_SF_AGN = alpha_SF_AGN, 
-
-	            emission = emission,
-	            
-              speclib = speclib, 
-              filtout = filtout, 
-              Dale = Dale_NormTot, 
-              sparse = sparse, 
-              intSFR = intSFR,
-
-              addradio_SF = addradio_SF,
-              waveout = waveout,
-              ff_frac_SF = ff_frac_SF,
-              ff_power_SF = ff_power_SF,
-              sy_power_SF = sy_power_SF,
-	      
-	            mode = mode)
-	      )), error = function(e) NULL)
-        #if(class(tempSED)=="try-error"){tempSED=NA}
-        return(tempSED)
+        if(mode == 'photom'){
+           tempSED = tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], 
+              unlist(genSED(
+  	            SFRbulge_d = SFRbulge_d_subsnap[j,]/h, 
+                SFRbulge_m = SFRbulge_m_subsnap[j,]/h, 
+                SFRdisk = SFRdisk_subsnap[j,]/h, 
+                Zbulge_d = Zbulge_d_subsnap[j,], 
+                Zbulge_m = Zbulge_m_subsnap[j,], 
+                Zdisk = Zdisk_subsnap[j,], 
+  
+                redshift = zobs[j],
+                time = time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, 
+  
+                tau_birth = tau_birth_galaxies[j,], 
+                tau_screen = tau_screen_galaxies[j,], 
+                pow_birth = pow_birth_galaxies[j,], 
+                pow_screen = pow_screen_galaxies[j,], 
+                alpha_SF_birth = alpha_SF_birth, 
+                alpha_SF_screen = alpha_SF_screen, 
+                alpha_SF_AGN = alpha_SF_AGN, 
+  
+  	            emission = emission,
+  	            
+                speclib = speclib, 
+                filtout = filtout, 
+                Dale = Dale_NormTot, 
+                sparse = sparse, 
+                intSFR = intSFR,
+  
+                addradio_SF = addradio_SF,
+                waveout = waveout,
+                ff_frac_SF = ff_frac_SF,
+                ff_power_SF = ff_power_SF,
+                sy_power_SF = sy_power_SF,
+  	      
+  	            mode = mode)
+  	      )), error = function(e) NULL)
+          #if(class(tempSED)=="try-error"){tempSED=NA}
+          return(tempSED)
+        }else if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec' | mode == 'spectral'){
+          tempSED = tryCatch(genSED(
+            SFRbulge_d = SFRbulge_d_subsnap[j,]/h, 
+            SFRbulge_m = SFRbulge_m_subsnap[j,]/h, 
+            SFRdisk = SFRdisk_subsnap[j,]/h, 
+            Zbulge_d = Zbulge_d_subsnap[j,], 
+            Zbulge_m = Zbulge_m_subsnap[j,], 
+            Zdisk = Zdisk_subsnap[j,], 
+            
+            redshift = zobs[j],
+            time = time[1:dim(SFRdisk_subsnap)[2]]-cosdistTravelTime(zcos[j], ref='planck')*1e9, 
+            
+            tau_birth = tau_birth_galaxies[j,], 
+            tau_screen = tau_screen_galaxies[j,], 
+            pow_birth = pow_birth_galaxies[j,], 
+            pow_screen = pow_screen_galaxies[j,], 
+            alpha_SF_birth = alpha_SF_birth, 
+            alpha_SF_screen = alpha_SF_screen, 
+            alpha_SF_AGN = alpha_SF_AGN, 
+            
+            emission = emission,
+            
+            speclib = speclib, 
+            filtout = filtout, 
+            Dale = Dale_NormTot, 
+            sparse = sparse, 
+            intSFR = intSFR,
+            
+            addradio_SF = addradio_SF,
+            waveout = NULL,
+            ff_frac_SF = ff_frac_SF,
+            ff_power_SF = ff_power_SF,
+            sy_power_SF = sy_power_SF,
+            
+            mode = mode,
+            spec_range = spec_range + c(-100,100)), error = function(e) NULL)
+          return(cbind(id_galaxy_sky[SFHsing_subsnap$keep[j]],tempSED))
+        }
       }
-      stopCluster(cl)
-      as.data.table(rbind(tempout))
+      stopCluster(cl_snap)
+      if(mode == 'photom'){
+        return(as.data.table(rbind(tempout)))
+      }else if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec' | mode == 'spectral'){
+        return(tempout)
+      }
     }
 
     warnings()
@@ -348,7 +392,7 @@ genSting = function(file_sting=NULL, path_shark='.', path_out=',', h='get', core
       close(pb)
     }
 
-    stopCluster(cl)
+    stopCluster(cl_sub)
   }
 
 
@@ -363,7 +407,7 @@ genSting = function(file_sting=NULL, path_shark='.', path_out=',', h='get', core
     outSED = as.data.frame(outSED)
     outSED = outSED[match(Sting_id_galaxy_sky, outSED[,1]),]
   
-    if (write_final_file) {
+    if (write_final_file){
       write.SED(outSED, filters, path_out, final_file_output)
     }
   
@@ -374,7 +418,19 @@ genSting = function(file_sting=NULL, path_shark='.', path_out=',', h='get', core
     class(outSED)=c(class(outSED),'Viperfish-Sting')
     return(invisible(outSED))
   }else if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec'){
-    return(invisible(outSED))
+    #waveN = dim(outSED)[1]/length(Sting_id_galaxy_sky)
+    wavegrid = seq(spec_range[1], spec_range[2], by=spec_bin)
+    outSED_split = foreach(i = unique(outSED$V1), .combine='rbind')%do%{
+      temp_spec = outSED[outSED$V1 == i,list(V2,V3)]
+      return(specReBin(temp_spec, wavegrid=wavegrid)$flux)
+    }
+    outSED_split = outSED_split[match(Sting_id_galaxy_sky, unique(outSED$V1)),]
+    outSED_split = data.frame(rbind(wavegrid, outSED_split))
+    outSED_split = cbind(data.frame(c(as.integer64, Sting_id_galaxy_sky)), outSED_split)
+    
+    fwrite(outSED_split, paste(path_out, final_file_output, sep='/'), row.names = FALSE, col.names = FALSE)
+    
+    return(invisible(outSED_split))
   }
 }
 

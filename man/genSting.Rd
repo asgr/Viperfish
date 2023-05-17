@@ -13,16 +13,22 @@ Convert Stingray Outputs to SEDs
 Takes Stingray light cones and converts to apparent and absolute SEDs.
 }
 \usage{
-genSting(file_sting = NULL, path_shark = ".", h = 'get', cores_per_subvolume=1,
-  cores_per_snapshot=4, children_outfile = '/dev/null',
-  filters = c('FUV_GALEX', 'NUV_GALEX', 'u_SDSS', 'g_SDSS', 'r_SDSS', 'i_SDSS',
-  'Z_VISTA', 'Y_VISTA', 'J_VISTA', 'H_VISTA', 'K_VISTA', 'W1_WISE', 'W2_WISE', 'W3_WISE',
-  'W4_WISE', 'P100_Herschel', 'P160_Herschel', 'S250_Herschel', 'S350_Herschel',
-  'S500_Herschel'),
-  tau_birth = 1.5, tau_screen = 0.5, sparse = 5, time = NULL, mockcone = NULL,
-  intSFR = TRUE, final_file_output = 'Stingray-SED.csv', temp_file_output = 'temp.csv',
-  reorder = TRUE, restart = FALSE, verbose = TRUE, write_final_file = FALSE,
-  mode = 'photom')
+genSting(file_sting = NULL, path_shark = ".", path_out = ",", 
+    h = "get", cores_per_subvolume = 1, cores_per_snapshot = 4, 
+    children_outfile = "/dev/null", filters = c("FUV_GALEX", 
+        "NUV_GALEX", "u_SDSS", "g_SDSS", "r_SDSS", "i_SDSS", 
+        "Z_VISTA", "Y_VISTA", "J_VISTA", "H_VISTA", "K_VISTA", 
+        "W1_WISE", "W2_WISE", "W3_WISE", "W4_WISE", "P100_Herschel", 
+        "P160_Herschel", "S250_Herschel", "S350_Herschel", "S500_Herschel"), 
+    tau_birth = 1.5, tau_screen = 0.5, pow_birth = -0.7, pow_screen = -0.7, 
+    alpha_SF_birth = 1, alpha_SF_screen = 3, alpha_SF_AGN = 0, 
+    emission = FALSE, stellarpop = "BC03lr", read_extinct = FALSE, 
+    sparse = 5, time = NULL, mockcone = NULL, intSFR = TRUE, 
+    final_file_output = "Stingray-SED.csv", temp_file_output = "temp.csv", 
+    extinction_file = "extinction.hdf5", addradio_SF = FALSE, 
+    waveout = seq(2, 30, by = 0.01), ff_frac_SF = 0.1, ff_power_SF = -0.1, 
+    sy_power_SF = -0.8, reorder = TRUE, restart = FALSE, verbose = TRUE, 
+    write_final_file = FALSE, mode = "photom", spec_range = c(3600,9600)) 
 
 getSFHfull(file_sting = "mocksurvey.hdf5", path_shark = ".", snapmax = 199,
   cores_per_subvolume = 4, verbose = TRUE)
@@ -86,8 +92,32 @@ Character scalar;  name for the final output file to write to. This should not b
   \item{temp_file_output}{
 Character scalar; name for the temporary file to write to. This should not be an existing file and end ".csv".
 }
+  \item{extinction_file}{
+Character scalar; name of file containing the extinction information. This should not be an existing file and end ".hdf5".
+}
+  \item{addradio_SF}{
+Logical; should radio flux from star formation be included in the output?  
+}
+  \item{waveout}{
+Numeric vector; desired output log10 wavelength grid to use in Ang. See \code{\link{ProSpectSED}}.
+}
+  \item{ff_frac_SF}{
+Numeric scalar; free-free HII nebular plasma thermal radio emission contribution fraction at 1.4 GHz used in \code{\link{radiocont}} (should be between 0.05 and 0.2 typically). By definition the fraction of radio synchrotron emission associated with star-formation at 1.4 GHz will be 1 - \option{ff_frac_SF}.
+}
+  \item{ff_power_SF}{
+Numeric scalar; power-law slope of the free-free nebular plasma thermal radio emission associated with star-formation used in \code{\link{radiocont}}. Leave as the default (-0.1), unless you know what you are doing.
+}
+  \item{sy_power_SF}{
+Numeric scalar; power-law slope of the synchrotron radio emission associated with star-formation used in \code{\link{radiocont}} (should be between -0.8 and -0.6 typically).
+}
   \item{write_final_file}{
 Logical; whether to write the output of this function into a csv file (with name specified by \option{final_file_output}) within the same directory as \option{file_sting}.
+}
+  \item{mode}{
+Character scalar; should the output be photometry in filters (photom) or the full resolution spectrum (spectrum).
+}
+  \item{spec_range}{
+Numeric vector; the spectral wavelength range to limit the \option{mode} = 'spectrum' output to in Angstrom.
 }
   \item{reorder}{
 Logical; Should the output mock cone be re-ordered so to enforce that it is first ascending in subsnapID, followed by id_galaxy_sam within groups of subsnapID? It might improve speed for this to be TRUE (meaning subsets are contiguous), but it means the ordering will be different compared to the target mockcone.

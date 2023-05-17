@@ -4,7 +4,7 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
                 Zdisk=5, AGNlum=0, ab_nodust=TRUE, ap_nodust=TRUE, ab_dust=TRUE, ap_dust=TRUE, 
                 emitdust=TRUE, unimax=13.8e9, speclib=NULL, Dale=NULL, AGN=NULL, LKL10=NULL, filtout=NULL, 
                 H0=67.8, sparse=5, intSFR=TRUE, addradio_SF=FALSE, waveout=seq(2,10,by=0.01), 
-                ff_frac_SF=0.1, ff_power_SF=-0.1, sy_power_SF=-0.8, mode='photom'){
+                ff_frac_SF=0.1, ff_power_SF=-0.1, sy_power_SF=-0.8, mode='photom', spec_range=c(3600,9600)){
 
   if(is.null(time)){stop('Need time input!')}
   if(is.null(speclib)){stop('Need speclib (e.g. BC03lr)')}
@@ -101,7 +101,7 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
     IGMabsorb = 0
   }
 
-  if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec'){
+  if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec' | mode == 'spectral'){
     waveout = NULL
   }
   
@@ -132,10 +132,12 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
                    addradio_SF=addradio_SF, waveout=waveout,
                    ff_frac_SF=ff_frac_SF, ff_power_SF=ff_power_SF, sy_power_SF=sy_power_SF)
 
-  if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec'){
+  if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec' | mode == 'spectral'){
     total = bulge_d$FinalFlux
     total$flux = total$flux + bulge_m$FinalFlux$flux
     total$flux = total$flux + disk$FinalFlux$flux
+    
+    total = total[total$wave >= spec_range[1] & total$wave <= spec_range[2],]
     return(total)
   }
   
