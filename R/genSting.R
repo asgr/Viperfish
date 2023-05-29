@@ -426,7 +426,7 @@ genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', core
     }
     outSED_split = outSED_split[match(Sting_id_galaxy_sky, unique(outSED$V1)),]
     outSED_split = data.frame(rbind(wavegrid, outSED_split))
-    outSED_split = cbind(data.frame(c(as.integer64(Sting_id_galaxy_sky))), outSED_split)
+    outSED_split = cbind(data.frame(c(as.integer64(0), Sting_id_galaxy_sky)), outSED_split)
     
     fwrite(outSED_split, paste(path_out, final_file_output, sep='/'), row.names = FALSE, col.names = FALSE)
     
