@@ -212,7 +212,7 @@ genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', core
   #iterations=dim(mockcone)[1]
   if(restart){
     outSED=fread(temp_file_output)
-    subsnapIDs=base::unique(mockcone[!id_galaxy_sky %in% outSED$V1,subsnapID])
+    subsnapIDs=base::unique(mockcone[!id_galaxy_sky %in% unique(outSED$V1),subsnapID])
     run_foreach = length(subsnapIDs) > 0
   }else{
     subsnapIDs=base::unique(mockcone$subsnapID)
@@ -422,6 +422,8 @@ genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', core
     wavegrid = seq(spec_range[1], spec_range[2], by=spec_bin)
     outSED_split = foreach(i = unique(outSED$V1), .combine='rbind')%do%{
       temp_spec = outSED[outSED$V1 == i,list(V2,V3)]
+      temp_spec = temp_spec[!duplicated(temp_spec$V2),]
+      setkey(temp_spec, V2)
       return(specReBin(temp_spec, wavegrid=wavegrid)$flux)
     }
     outSED_split = outSED_split[match(Sting_id_galaxy_sky, unique(outSED$V1)),]

@@ -160,5 +160,10 @@ Aaron Robotham
 \code{\link{genSED}}, \code{\link{genShark}}
 }
 \examples{
-# Nothing yet!
+\dontrun{
+test_def = genSting('localtest/mocksky_19.hdf5', 'localtest/')
+  
+test_spec = genSting('localtest/mocksky_19.hdf5', 'localtest/', emission = TRUE,
+  mode = 'spec', stellarpop = 'BC03hr')
+}
 }

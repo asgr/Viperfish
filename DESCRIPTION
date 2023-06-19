@@ -1,8 +1,8 @@
 Package: Viperfish
 Type: Package
 Title: SEDs with Shark or Stingray
-Version: 0.5.2
-Date: 2020-10-16
+Version: 0.5.3
+Date: 2023-06-19
 Author: Aaron Robotham, Claudia Lagos, Rodrigo Tobar
 Maintainer: Aaron Robotham <aaron.robotham@uwa.edu.au>
 Description: Makes SEDs with outputs from Shark and/or Stingray using ProSpect.
