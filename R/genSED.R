@@ -62,9 +62,13 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
   assertNumeric(sy_power_SF)
 
 
-  SFRbulge_d[SFRbulge_d<0]=0
-  SFRbulge_m[SFRbulge_m<0]=0
-  SFRdisk[SFRdisk<0]=0
+  SFRbulge_d[!is.finite(SFRbulge_d)] = 0
+  SFRbulge_m[!is.finite(SFRbulge_m)] = 0
+  SFRdisk[!is.finite(SFRdisk)] = 0
+  
+  SFRbulge_d[which(SFRbulge_d < 0)] = 0
+  SFRbulge_m[which(SFRbulge_m < 0)] = 0
+  SFRdisk[which(SFRdisk < 0)] = 0
 
   SFRbulge_dfunc=approxfun(time, SFRbulge_d, rule=2, yleft=SFRbulge_d[which.min(time)], yright=SFRbulge_d[which.max(time)])
   SFRbulge_mfunc=approxfun(time, SFRbulge_m, rule=2, yleft=SFRbulge_m[which.min(time)], yright=SFRbulge_m[which.max(time)])
@@ -72,19 +76,23 @@ genSED=function(SFRbulge_d, SFRbulge_m, SFRdisk, redshift=0.1, time=NULL, tau_bi
 
   if(length(Zbulge_d)>1){
     if(length(Zbulge_d)!=length(time)){stop('Zbulge_d does not have the same length as time!')}
-    Zbulge_d[Zbulge_d<0]=0
+    Zbulge_d[!is.finite(Zbulge_d)] = 0
+    Zbulge_d[which(Zbulge_d < 0)] = 0
+    
     Zbulge_d_approx=approxfun(time, Zbulge_d, rule=2, yleft=Zbulge_d[which.min(time)], yright=Zbulge_d[which.max(time)])
     Zbulge_d=function(age, ...){Zbulge_d_approx(age)}
   }
   if(length(Zbulge_m)>1){
     if(length(Zbulge_m)!=length(time)){stop('Zbulge_m does not have the same length as time!')}
-    Zbulge_m[Zbulge_m<0]=0
+    Zbulge_m[!is.finite(Zbulge_m)] = 0
+    Zbulge_m[which(Zbulge_m < 0)] = 0
     Zbulge_m_approx=approxfun(time, Zbulge_m, rule=2, yleft=Zbulge_m[which.min(time)], yright=Zbulge_m[which.max(time)])
     Zbulge_m=function(age, ...){Zbulge_m_approx(age)}
   }
   if(length(Zdisk)>1){
     if(length(Zdisk)!=length(time)){stop('Zdisk does not have the same length as time!')}
-    Zdisk[Zdisk<0]=0
+    Zdisk[!is.finite(Zdisk)] = 0
+    Zdisk[which(Zdisk < 0)] = 0
     Zdisk_approx=approxfun(time, Zdisk, rule=2, yleft=Zdisk[which.min(time)], yright=Zdisk[which.max(time)])
     Zdisk=function(age, ...){Zdisk_approx(age)}
   }
