@@ -199,7 +199,7 @@ genShark=function(path_shark='.', path_out='.', snapshot=NULL, subvolume=NULL, r
 
   # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
 
-  outSED = foreach(i=1:iterations, .combine='rbind', .options.snow = if(verbose){opts})%dopar%{
+  outSED = foreach(i=1:iterations, .options.snow = if(verbose){opts})%dopar%{
     
     unlist(genSED(
       SFRbulge_d = SFRbulge_d[,i]/h,
@@ -246,6 +246,8 @@ genShark=function(path_shark='.', path_out='.', snapshot=NULL, subvolume=NULL, r
       mode = mode
     ))
   }
+  
+  outSED = do.call(rbind, outSED)
 
   stopCluster(cl)
 
@@ -259,16 +261,16 @@ genShark=function(path_shark='.', path_out='.', snapshot=NULL, subvolume=NULL, r
   
     Shark_SFH$close()
   
-    if(verbose){
-      message(paste('Finished Viperfish on Shark -',round(proc.time()[3]-timestart,3),'sec'))
-    }
-  
     if (write_final_file) {
       outdir = paste(path_out, 'Photometry', snapshot, subvolume, sep='/')
       write.SED(outSED, filters, outdir, final_file_output, verbose=TRUE)
     }
+    
+    if(verbose){
+      message(paste('Finished Viperfish on Shark -',round(proc.time()[3]-timestart,3),'sec'))
+    }
   
-    class(outSED)=c(class(outSED),'Viperfish-Shark')
+    class(outSED) = c(class(outSED),'Viperfish-Shark')
     return(invisible(outSED))
   }else if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec' | mode == 'spectral'){
     return(invisible(outSED))

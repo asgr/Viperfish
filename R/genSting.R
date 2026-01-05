@@ -299,7 +299,7 @@ genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', core
       registerDoSNOW(cl_snap)
       cat(format(Sys.time(), "%X"), "Going into inner loop with", length(select), "elements\n")
       # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
-      tempout = foreach(j=1:length(select), .combine='rbind') %dopar% {
+      tempout = foreach(j=1:length(select)) %dopar% {
          cat(format(Sys.time(), "%X"), "Calculating SED for galaxy", j, "of", length(select), "in snapshot", i, "\n")
         if(mode == 'photom'){
            tempSED = tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], 
@@ -379,6 +379,9 @@ genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', core
           return(cbind(id_galaxy_sky[SFHsing_subsnap$keep[j]],tempSED))
         }
       }
+      
+      tempout = do.call(rbind, tempout)
+      
       stopCluster(cl_snap)
       if(mode == 'photom'){
         return(as.data.table(rbind(tempout)))
@@ -415,17 +418,26 @@ genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', core
       message(paste('Finished Viperfish on Stingray -',round(proc.time()[3]-timestart,3),'sec'))
     }
   
-    class(outSED)=c(class(outSED),'Viperfish-Sting')
+    class(outSED) = c(class(outSED),'Viperfish-Sting')
     return(invisible(outSED))
-  }else if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec'){
+  }else if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec' | mode == 'spectral'){
     #waveN = dim(outSED)[1]/length(Sting_id_galaxy_sky)
     wavegrid = seq(spec_range[1], spec_range[2], by=spec_bin)
-    outSED_split = foreach(i = unique(outSED$V1), .combine='rbind')%do%{
+    
+    cl_snap = makeCluster(cores_per_subvolume*cores_per_snapshot, outfile=children_outfile)
+    registerDoSNOW(cl_snap)
+    
+    outSED_split = foreach(i = unique(outSED, by=1))%dopar%{
+      #should be a couple of ms per rebin here
       temp_spec = outSED[outSED$V1 == i,list(V2,V3)]
-      temp_spec = temp_spec[!duplicated(temp_spec$V2),]
-      setkey(temp_spec, V2)
-      return(specReBin(temp_spec, wavegrid=wavegrid)$flux)
+      temp_spec = temp_spec[!duplicated(temp_spec$V2),] #to be safe
+      setkey(temp_spec, V2) #to be safe
+      return(ProSpect::specReBin(temp_spec, wavegrid=wavegrid, rough=FALSE)$flux)
     }
+    
+    stopCluster(cl_snap)
+    
+    outSED_split = do.call(rbind, outSED_split) #faster than rbind
     outSED_split = outSED_split[match(Sting_id_galaxy_sky, unique(outSED$V1)),]
     outSED_split = data.frame(rbind(wavegrid, outSED_split))
     outSED_split = cbind(data.frame(c(as.integer64(0), Sting_id_galaxy_sky)), outSED_split)
