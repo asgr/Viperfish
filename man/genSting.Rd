@@ -77,11 +77,35 @@ Numeric scalar; dust tau for birth clouds. Associated with sub 10 Myr star forma
   \item{tau_screen}{
 Numeric scalar; dust tau for screen. See \code{\link{SFH}}.
 }
-  \item{time}{
-Numeric vector; if provided this should be the full vector of lookback time corresponding to the time outputs in \option{SFHlist}. It should have the same length as the matrices in \option{SFHlist} have columns.
+  \item{pow_birth}{
+Numeric scalar; power to further raise the dust attenuation of birth clouds. See \code{\link{CF_birth}}.
+}
+  \item{pow_screen}{
+Numeric scalar; power to further raise the dust attenuation of the dust screen. See \code{\link{CF_screen}}.
+}
+  \item{alpha_SF_birth}{
+Numeric scalar; alpha slope of the birth cloud dust. Lower values mean hotter dust. See \code{\link{Dale}}.
+}
+  \item{alpha_SF_screen}{
+Numeric scalar; alpha slope of the screen dust. Lower values mean hotter dust. See \code{\link{Dale}}.
+}
+  \item{alpha_SF_AGN}{
+Numeric scalar; alpha slope of the AGN torus dust. Lower values mean hotter dust. See \code{\link{Dale}}.
+}
+  \item{emission}{
+Logical; should emission features be added to the spectrum? This will be done using \code{\link{emissionLines}}.
+}
+  \item{stellarpop}{
+Character scalar; must be one of \code{\link{BC03lr}}, \code{\link{BC03hr}}, \code{\link{EMILES}} or \code{\link{BPASS}}.
+}
+  \item{read_extinct}{
+Logical; should the per galaxy extinction file be used?
 }
   \item{sparse}{
 Numeric scalar; amount of sparse sampling of the spectra to make. Higher values mean coarser spectra is processed, which means less accurate photometry, but faster processing. Generally done when computing higher resolution libraries for AB mags.
+}
+  \item{time}{
+Numeric vector; if provided this should be the full vector of lookback time corresponding to the time outputs in \option{SFHlist}. It should have the same length as the matrices in \option{SFHlist} have columns.
 }
   \item{intSFR}{
 Boolean scalar; should the \option{massfunc} be intergrated between ages? This might be necessary if the SFH is quite bursty, but it is more expensive to compute and not required if the SFH is quite smooth.

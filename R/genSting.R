@@ -211,11 +211,11 @@ genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', core
 
   #iterations=dim(mockcone)[1]
   if(restart){
-    outSED=fread(temp_file_output)
-    subsnapIDs=base::unique(mockcone[!id_galaxy_sky %in% unique(outSED$V1),subsnapID])
+    outSED = fread(temp_file_output)
+    subsnapIDs = base::unique(mockcone[!id_galaxy_sky %in% unique(outSED$V1),subsnapID])
     run_foreach = length(subsnapIDs) > 0
   }else{
-    subsnapIDs=base::unique(mockcone$subsnapID)
+    subsnapIDs = base::unique(mockcone$subsnapID)
     run_foreach = TRUE
   }
 
@@ -238,30 +238,39 @@ genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', core
       opts = list(progress=progress)
     }
 
-    outSED = foreach(i=1:length(subsnapIDs), .combine=.dumpout, .init=temp_file_output, .final=.dumpin,
+    outSED = foreach(i=seq_along(subsnapIDs), .combine=.dumpout, .init=temp_file_output, .final=.dumpin,
                    .inorder=FALSE, .options.snow = if(verbose){opts}, .packages=c('Viperfish','bigmemory','doSNOW'))%dopar%{
+                     
       cat(format(Sys.time(), "%X"), "Processing snapshot", i, "of", length(subsnapIDs), "\n")
-      use=subsnapIDs[i]
-      mockloop=attach.big.matrix(mockpoint)
-      select=which(mockloop[,'subsnapID']==use)
-      snapshot=mockloop[select[1],'snapshot']
-      subvolume=mockloop[select[1],'subvolume']
-      id_galaxy_sky=mockloop[select,'id_galaxy_sky']
-      id_galaxy_sam=mockloop[select,'id_galaxy_sam']
-      zcos=mockloop[select,'zcos']
-      zobs=mockloop[select,'zobs']
+      use = subsnapIDs[i]
+      mockloop = attach.big.matrix(mockpoint)
+      select = which(mockloop[, 'subsnapID'] == use)
+      snapshot = mockloop[select[1], 'snapshot']
+      subvolume = mockloop[select[1], 'subvolume']
+      id_galaxy_sky = mockloop[select, 'id_galaxy_sky']
+      id_galaxy_sam = mockloop[select, 'id_galaxy_sam']
+      zcos = mockloop[select, 'zcos']
+      zobs = mockloop[select, 'zobs']
       read_start = Sys.time()
+      
       cat(format(read_start, "%X"), "Reading SFH for snapshot", i, "\n")
-      SFHsing_subsnap=getSFHsing(id_galaxy_sam=id_galaxy_sam, snapshot=snapshot, subvolume=subvolume, path_shark=path_shark)
+      
+      SFHsing_subsnap = getSFHsing(
+        id_galaxy_sam = id_galaxy_sam,
+        snapshot = snapshot,
+        subvolume = subvolume,
+        path_shark = path_shark
+      )
+      
       read_end = Sys.time()
-      cat(format(read_end, "%X"), "Read SFH for snapshot", i, "in", as.numeric(read_end - read_start, units="secs"),"\n")
-
-      SFRbulge_d_subsnap=SFHsing_subsnap$SFRbulge_d
-      SFRbulge_m_subsnap=SFHsing_subsnap$SFRbulge_m
-      SFRdisk_subsnap=SFHsing_subsnap$SFRdisk
-      Zbulge_d_subsnap=SFHsing_subsnap$Zbulge_d
-      Zbulge_m_subsnap=SFHsing_subsnap$Zbulge_m
-      Zdisk_subsnap=SFHsing_subsnap$Zdisk
+      cat(format(read_end, "%X"), "Read SFH for snapshot", i, "in", as.numeric(read_end - read_start, units = "secs"), "\n")
+      
+      SFRbulge_d_subsnap = SFHsing_subsnap$SFRbulge_d
+      SFRbulge_m_subsnap = SFHsing_subsnap$SFRbulge_m
+      SFRdisk_subsnap = SFHsing_subsnap$SFRdisk
+      Zbulge_d_subsnap = SFHsing_subsnap$Zbulge_d
+      Zbulge_m_subsnap = SFHsing_subsnap$Zbulge_m
+      Zdisk_subsnap = SFHsing_subsnap$Zdisk
 
       #define tau in extinction laws
       tau_screen_galaxies = matrix(ncol = 3, nrow = length(select)) #this is ordered as bulge (disk-ins), bulge (mergers), disks
@@ -427,7 +436,7 @@ genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', core
     cl_snap = makeCluster(cores_per_subvolume*cores_per_snapshot, outfile=children_outfile)
     registerDoSNOW(cl_snap)
     
-    outSED_split = foreach(i = unique(outSED, by=1))%dopar%{
+    outSED_split = foreach(i = unique(outSED$V1))%dopar%{
       #should be a couple of ms per rebin here
       temp_spec = outSED[outSED$V1 == i,list(V2,V3)]
       temp_spec = temp_spec[!duplicated(temp_spec$V2),] #to be safe
@@ -441,6 +450,7 @@ genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', core
     outSED_split = outSED_split[match(Sting_id_galaxy_sky, unique(outSED$V1)),]
     outSED_split = data.frame(rbind(wavegrid, outSED_split))
     outSED_split = cbind(data.frame(c(as.integer64(0), Sting_id_galaxy_sky)), outSED_split)
+    names(outSED_split)[1] = 'id_galaxy_sky'
     
     fwrite(outSED_split, paste(path_out, final_file_output, sep='/'), row.names = FALSE, col.names = FALSE)
     
