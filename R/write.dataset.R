@@ -131,38 +131,43 @@ write.custom.dataset = function(filename='temp.hdf5', # hd5 filename
 
 .write.SED.csv = function(SED, filters, filename)
 {
+  Ncol = length(filters)
+  
+  #since the LIR bits are repeated for all filters, we only need the first occurrence of each (so the 2 + Ncol*(20:29) bit)
+  SED = SED[,c(1, 1:(20*Ncol), 2 + Ncol*(20:29))]
+  
   colnames = c(
-      'id_galaxy',
-      paste0('ab_mag_nodust_b_d_',filters),
-      paste0('ab_mag_nodust_b_m_',filters),
-      paste0('ab_mag_nodust_b_',filters),
-      paste0('ab_mag_nodust_d_',filters),
-      paste0('ab_mag_nodust_t_',filters),
-      paste0('ap_mag_nodust_b_d_',filters),
-      paste0('ap_mag_nodust_b_m_',filters),
-      paste0('ap_mag_nodust_b_',filters),
-      paste0('ap_mag_nodust_d_',filters),
-      paste0('ap_mag_nodust_t_',filters),
-      paste0('ab_mag_dust_b_d_',filters),
-      paste0('ab_mag_dust_b_m_',filters),
-      paste0('ab_mag_dust_b_',filters),
-      paste0('ab_mag_dust_d_',filters),
-      paste0('ab_mag_dust_t_',filters),
-      paste0('ap_mag_dust_b_d_',filters),
-      paste0('ap_mag_dust_b_m_',filters),
-      paste0('ap_mag_dust_b_',filters),
-      paste0('ap_mag_dust_d_',filters),
-      paste0('ap_mag_dust_t_',filters),
-      paste0('lir_dust_b_d_',),
-      paste0('lir_dust_b_m_',),
-      paste0('lir_dust_b_',),
-      paste0('lir_dust_d_',),
-      paste0('lir_dust_t_',),
-      paste0('lir_dust_contribution_bc_b_d_',),
-      paste0('lir_dust_contribution_bc_b_m_',),
-      paste0('lir_dust_contribution_bc_b_',),
-      paste0('lir_dust_contribution_bc_d_',),
-      paste0('lir_dust_contribution_bc_t_',)
+      'id_galaxy_sky',
+      paste0('ab_mag_nodust_bulge_d_',filters),
+      paste0('ab_mag_nodust_bulge_m_',filters),
+      paste0('ab_mag_nodust_bulge_t_',filters),
+      paste0('ab_mag_nodust_disk_',filters),
+      paste0('ab_mag_nodust_total_',filters),
+      paste0('ap_mag_nodust_bulge_d_',filters),
+      paste0('ap_mag_nodust_bulge_m_',filters),
+      paste0('ap_mag_nodust_bulge_t_',filters),
+      paste0('ap_mag_nodust_disk_',filters),
+      paste0('ap_mag_nodust_total_',filters),
+      paste0('ab_mag_dust_bulge_d_',filters),
+      paste0('ab_mag_dust_bulge_m_',filters),
+      paste0('ab_mag_dust_bulge_t_',filters),
+      paste0('ab_mag_dust_disk_',filters),
+      paste0('ab_mag_dust_total_',filters),
+      paste0('ap_mag_dust_bulge_d_',filters),
+      paste0('ap_mag_dust_bulge_m_',filters),
+      paste0('ap_mag_dust_bulge_t_',filters),
+      paste0('ap_mag_dust_disk_',filters),
+      paste0('ap_mag_dust_total_',filters),
+      'lir_dust_bulge_d',
+      'lir_dust_bulge_m',
+      'lir_dust_bulge_t',
+      'lir_dust_disk',
+      'lir_dust_total',
+      'lir_dust_contribution_bc_bulge_d',
+      'lir_dust_contribution_bc_bulge_m',
+      'lir_dust_contribution_bc_bulge_t',
+      'lir_dust_contribution_bc_disk',
+      'lir_dust_contribution_bc_total'
   )
   colnames(SED) = colnames
   fwrite(SED, file=filename)

@@ -1,7 +1,7 @@
 Package: Viperfish
 Type: Package
 Title: SEDs with Shark or Stingray
-Version: 0.5.7
+Version: 0.5.8
 Date: 2026-01-05
 Author: Aaron Robotham, Claudia Lagos, Rodrigo Tobar
 Maintainer: Aaron Robotham <aaron.robotham@uwa.edu.au>
