@@ -308,11 +308,12 @@ genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', core
       registerDoSNOW(cl_snap)
       cat(format(Sys.time(), "%X"), "Going into inner loop with", length(select), "elements\n")
       # Here we divide by h since the simulations output SFR in their native Msun/yr/h units.
-      tempout = foreach(j=1:length(select)) %dopar% {
+      tempout = foreach(j = seq_along(select)) %dopar% {
          cat(format(Sys.time(), "%X"), "Calculating SED for galaxy", j, "of", length(select), "in snapshot", i, "\n")
         if(mode == 'photom'){
-           tempSED = tryCatch(c(id_galaxy_sky[SFHsing_subsnap$keep[j]], 
-              unlist(genSED(
+           tempSED = tryCatch(
+             data.table(id_galaxy_sky[SFHsing_subsnap$keep[j]],
+              rbind(unlist(genSED(
   	            SFRbulge_d = SFRbulge_d_subsnap[j,]/h, 
                 SFRbulge_m = SFRbulge_m_subsnap[j,]/h, 
                 SFRdisk = SFRdisk_subsnap[j,]/h, 
@@ -346,7 +347,7 @@ genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', core
                 sy_power_SF = sy_power_SF,
   	      
   	            mode = mode)
-  	      )), error = function(e) NULL)
+  	      ))), error = function(e) NULL)
           #if(class(tempSED)=="try-error"){tempSED=NA}
           return(tempSED)
         }else if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec' | mode == 'spectral'){
@@ -385,18 +386,21 @@ genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', core
             
             mode = mode,
             spec_range = spec_range + c(-100,100)), error = function(e) NULL)
-          return(cbind(id_galaxy_sky[SFHsing_subsnap$keep[j]],tempSED))
+          return(data.table(id_galaxy_sky[SFHsing_subsnap$keep[j]], rbind(tempSED)))
         }
       }
       
+      #put it all together
       tempout = do.call(rbind, tempout)
       
       stopCluster(cl_snap)
-      if(mode == 'photom'){
-        return(as.data.table(rbind(tempout)))
-      }else if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec' | mode == 'spectral'){
-        return(tempout)
-      }
+      # if(mode == 'photom'){
+      #   return(as.data.table(rbind(tempout)))
+      # }else if(mode == 'spectrum' | mode == 'spectra' | mode == 'spec' | mode == 'spectral'){
+      #   return(tempout)
+      # }
+      #should always be a data.table now
+      return(tempout)
     }
 
     warnings()
