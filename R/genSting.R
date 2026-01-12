@@ -443,7 +443,7 @@ genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', core
     outSED_split = foreach(i = unique(outSED$V1))%dopar%{
       #should be a couple of ms per rebin here
       temp_spec = outSED[outSED$V1 == i,list(V2,V3)]
-      temp_spec = temp_spec[!duplicated(temp_spec$V2),] #to be safe
+      temp_spec = temp_spec[!duplicated(temp_spec$V2),] #to be safe (since spectra can be re-generated during re-start)
       setkey(temp_spec, V2) #to be safe
       return(ProSpect::specReBin(temp_spec, wavegrid=wavegrid, rough=FALSE)$flux)
     }
