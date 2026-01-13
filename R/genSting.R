@@ -518,7 +518,7 @@ mocksubsets = function(mockcone){
   fread(temp_file_output, integer64 = "integer64")
 }
 
-process_dump = function(temp_file_input, final_file_output='Stingray-SED.csv', path_out='.', wavegrid=3000:10000){
+process_spec_dump = function(temp_file_input, final_file_output='Stingray-spec.csv', path_out='.', wavegrid=3000:10000){
   message('Reading in dumped file')
   outSED = fread(temp_file_input)
   message('Re-binning data onto target wavegrid')

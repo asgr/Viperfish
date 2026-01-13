@@ -39,8 +39,8 @@ mockcone_extract(file_sting = "mocksurvey.hdf5", reorder = TRUE)
 
 mocksubsets(mockcone)
 
-process_dump(temp_file_input, final_file_output = 'Stingray-SED.csv', path_out = '.',
-  wavegrid = 3000:10000)
+process_spec_dump(temp_file_input, final_file_output = 'Stingray-spec.csv',
+  path_out = '.', wavegrid = 3000:10000)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -185,6 +185,8 @@ The apparent and absolute magnitudes are physical assuming a fixed H0=67.8 km/s/
 \code{mockcone_extract} outputs the contents of a target Stingray HDF5 into an R data.table. Mostly present for use inside \code{genSting}, but currently deprecated.
 
 \code{mocksubsets} outputs the minimally required sub-volumes and SAM galaxy ID list from a target mockcone. Mostly present for use inside an older version of \code{genSting}, but currently deprecated.
+
+\code{process_spec_dump} is for processing the raw dumped spectra of a \code{genSting} run (when \option{mode} = 'spec'), i.e. the file output to \option{temp_file_output} in \code{genSting} becomes the \option{temp_file_input} here. This will both re-bin the data onto a common target \option{wavegrid} and write out the final file. The function itself returns NULL, and is only run for side-effects.
 }
 \author{
 Aaron Robotham
