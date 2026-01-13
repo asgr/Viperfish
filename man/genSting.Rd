@@ -38,6 +38,9 @@ getSFHsing(id_galaxy_sam, snapshot = NULL, subvolume = NULL, path_shark = ".")
 mockcone_extract(file_sting = "mocksurvey.hdf5", reorder = TRUE)
 
 mocksubsets(mockcone)
+
+process_dump(temp_file_input, final_file_output = 'Stingray-SED.csv', path_out = '.',
+  wavegrid = 3000:10000)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -116,6 +119,9 @@ Character scalar;  name for the final output file to write to. This should not b
   \item{temp_file_output}{
 Character scalar; name for the temporary file to write to. This should not be an existing file and end ".csv".
 }
+  \item{temp_file_input}{
+Character scalar; name of the temporary file to read in. In most cases this should be the same as \option{temp_file_output}.
+}
   \item{extinction_file}{
 Character scalar; name of file containing the extinction information. This should not be an existing file and end ".hdf5".
 }
@@ -124,6 +130,9 @@ Logical; should radio flux from star formation be included in the output?
 }
   \item{waveout}{
 Numeric vector; desired output log10 wavelength grid to use in Ang. See \code{\link{ProSpectSED}}.
+}
+  \item{wavegrid}{
+Numeric vector; desired output linear wavelength grid to use in Ang. See \code{\link{specReBin}}.
 }
   \item{ff_frac_SF}{
 Numeric scalar; free-free HII nebular plasma thermal radio emission contribution fraction at 1.4 GHz used in \code{\link{radiocont}} (should be between 0.05 and 0.2 typically). By definition the fraction of radio synchrotron emission associated with star-formation at 1.4 GHz will be 1 - \option{ff_frac_SF}.

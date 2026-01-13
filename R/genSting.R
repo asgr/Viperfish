@@ -420,7 +420,7 @@ genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', core
   if(mode == 'photom'){
     print("will sort ids")
     outSED = unique(outSED, by=1)
-    outSED = as.data.frame(outSED)
+    #outSED = as.data.frame(outSED)
     outSED = outSED[match(Sting_id_galaxy_sky, outSED[,1]),]
   
     if (write_final_file){
@@ -437,28 +437,31 @@ genSting = function(file_sting=NULL, path_shark='.', path_out='.', h='get', core
     #waveN = dim(outSED)[1]/length(Sting_id_galaxy_sky)
     wavegrid = seq(spec_range[1], spec_range[2], by=spec_bin)
     
-    cl_snap = makeCluster(cores_per_subvolume*cores_per_snapshot, outfile=children_outfile)
-    registerDoSNOW(cl_snap)
+    #cl_snap = makeCluster(cores_per_subvolume*cores_per_snapshot, outfile=children_outfile)
+    #registerDoSNOW(cl_snap)
     
-    outSED_split = foreach(i = unique(outSED$V1))%dopar%{
-      #should be a couple of ms per rebin here
-      temp_spec = outSED[outSED$V1 == i,list(V2,V3)]
-      temp_spec = temp_spec[!duplicated(temp_spec$V2),] #to be safe (since spectra can be re-generated during re-start)
-      setkey(temp_spec, V2) #to be safe
-      return(ProSpect::specReBin(temp_spec, wavegrid=wavegrid, rough=FALSE)$flux)
-    }
+    # SED = NULL
+    # sel_i = unique(outSED$V1)
+    # outSED_split = split(outSED, outSED$V1)
+    # outSED_rebin = foreach(SED = outSED_split)%dopar%{
+    #   #should be a couple of ms per rebin here
+    #   #temp_spec = SED[,list(V2,V3)]
+    #   setkey(SED, V2) #to be safe
+    #   SED = SED[!duplicated(SED$V2),list(V2,V3)] #to be safe (since spectra can be re-generated during re-start)
+    #   return(ProSpect::specReBin(SED, wavegrid=wavegrid, rough=FALSE)$flux)
+    # }
+    # outSED_rebin = do.call(rbind, outSED_rebin) #faster than rbind
     
-    stopCluster(cl_snap)
+    outSED_rebin = outSED[,.(flux=list(ProSpect::specReBin(V2, V3, wavegrid=wavegrid, rough=FALSE)$flux)), by=V1]
+    outSED_rebin = outSED_rebin[match(Sting_id_galaxy_sky, V1),]
+    outSED_rebin = do.call(rbind, c(list(wavegrid), outSED_rebin$flux))
     
-    outSED_split = do.call(rbind, outSED_split) #faster than rbind
-    outSED_split = outSED_split[match(Sting_id_galaxy_sky, unique(outSED$V1)),]
-    outSED_split = data.frame(rbind(wavegrid, outSED_split))
-    outSED_split = cbind(data.frame(c(as.integer64(0), Sting_id_galaxy_sky)), outSED_split)
-    names(outSED_split)[1] = 'id_galaxy_sky'
+    outSED_rebin = cbind(data.frame(c(as.integer64(0), Sting_id_galaxy_sky)), outSED_rebin)
+    names(outSED_rebin)[1] = 'id_galaxy_sky'
     
-    fwrite(outSED_split, paste(path_out, final_file_output, sep='/'), row.names = FALSE, col.names = FALSE)
+    fwrite(outSED_rebin, paste(path_out, final_file_output, sep='/'), row.names = FALSE, col.names = FALSE)
     
-    return(invisible(outSED_split))
+    return(invisible(outSED_rebin))
   }
 }
 
@@ -515,6 +518,22 @@ mocksubsets = function(mockcone){
   fread(temp_file_output, integer64 = "integer64")
 }
 
+process_dump = function(temp_file_input, final_file_output='Stingray-SED.csv', path_out='.', wavegrid=3000:10000){
+  message('Reading in dumped file')
+  outSED = fread(temp_file_input)
+  message('Re-binning data onto target wavegrid')
+  outSED_rebin = outSED[,.(flux=list(ProSpect::specReBin(V2, V3, wavegrid=wavegrid, rough=FALSE)$flux)), by=V1]
+  message('Re-formatting output')
+  IDs = outSED_rebin$V1
+  outSED_rebin = do.call(rbind, c(list(wavegrid), outSED_rebin$flux))
+  
+  outSED_rebin = cbind(data.frame(c(as.integer64(0), IDs)), outSED_rebin)
+  names(outSED_rebin)[1] = 'id_galaxy_sky'
+  
+  message('Writing output')
+  fwrite(outSED_rebin, paste(path_out, final_file_output, sep='/'), row.names = FALSE, col.names = FALSE)
+  return(NULL)
+}
 
 # .filedump=function(temp_file_output='temp.csv', data){
 #   fwrite(x=data, file='temp.csv', append=TRUE)
