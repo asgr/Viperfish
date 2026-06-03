@@ -1,11 +1,15 @@
 Package: Viperfish
 Type: Package
-Title: SEDs with Shark or Stingray
+Title: SED Generation for Shark and Stingray Outputs
 Version: 0.6.0
 Date: 2026-01-13
 Author: Aaron Robotham, Claudia Lagos, Rodrigo Tobar
 Maintainer: Aaron Robotham <aaron.robotham@uwa.edu.au>
-Description: Makes SEDs with outputs from Shark and/or Stingray using ProSpect.
+Description: Post-processes ICRAR Shark SAM outputs and Stingray light-cone catalogs
+    into galaxy spectral energy distributions (SEDs) and broadband photometry using
+    ProSpect. It reads Shark star-formation and metallicity histories, applies
+    dust attenuation and re-emission assumptions, and writes consistent tabular
+    products for downstream survey and mock-catalog analysis.
 License: LGPL-3
 Encoding: UTF-8
 LazyData: true

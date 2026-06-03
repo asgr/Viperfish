@@ -1,18 +1,18 @@
 \name{get_shark_path}
 \alias{get_shark_path}
 \title{
-Extract the shark path out of a shark configuration file
+Extract the Shark output path from a Shark configuration file
 }
 \description{
-Given a shark configuration file, this funcition reads the necessary configuration items
-and returns the root directory of shark's outputs.
+Given a Shark configuration file, this function reads the relevant entries and
+returns the root output directory used by Shark.
 }
 \usage{
 get_shark_path(config_file)
 }
 \arguments{
   \item{config_file}{
-Character scalar; path to a shark configuration file.
+Character scalar; path to a Shark configuration file.
 }
 }
 \author{
