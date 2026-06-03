@@ -4,7 +4,7 @@ author: "Aaron Robotham"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Viperfish Overview}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,16 +16,197 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Overview of ProSpect and Viperfish
+## Introduction
 
-To generate spectrals energy distributions (SEDs) for **Shark** two packages have been developed: **ProSpect** and **Viperfish**. **ProSpect** is a low-level package that combines the popular stellar synthesis libraries Bruzual & Charlot (2003, BC03) and/or EMILES (Vazdekis et al, 2016) with a simple dust attenuation model (Charlot & Fall, 2000) and dust re-emission (Dale et al, 2014). On top of this sits **Viperfish** which allows for simple extraction of Shark star-formation histories and application of the relevant SED.
+**Viperfish** is a high-level **R** package that bridges the gap between the semi-analytic galaxy formation model [**Shark**](https://github.com/ICRAR/shark) (Lagos et al., 2018) and the spectral energy distribution (SED) generation package [**ProSpect**](https://github.com/asgr/ProSpect) (Robotham et al., 2020). Together, these three packages form a complete pipeline for generating multi-wavelength photometry and spectra from simulated galaxy star-formation histories (SFHs).
 
-**ProSpect** is designed in an opinionated manner that still allows for some user-side flexibility. Many of the design decisions are pragmatic and reasonable, and allow for fast working code that produces sensible results. For the production of galaxy SEDs, the decision was made early on to focus efforts on the BC03 spectral libraries using a Chabrier (2003) initial mass function since these are well understood, and have a very broad spectral range that makes them useful for current and next generation multi-band surveys. **ProSpect** can either be provided with a star-formation history (SFH) created by four or five discrete periods of constant star-formation, or more generally a functional form of the SFH. The functional SFH can be arbitrarily complex, with internal interpolation schemes used to map the provided form onto the discrete library of templates available. The gas metallicity of the forming stars can also be provided as discrete periods or a complex functional form (again, interpolation is used to map values back onto the discrete grids available).
+The typical workflow is:
 
-The generative nature of **ProSpect** means it can be used in a number of ways: either to fit real data using Bayesian modelling via optimisation of Markov-Chain Monte-Carlo (MCMC), or in a purely generative mode given a SFH and metallicity evolution of, e.g., a simulated galaxy. For producing light cones with SEDs from SAMs, this generative mode is obviously of most interest. However, some sensible assumptions must be made regarding light attenuation due to dust, and its re-emission at longer wavelengths. How to do this in a fully physical sense, given the limited range of knowledge we have about any single SAM galaxy, is a matter of ongoing research, but for the current purposes of Shark SED generation we have settled on a deliberately simplifed fiducial model of dust processing.
+1. **Shark** produces galaxy populations with detailed SFHs and metallicity histories, stored as HDF5 files.
+2. **Viperfish** reads these HDF5 outputs, extracts the relevant SFH and metallicity data, and passes them to **ProSpect**.
+3. **ProSpect** generates the full SED for each galaxy, including stellar emission, dust attenuation, and dust re-emission.
 
-Firstly, the dust is attenuated by a simple Charlot & Fall (2000) dust model, with the standard suggested parameters (ASGR: need to list here). As per the suggested model, light generated at different ages is attenuated differently, giving a natural means to simulate the effect of birth cloud attenuation for younger stars. This absorbed light must then be re-emitted in a sensible fashion at longer wavelengths. For this process we have adopted the Dale et al (2014) FIR dust templates, with an assumption of no significant AGN emission, and an assumed dust radiation field of $\alpha_{SF}=1$. Once the full generative spectrum has been created we pass it through a number of available filters that span the FUV to FIR. Only a subset of these filters are discussed in this work, and user defined filters can be added easily if required.
+This vignette provides an overview of the software design, the role of each component, and practical guidance for running **Viperfish**.
 
-This aproach, and the global values used for various parameters, are a compromise between achieving reasonable SEDs (as compared to emperical data) and simplicity. The latter is important since whilst we could make much more complex SEDs, e.g. by varying $\alpha_{SF}=1$ for different stellar populations, there is very little physics available from the SAME to justify a more complex form. In this work we are interested to see how plausible our SED predictions are given the simplest reasonable model of stellar light production, absorption and re-emission. In the future work we will look at incorporating more complex SEDs based on predictions from recent hydro-dynamical simulations (Trayford et al, in prep).
+## Shark: Semi-Analytic Galaxy Formation
 
-The highest level code mentioned **Viperfish** allows for a very simple interface between the HDF5 outputs created by Shark and/or Stingray and **ProSpect**. It effectively reduces a few hundred lines of **R** code to a single call with the path to the relevant HDF5 file. This makes it trivial to post-process any Shark outputs at any time (it does not need to be run in parallel), and it is designed to scale naturally with the compute resources abvailable, e.g. it can use multiple cores. In testing, a lightcone that is useful for recreating the GAMA survey (similar depth and geometry) takes $\sim 10$ hours on a sinlge core, and it scales fairly inversely with the cores available.
+[**Shark**](https://github.com/ICRAR/shark) is a flexible and highly modular open-source semi-analytic model (SAM) of galaxy formation, developed at ICRAR (International Centre for Radio Astronomy Research). It is written in C++ and designed for high-performance execution. Key features relevant to **Viperfish** include:
+
+- **Star-formation histories**: Shark tracks the star-formation rate (SFR) and gas-phase metallicity of each galaxy across cosmic time, decomposed into three morphological components:
+    - **Disks** (`disks/star_formation_rate_histories`): Stars formed in the galactic disk through quiescent processes.
+    - **Bulges from disk instabilities** (`bulges_diskins/star_formation_rate_histories`): Stars that moved to the bulge via internal disk instabilities.
+    - **Bulges from mergers** (`bulges_mergers/star_formation_rate_histories`): Stars formed or relocated to the bulge during galaxy mergers.
+- **HDF5 output format**: Shark stores all SFHs in `star_formation_histories.hdf5` files, organised by snapshot and subvolume. Each file contains look-back time bins (`lbt_mean`), galaxy identifiers (`galaxies/id_galaxy`), and the SFR and metallicity arrays for each component.
+- **Cosmological parameters**: The HDF5 files also store the cosmology used in the simulation (e.g. Hubble parameter $h$, redshift), which **Viperfish** reads automatically.
+
+Shark can also be coupled with the light-cone generator **Stingray**, which places Shark galaxies into realistic survey geometries with appropriate redshifts. **Viperfish** supports both direct Shark snapshot processing (via `genShark()`) and Stingray light-cone processing (via `genSting()`).
+
+## ProSpect: SED Generation
+
+[**ProSpect**](https://github.com/asgr/ProSpect) is a generative and fitting SED package for **R**. It combines stellar population synthesis (SPS) libraries with dust attenuation and re-emission models to produce panchromatic galaxy SEDs from the far-ultraviolet (FUV) to the far-infrared (FIR) and radio wavelengths.
+
+### Stellar Population Synthesis Libraries
+
+**ProSpect** supports multiple SPS libraries, selectable via the `stellarpop` argument in **Viperfish**:
+ 
+- **BC03lr / BC03hr**: Bruzual & Charlot (2003) at low and high spectral resolution, using a Chabrier (2003) initial mass function (IMF). These are the default and most extensively tested libraries, offering broad spectral coverage useful for current and next-generation multi-band surveys.
+- **EMILES**: The extended MILES library (Vazdekis et al., 2016), providing an alternative set of stellar templates with different wavelength coverage and resolution.
+- **BPASS**: The Binary Population and Spectral Synthesis library (Eldridge et al., 2017; Stanway & Eldridge, 2018), which accounts for the effects of binary stellar evolution.
+
+### Star-Formation History Handling
+
+**ProSpect** accepts SFHs in two forms:
+
+1. **Discrete periods** of constant star-formation (e.g. four or five age bins).
+2. **Functional forms**: Arbitrary functions describing the SFR as a function of look-back time. Internal interpolation maps these onto the discrete age grids of the SPS library.
+
+When used with **Viperfish**, the SFH arrays from Shark are converted into interpolation functions (using `approxfun`) that **ProSpect** evaluates at each required time-step. Similarly, the gas-phase metallicity history of the forming stars is provided as a function and interpolated onto the available metallicity grid.
+
+### Dust Model
+
+The dust treatment in **ProSpect** follows a two-component approach:
+
+1. **Attenuation** via the Charlot & Fall (2000) model:
+    - Light from young stars (age < 10 Myr) is attenuated by both a birth cloud and a diffuse screen component.
+    - Light from older stars is attenuated only by the diffuse screen.
+    - The key parameters are the optical-depth normalisations (`tau_birth`, `tau_screen`) and the power-law slopes (`pow_birth`, `pow_screen`) that control the wavelength dependence of the attenuation.
+    - Default values used in **Viperfish**: `tau_birth = 1.0`, `tau_screen = 0.3`, `pow_birth = -0.7`, `pow_screen = -0.7`.
+
+2. **Re-emission** via Dale et al. (2014) FIR dust templates:
+    - The energy absorbed by dust is re-emitted at longer (infrared) wavelengths.
+    - The parameter `alpha_SF_birth` controls the radiation field intensity for the birth cloud component (default: 1), while `alpha_SF_screen` controls the diffuse screen component (default: 3).
+    - No significant AGN contribution to dust heating is assumed by default (`alpha_SF_AGN = 0`, `AGNlum = 0`).
+
+This approach provides energy-balanced SEDs: the total energy absorbed at short wavelengths equals the total energy re-emitted in the infrared.
+
+### Generative and Fitting Modes
+
+**ProSpect** can operate in two modes:
+
+- **Generative mode**: Given a known SFH and metallicity evolution (e.g. from Shark), it produces the full SED deterministically. This is the mode used by **Viperfish**.
+- **Fitting mode**: Using Bayesian inference via optimisation or Markov-Chain Monte-Carlo (MCMC), **ProSpect** can fit parametric SFH models to observed photometry or spectra. This mode is not used by **Viperfish** but shares the same underlying SED engine.
+
+## Viperfish: The Interface Layer
+
+**Viperfish** provides the high-level interface that connects Shark/Stingray HDF5 outputs directly to **ProSpect**. It reduces what would be hundreds of lines of bespoke **R** code into a single function call.
+
+### Core Functions
+
+| Function | Purpose |
+|----------|---------|
+| `genShark()` | Process a single Shark snapshot/subvolume and generate photometry or spectra for all (or selected) galaxies. |
+| `genSting()` | Process a Stingray light-cone, iterating over all snapshot/subvolume combinations and producing photometry for the full mock survey. |
+| `genSED()` | Low-level SED generation for a single galaxy given its three-component SFH and metallicity history. Called internally by `genShark()` and `genSting()`. |
+| `getSFHfull()` | Extract all SFHs for a Stingray light-cone without generating SEDs (useful for inspection or custom processing). |
+| `getSFHsing()` | Extract SFHs for specific galaxies from a single Shark snapshot/subvolume. |
+
+### Parallel Processing
+
+**Viperfish** uses the `foreach`/`doSNOW` framework for parallelisation. The `cores` parameter in `genShark()` and `cores_per_snapshot`/`cores_per_subvolume` parameters in `genSting()` control the level of parallelism. SED generation scales approximately inversely with the number of cores available. In testing, a GAMA-like light-cone takes approximately 10 hours on a single core.
+
+### Output Modes
+
+**Viperfish** supports two output modes controlled by the `mode` parameter:
+
+- **`mode = 'photom'`** (default): Produces a `data.table` of AB magnitudes and luminosities for each galaxy across all specified filters. Columns include:
+    - Absolute magnitudes without dust (`ab_mag_nodust_*`)
+    - Absolute magnitudes with dust (`ab_mag_dust_*`)
+    - Apparent magnitudes without dust (`ap_mag_nodust_*`)
+    - Apparent magnitudes with dust (`ap_mag_dust_*`)
+    - Infrared dust luminosities (`lir_dust_*`)
+    - Each of the above is decomposed into bulge (disk-instability), bulge (merger), disk, and total components.
+
+- **`mode = 'spectrum'`** (or `'spectra'`, `'spec'`, `'spectral'`): Returns the full rest-frame spectrum (wavelength vs. flux) for each galaxy, summing all three morphological components.
+
+### Filter Coverage
+
+The default filter set spans from the far-ultraviolet to the far-infrared:
+
+- **UV**: GALEX FUV, NUV
+- **Optical**: SDSS u, g, r, i
+- **Near-infrared**: VISTA Z, Y, J, H, K
+- **Mid-infrared**: WISE W1, W2, W3, W4
+- **Far-infrared**: Herschel PACS 100, 160; SPIRE 250, 350, 500
+
+In addition, **Viperfish** automatically includes custom bands for ALMA (Bands 3--9), VLA (Bands L, S, C, X), and lower-frequency radio (150, 325, 610 MHz). Users can supply any arbitrary filter response function.
+
+### Extinction Options
+
+By default, **Viperfish** applies uniform dust parameters to all galaxies. However, when Shark provides per-galaxy extinction information (stored in a separate `extinction.hdf5` file), this can be read by setting `read_extinct = TRUE`. In this case, the `tau_screen`, `tau_birth`, and `pow_screen` values are read individually for each galaxy's disk and bulge components, enabling a more physically motivated treatment of dust.
+
+## Basic Usage
+
+### Processing a Shark Snapshot
+
+```r
+library(Viperfish)
+
+# Generate photometry for all galaxies in snapshot 199, subvolume 0
+result <- genShark(
+  path_shark = "/path/to/shark/output",
+  snapshot = 199,
+  subvolume = 0,
+  cores = 8
+)
+
+# Result is a data.table with columns for each filter and component
+head(result)
+```
+
+### Processing a Stingray Light-Cone
+
+```r
+library(Viperfish)
+
+# Generate photometry for a full Stingray mock survey
+result <- genSting(
+  file_sting = "/path/to/mocksurvey.hdf5",
+  path_shark = "/path/to/shark/output",
+  cores_per_snapshot = 8
+)
+```
+
+### Extracting Star-Formation Histories
+
+```r
+library(Viperfish)
+
+# Get SFHs for specific galaxies
+sfh <- getSFHsing(
+  id_galaxy_sam = c(1, 5, 10),
+  snapshot = 199,
+  subvolume = 0,
+  path_shark = "/path/to/shark/output"
+)
+
+# sfh contains SFRbulge_d, SFRbulge_m, SFRdisk, Zbulge_d, Zbulge_m, Zdisk
+```
+
+## Design Philosophy
+
+The approach taken by **Viperfish** and the global parameter values used represent a deliberate compromise between physically reasonable SEDs (as compared to empirical data) and simplicity. This is important because, whilst more complex SEDs could be generated (e.g. by varying `alpha_SF` for different stellar populations), there is limited physical information available from the SAM to justify additional complexity. The goal is to produce plausible SED predictions given the simplest reasonable model of stellar light production, absorption, and re-emission.
+
+Key design choices include:
+
+- **Modularity**: Each component (Shark I/O, SED generation, filter photometry) is separated, allowing independent upgrades.
+- **Scalability**: The `foreach`/`doSNOW` parallelisation means **Viperfish** scales naturally with available compute resources without requiring MPI or other HPC frameworks.
+- **Reproducibility**: All parameters are explicit and configurable; the same Shark outputs processed with the same parameters will always produce identical SEDs.
+- **Post-processing flexibility**: **Viperfish** can be run at any time after Shark has completed, and does not need to be run in parallel with the simulation.
+
+## References
+
+- Bruzual, G. & Charlot, S. (2003). Stellar population synthesis at the resolution of 2003. *MNRAS*, 344, 1000.
+- Chabrier, G. (2003). Galactic Stellar and Substellar Initial Mass Function. *PASP*, 115, 763.
+- Charlot, S. & Fall, S. M. (2000). A Simple Model for the Absorption of Starlight by Dust in Galaxies. *ApJ*, 539, 718.
+- Dale, D. A. et al. (2014). A Two-Parameter Model for the Infrared/Submillimeter/Radio SEDs of Galaxies. *ApJ*, 784, 83.
+- Eldridge, J. J. et al. (2017). Binary Population and Spectral Synthesis Version 2.1. *PASA*, 34, e058.
+- Lagos, C. del P. et al. (2018). Shark: introducing an open source, free, and flexible semi-analytic model of galaxy formation. *MNRAS*, 481, 3573.
+- Robotham, A. S. G. et al. (2020). ProSpect: Generating Spectral Energy Distributions with Complex Star Formation and Metallicity Histories. *MNRAS*, 495, 905.
+- Stanway, E. R. & Eldridge, J. J. (2018). Re-evaluating old stellar populations. *MNRAS*, 479, 75.
+- Vazdekis, A. et al. (2016). UV-extended E-MILES stellar population models. *MNRAS*, 463, 3409.
+
+## Links
+
+- **Shark** source code: [https://github.com/ICRAR/shark](https://github.com/ICRAR/shark)
+- **ProSpect** source code: [https://github.com/asgr/ProSpect](https://github.com/asgr/ProSpect)
+- **Viperfish** source code: [https://github.com/asgr/Viperfish](https://github.com/asgr/Viperfish)
