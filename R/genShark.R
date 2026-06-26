@@ -73,41 +73,41 @@ genShark=function(path_shark='.', path_out='.', snapshot=NULL, subvolume=NULL, r
     filtout=filters
   }
 
-  Band_ionising_photons=approxfun(cbind(wave=c(0,912), response=c(0.01,0.01))) #Band to compute the luminosity left to the 912Angs wavelength.
-  FUV_Nathan=approxfun(cbind(wave=c(1450,1550), response=c(0.01,0.01))) #This is what Claudia sent me- very easy to define any tophat like this
-  Band9_ALMA=approxfun(cbind(wave=c(4000000.0,5000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
-  Band8_ALMA=approxfun(cbind(wave=c(6000000.0,8000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
-  Band7_ALMA=approxfun(cbind(wave=c(8000000.0,11000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
-  Band6_ALMA=approxfun(cbind(wave=c(11000000.0,14000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
-  Band4_ALMA=approxfun(cbind(wave=c(18000000.0,24000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
-  Band3_ALMA=approxfun(cbind(wave=c(26000000.0,36000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
-  
-  BandX_VLA=approxfun(cbind(wave=c(249827050.0,374740570.0), response=c(1000.0,1000.0)))
-  BandC_VLA=approxfun(cbind(wave=c(374740570.0,749481150.0), response=c(1000.0,1000.0)))
-  BandS_VLA=approxfun(cbind(wave=c(749481150.0,1498962290.0), response=c(1000.0,1000.0)))
-  BandL_VLA=approxfun(cbind(wave=c(1498962290.0,2997924580.0), response=c(1000.0,1000.0)))
-  Band_610MHz=approxfun(cbind(wave=c(4542309970.0,5353436750.0), response=c(10000.0,10000.0)))
-  Band_325MHz=approxfun(cbind(wave=c(7994465550.0,10901543930.0), response=c(10000.0,10000.0)))
-  Band_150MHz=approxfun(cbind(wave=c(14989622900.0,29979245800.0), response=c(10000.0,10000.0)))
+  # Band_ionising_photons=approxfun(cbind(wave=c(0,912), response=c(0.01,0.01))) #Band to compute the luminosity left to the 912Angs wavelength.
+  # FUV_Nathan=approxfun(cbind(wave=c(1450,1550), response=c(0.01,0.01))) #This is what Claudia sent me- very easy to define any tophat like this
+  # Band9_ALMA=approxfun(cbind(wave=c(4000000.0,5000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  # Band8_ALMA=approxfun(cbind(wave=c(6000000.0,8000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  # Band7_ALMA=approxfun(cbind(wave=c(8000000.0,11000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  # Band6_ALMA=approxfun(cbind(wave=c(11000000.0,14000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  # Band4_ALMA=approxfun(cbind(wave=c(18000000.0,24000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  # Band3_ALMA=approxfun(cbind(wave=c(26000000.0,36000000.0), response=c(1.0,1.0))) #This is what Anne Klitsch sent me- very easy to define any tophat like this
+  # 
+  # BandX_VLA=approxfun(cbind(wave=c(249827050.0,374740570.0), response=c(1000.0,1000.0)))
+  # BandC_VLA=approxfun(cbind(wave=c(374740570.0,749481150.0), response=c(1000.0,1000.0)))
+  # BandS_VLA=approxfun(cbind(wave=c(749481150.0,1498962290.0), response=c(1000.0,1000.0)))
+  # BandL_VLA=approxfun(cbind(wave=c(1498962290.0,2997924580.0), response=c(1000.0,1000.0)))
+  # Band_610MHz=approxfun(cbind(wave=c(4542309970.0,5353436750.0), response=c(10000.0,10000.0)))
+  # Band_325MHz=approxfun(cbind(wave=c(7994465550.0,10901543930.0), response=c(10000.0,10000.0)))
+  # Band_150MHz=approxfun(cbind(wave=c(14989622900.0,29979245800.0), response=c(10000.0,10000.0)))
+  # 
+  # 
+  # filtout=c(filtout, Band_ionising_photons=Band_ionising_photons)
+  # filtout=c(filtout, FUV_Nathan=FUV_Nathan)
+  # filtout=c(filtout, Band9_ALMA=Band9_ALMA)
+  # filtout=c(filtout, Band8_ALMA=Band8_ALMA)
+  # filtout=c(filtout, Band7_ALMA=Band7_ALMA)
+  # filtout=c(filtout, Band6_ALMA=Band6_ALMA)
+  # filtout=c(filtout, Band4_ALMA=Band4_ALMA)
+  # filtout=c(filtout, Band3_ALMA=Band3_ALMA)
+  # filtout=c(filtout, BandX_VLA=BandX_VLA)
+  # filtout=c(filtout, BandC_VLA=BandC_VLA)
+  # filtout=c(filtout, BandS_VLA=BandS_VLA)
+  # filtout=c(filtout, BandL_VLA=BandL_VLA)
+  # filtout=c(filtout, Band_610MHz=Band_610MHz)
+  # filtout=c(filtout, Band_325MHz=Band_325MHz)
+  # filtout=c(filtout, Band_150MHz=Band_150MHz)
 
-
-  filtout=c(filtout, Band_ionising_photons=Band_ionising_photons)
-  filtout=c(filtout, FUV_Nathan=FUV_Nathan)
-  filtout=c(filtout, Band9_ALMA=Band9_ALMA)
-  filtout=c(filtout, Band8_ALMA=Band8_ALMA)
-  filtout=c(filtout, Band7_ALMA=Band7_ALMA)
-  filtout=c(filtout, Band6_ALMA=Band6_ALMA)
-  filtout=c(filtout, Band4_ALMA=Band4_ALMA)
-  filtout=c(filtout, Band3_ALMA=Band3_ALMA)
-  filtout=c(filtout, BandX_VLA=BandX_VLA)
-  filtout=c(filtout, BandC_VLA=BandC_VLA)
-  filtout=c(filtout, BandS_VLA=BandS_VLA)
-  filtout=c(filtout, BandL_VLA=BandL_VLA)
-  filtout=c(filtout, Band_610MHz=Band_610MHz)
-  filtout=c(filtout, Band_325MHz=Band_325MHz)
-  filtout=c(filtout, Band_150MHz=Band_150MHz)
-
-  filters = names(filtout)
+  # filters = names(filtout)
 
   sfh_fname = paste(path_shark, snapshot, subvolume, 'star_formation_histories.hdf5',sep='/')
   assertAccess(sfh_fname, access='r')
